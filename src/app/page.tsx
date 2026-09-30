@@ -45,28 +45,28 @@ const FEATURES = [
 const PLANS = [
   {
     name: "Plan Comunidad",
-    range: "1 a 100 arranques",
+    range: "1 a 100 medidores",
     price: "$30.000",
     unit: "CLP/mes",
     highlight: false,
   },
   {
     name: "Plan Crecimiento",
-    range: "101 a 300 arranques",
+    range: "101 a 300 medidores",
     price: "$40.000",
     unit: "CLP/mes",
     highlight: false,
   },
   {
     name: "Plan Gestión Integral",
-    range: "301 a 600 arranques",
+    range: "301 a 600 medidores",
     price: "$80.000",
     unit: "CLP/mes",
     highlight: true,
   },
   {
     name: "Plan Cooperativa",
-    range: "Más de 600 arranques",
+    range: "Más de 600 medidores",
     price: "Desde $170.000",
     unit: "CLP/mes",
     highlight: false,
@@ -210,7 +210,7 @@ export default function HomePage() {
             </h2>
             <p className="mx-auto mt-4 max-w-2xl text-center text-slate-600">
               Valores mensuales estables en pesos chilenos, según la cantidad de
-              arranques (medidores) activos.{" "}
+              medidores activos.
               <strong>El primer mes es gratis</strong> en todos los planes.
             </p>
 
