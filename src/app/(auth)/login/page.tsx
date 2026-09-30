@@ -100,14 +100,8 @@ function DimensionExit({
               alt="Cauce"
               className="relative h-16 w-auto sm:h-24"
             />
-            <div className="mt-2 flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.25em] text-sky-700">
-              un producto de
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="/brand/smartapr-logo.jpg"
-                alt="Smart APR SpA"
-                className="h-8 w-auto rounded-md border border-sky-200 bg-white object-contain p-0.5 shadow-sm"
-              />
+            <div className="mt-2 text-[10px] font-semibold uppercase tracking-[0.25em] text-sky-700">
+              un producto de Smart APR SpA
             </div>
           </>
         )}
@@ -464,14 +458,8 @@ export default function LoginPage() {
                 alt="Cauce"
                 className="h-20 w-auto sm:h-24"
               />
-              <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.25em] text-sky-300/90">
-                un producto de
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src="/brand/smartapr-logo.jpg"
-                  alt="Smart APR SpA"
-                  className="h-8 w-auto rounded-md border border-sky-200/40 bg-white object-contain p-0.5 shadow-sm"
-                />
+              <div className="text-[10px] font-semibold uppercase tracking-[0.25em] text-sky-300/90">
+                un producto de Smart APR SpA
               </div>
             </div>
           ) : null}
@@ -670,6 +658,10 @@ export default function LoginPage() {
           ) : (
             <p className={cn("mt-8 text-center text-xs text-muted-foreground")}>
               Cauce — un producto de Smart APR SpA
+              <span className="mx-2">·</span>
+              <a href="mailto:contacto@smartapr.cl?subject=Solicitud%20de%20Plan%20Piloto" className="font-medium text-sky-300 hover:underline">
+                Plan Piloto: contacto@smartapr.cl
+              </a>
             </p>
           )}
           </motion.div>

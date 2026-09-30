@@ -118,17 +118,9 @@ export default function HomePage() {
               alt="Cauce"
               className="h-24 w-auto drop-shadow-[0_4px_24px_rgba(56,189,248,0.35)]"
             />
-            <div className="mt-5 inline-flex items-center gap-2.5 rounded-full border border-sky-300/30 bg-white/10 py-1.5 pl-4 pr-1.5 backdrop-blur-sm">
-              <span className="text-[11px] font-semibold uppercase tracking-[0.22em] text-sky-200">
-                un producto de
-              </span>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="/brand/smartapr-logo.jpg"
-                alt="Smart APR SpA"
-                className="h-8 w-auto rounded-full border border-sky-200/50 bg-white object-contain px-1"
-              />
-              <span className="pr-1 text-sm font-bold text-white">Smart APR SpA</span>
+            <div className="mt-5 inline-flex items-center gap-2 rounded-full border border-sky-300/30 bg-white/10 px-4 py-1.5 backdrop-blur-sm">
+              <span className="text-[11px] font-semibold uppercase tracking-[0.22em] text-sky-200">un producto de</span>
+              <span className="text-sm font-bold text-white">Smart APR SpA</span>
             </div>
 
             <h1 className="mt-8 max-w-3xl text-4xl font-bold leading-tight sm:text-5xl">
@@ -172,7 +164,15 @@ export default function HomePage() {
                   ✓ {chip}
                 </span>
               ))}
-            </div>
+            </div>            <p className="mt-6 text-sm text-sky-100/70">
+              ¿Quieres el Plan Piloto para tu comité? Escríbenos a{" "}
+              <a
+                href="mailto:contacto@smartapr.cl?subject=Solicitud%20de%20Plan%20Piloto"
+                className="font-semibold text-sky-300 underline decoration-sky-400/40 underline-offset-4 transition-colors hover:text-sky-200"
+              >
+                contacto@smartapr.cl
+              </a>
+            </p>
           </div>
         </section>
 
@@ -289,7 +289,12 @@ export default function HomePage() {
               className="mt-8 inline-block rounded-xl bg-sky-400 px-8 py-3.5 text-sm font-semibold text-sky-950 shadow-lg shadow-sky-400/30 transition-colors hover:bg-sky-300"
             >
               Empezar ahora
-            </Link>
+            </Link>            <a
+              href="mailto:contacto@smartapr.cl?subject=Solicitud%20de%20Plan%20Piloto"
+              className="mt-8 inline-block rounded-xl border border-sky-300/40 px-8 py-3.5 text-sm font-semibold text-sky-100 transition-colors hover:bg-sky-400/10"
+            >
+              Solicitar Plan Piloto
+            </a>
           </div>
         </section>
 
