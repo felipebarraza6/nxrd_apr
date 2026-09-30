@@ -1,0 +1,200 @@
+import { apiFetch, apiFile, type ApiFileResult } from "./client";
+import type { YggdraSchemas } from "@/lib/api/types";
+import { appendMulti } from "@/lib/api/query-params";
+
+export type YggdraPaymentMethod = YggdraSchemas["PaymentMethodList"];
+export type YggdraPayment = YggdraSchemas["Payment"];
+export type YggdraPaymentList = YggdraSchemas["PaymentList"];
+export type YggdraPaymentUpdate = YggdraSchemas["PatchedPaymentRequest"];
+export type YggdraPaymentCreate = YggdraSchemas["PaymentCreateRequest"] & {
+  /** ID de la caja abierta a la que se asocia el pago (efectivo). */
+  cash_register_id?: number | null;
+  /** Si es true, no se exige caja abierta para pagos en efectivo (registro manual desde Ventas). */
+  skip_cash_register_validation?: boolean;
+};
+
+export interface PaymentsFilter {
+  payment_direction?: "INCOME" | "EXPENSE" | Array<"INCOME" | "EXPENSE" | string>;
+  payment_source?: YggdraPayment["payment_source"] | string | string[];
+  /** Filtro por estado (el FilterSet del backend soporta exact/in). */
+  status?: YggdraPaymentList["status"] | string | string[];
+  payment_method?: string | string[];
+  payment_date__gte?: string;
+  payment_date__lte?: string;
+  search?: string;
+  page?: number;
+  page_size?: number;
+  next?: string | null;
+  previous?: string | null;
+}
+
+export interface PaymentStats {
+  total_income?: string | number;
+  total_expense?: string | number;
+  count?: number;
+  [key: string]: unknown;
+}
+
+export interface PaymentDirectionSummary {
+  INCOME?: string | number;
+  EXPENSE?: string | number;
+  [key: string]: unknown;
+}
+
+type PaginatedPaymentMethod = YggdraSchemas["PaginatedPaymentMethodListList"];
+type PaginatedPayment = YggdraSchemas["PaginatedPaymentListList"];
+
+export async function fetchPaymentMethods(): Promise<YggdraPaymentMethod[]> {
+  const data = await apiFetch<PaginatedPaymentMethod>("/finance/payment-methods/");
+  return data.results;
+}
+
+export async function createPaymentMethod(payload: {
+  name: string;
+  payment_type: YggdraPaymentMethod["payment_type"];
+  is_active?: boolean;
+  is_pos_enabled?: boolean;
+  requires_reference?: boolean;
+  processing_fee?: string;
+}): Promise<YggdraPaymentMethod> {
+  return apiFetch<YggdraPaymentMethod>("/finance/payment-methods/", {
+    method: "POST",
+    body: payload,
+  });
+}
+
+export async function updatePaymentMethod(
+  id: string,
+  payload: Partial<{
+    name: string;
+    payment_type: YggdraPaymentMethod["payment_type"];
+    is_active: boolean;
+    is_pos_enabled: boolean;
+    requires_reference: boolean;
+    processing_fee: string;
+  }>,
+): Promise<YggdraPaymentMethod> {
+  return apiFetch<YggdraPaymentMethod>(`/finance/payment-methods/${id}/`, {
+    method: "PATCH",
+    body: payload,
+  });
+}
+
+export async function deletePaymentMethod(id: string): Promise<void> {
+  await apiFetch(`/finance/payment-methods/${id}/`, { method: "DELETE" });
+}
+
+export async function createPayment(
+  // El contrato OpenAPI marca skip_cash_register_validation como requerido
+  // aunque el backend aplica default=false; se inyecta aquí para los callers.
+  payload: Omit<YggdraPaymentCreate, "skip_cash_register_validation"> &
+    Partial<Pick<YggdraPaymentCreate, "skip_cash_register_validation">>,
+): Promise<YggdraPayment> {
+  return apiFetch<YggdraPayment>("/finance/payments/", {
+    method: "POST",
+    body: { ...payload, skip_cash_register_validation: payload.skip_cash_register_validation ?? false },
+  });
+}
+
+/** Anula un pago (OWNER/ADMIN_LOCAL) y revierte sus efectos: revenue, orden,
+ * caja y ordenes de compra enlazadas. 409 si ya está anulado/reembolsado. */
+export async function voidPayment(
+  id: string,
+  reason?: string,
+): Promise<YggdraPayment> {
+  return apiFetch<YggdraPayment>(`/finance/payments/${id}/void/`, {
+    method: "POST",
+    body: { reason: reason ?? "" },
+  });
+}
+
+export async function fetchPayment(id: string): Promise<YggdraPayment> {
+  return apiFetch<YggdraPayment>(`/finance/payments/${id}/`);
+}
+
+export async function updatePayment(
+  id: string,
+  payload: YggdraPaymentUpdate,
+): Promise<YggdraPayment> {
+  return apiFetch<YggdraPayment>(`/finance/payments/${id}/`, {
+    method: "PATCH",
+    body: payload,
+  });
+}
+
+/** Payload para procesar (marcar como completado) un pago pendiente. */
+export interface ProcessPaymentPayload {
+  payment_method_id: string;
+  amount: number;
+  payment_source: YggdraPayment["payment_source"];
+  payment_date: string;
+  status: "COMPLETED";
+  revenue_id?: string | null;
+  expense_id?: string | null;
+  reference?: string | null;
+}
+
+export async function processPayment(
+  id: string,
+  payload: ProcessPaymentPayload,
+): Promise<YggdraPayment> {
+  return apiFetch<YggdraPayment>(`/finance/payments/${id}/process/`, {
+    method: "POST",
+    body: payload,
+  });
+}
+
+function paymentsQueryString(filter: PaymentsFilter): string {
+  const qs = new URLSearchParams();
+  appendMulti(qs, "payment_direction", filter.payment_direction);
+  appendMulti(qs, "payment_source", filter.payment_source);
+  appendMulti(qs, "status", filter.status);
+  appendMulti(qs, "payment_method", filter.payment_method);
+  if (filter.payment_date__gte) qs.set("payment_date__gte", filter.payment_date__gte);
+  if (filter.payment_date__lte) qs.set("payment_date__lte", filter.payment_date__lte);
+  if (filter.search) qs.set("search", filter.search);
+  if (filter.page) qs.set("page", String(filter.page));
+  if (filter.page_size) qs.set("page_size", String(filter.page_size));
+  const q = qs.toString();
+  return q ? `?${q}` : "";
+}
+
+export async function fetchPayments(filter: PaymentsFilter = {}): Promise<PaginatedPayment> {
+  if (filter.next) {
+    return apiFetch<PaginatedPayment>(filter.next);
+  }
+  if (filter.previous) {
+    return apiFetch<PaginatedPayment>(filter.previous);
+  }
+  return apiFetch<PaginatedPayment>(`/finance/payments/${paymentsQueryString(filter)}`);
+}
+
+export function getPaymentMethodName(p?: YggdraPaymentList | YggdraPayment): string {
+  if (!p) return "—";
+  if ("payment_method_name" in p && p.payment_method_name) return p.payment_method_name;
+  if ("payment_method" in p && p.payment_method && typeof p.payment_method === "object" && "name" in p.payment_method) {
+    return (p.payment_method as { name?: string }).name ?? "—";
+  }
+  return "—";
+}
+
+export async function fetchPaymentStats(): Promise<PaymentStats> {
+  const data = await apiFetch<PaymentStats>("/finance/payments/stats/");
+  return data;
+}
+
+export async function fetchPaymentsByDirection(): Promise<PaymentDirectionSummary> {
+  return apiFetch<PaymentDirectionSummary>("/finance/payments/by_direction/");
+}
+
+export async function exportPaymentsExcel(filter: PaymentsFilter = {}): Promise<ApiFileResult> {
+  return apiFile(`/finance/payments/export-excel/${paymentsQueryString(filter)}`);
+}
+
+export async function downloadPaymentVoucher(
+  id: string,
+  format: "thermal" | "a4" = "thermal",
+): Promise<Blob> {
+  const res = await apiFile(`/finance/payments/${id}/download-voucher/?pdf_format=${format}`);
+  return res.blob;
+}

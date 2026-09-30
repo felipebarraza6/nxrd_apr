@@ -1,0 +1,103 @@
+# Deploy automático de FRIG web a los tres hostings por FTP:
+#   - frig.yggdra.cl                (producción)
+#   - intranet.macanuobowl.cl       (intranet Macanuo Bowl)
+#   - mani.agenciapatagoniachile.com (intranet Agencia Patagonia / Mani)
+#
+# Requisitos en GitHub → Settings → Secrets and variables → Actions:
+#   Secrets:
+#     FTP_PASSWORD          contraseña FTP de frig_cd@yggdra.cl
+#     FTP_TARGET_DIR        carpeta destino yggdra ("/")
+#     MACANUO_FTP_PASSWORD  contraseña FTP de cd@macanuobowl.cl
+#     MACANUO_FTP_TARGET_DIR carpeta destino macanuo ("/")
+#     MANI_FTP_PASSWORD     contraseña FTP de agenciapatagonia
+#     MANI_FTP_TARGET_DIR   carpeta destino mani ("mani.agenciapatagoniachile.com/")
+#
+# Nota: el frontend se compila a HTML estático (next.config.ts usa output:"export").
+# Las rutas dinámicas se sirven mediante .htaccess generado por scripts/post-export.mjs.
+
+name: Deploy FRIG web a FTP
+
+on:
+  push:
+    branches: [production]
+  workflow_dispatch:
+
+# Un deploy a la vez: dos pushes seguidos a production no deben pisarse por FTP.
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    env:
+      NEXT_TELEMETRY_DISABLED: "1"
+      # Se inyecta en build time: NEXT_PUBLIC_* se sustituye en el bundle.
+      # El mismo build sirve para ambos servidores (misma API).
+      NEXT_PUBLIC_YGGDRA_API_BASE: "https://api.yggdra.cl/api"
+      # Identificador visible de la versión en la app (Perfil → Aplicación).
+      NEXT_PUBLIC_APP_BUILD: "${{ github.run_number }}"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      # Mismos gates que el CI de branches: si no pasa, no se despliega.
+      - name: Lint
+        run: npm run lint
+
+      # Genera .next/types (LayoutProps, rutas tipadas) sin build completo;
+      # localmente lo genera next dev, en CI hay que pedirlo explícito.
+      - name: Generar tipos de rutas
+        run: npx next typegen
+
+      - name: Type-check
+        run: npm run type-check
+
+      - name: Build estático
+        run: npm run build
+
+      - name: Generar .htaccess para rutas dinámicas
+        run: node scripts/post-export.mjs
+
+      - name: Subir a frig.yggdra.cl por FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ftp.yggdra.cl
+          port: 21
+          username: frig_cd@yggdra.cl
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: out/
+          server-dir: ${{ secrets.FTP_TARGET_DIR }}
+          # Sin dangerous-clean-slate: la raíz del hosting contiene cgi-bin/
+          # y .well-known/ (renovación SSL) que no deben borrarse.
+
+      - name: Subir a intranet.macanuobowl.cl por FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ftp.macanuobowl.cl
+          port: 21
+          username: cd@macanuobowl.cl
+          password: ${{ secrets.MACANUO_FTP_PASSWORD }}
+          local-dir: out/
+          server-dir: ${{ secrets.MACANUO_FTP_TARGET_DIR }}
+          # Sin dangerous-clean-slate por el mismo motivo (.well-known de SSL).
+
+      - name: Subir a mani.agenciapatagoniachile.com por FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ftp.agenciapatagoniachile.com
+          port: 21
+          username: agenciapatagonia
+          password: ${{ secrets.MANI_FTP_PASSWORD }}
+          local-dir: out/
+          server-dir: ${{ secrets.MANI_FTP_TARGET_DIR }}
+          # Sin dangerous-clean-slate: .well-known de SSL y datos de clientes
+          # del hosting compartido (otros addon domains) no deben borrarse.

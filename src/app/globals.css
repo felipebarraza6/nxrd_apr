@@ -1,0 +1,657 @@
+@import "tailwindcss";
+
+/*
+ * FRIG — Design tokens multi-tenant.
+ *
+ * Los tokens de marca (--brand-*) se inyectan dinámicamente en :root
+ * desde la config de sucursal (BranchThemeConfig de Yggdra). Todo el UI
+ * consume estas variables, por lo que cada negocio se re-themezca sin
+ * recompilar. Los tokens shadcn mapean a los de marca.
+ */
+:root {
+  --brand-primary: #c67d52;
+  --brand-secondary: #f2e8cf;
+  --brand-surface: #f8f7f3;
+  --brand-foreground: #1b1e19;
+  --brand-radius: 0.75rem;
+  --brand-motion: 1;
+  --brand-compact: 0;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--brand-primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--brand-secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-surface: var(--brand-surface);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--brand-primary);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-danger: var(--danger);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-pixel: var(--font-pixelify), ui-sans-serif, sans-serif;
+  --font-display: var(--font-space), var(--font-geist-sans), ui-sans-serif, sans-serif;
+}
+
+:root,
+.light {
+  --background: #f8f7f3;
+  --foreground: var(--brand-foreground);
+  /* Neutros sin tinte: el tono de marca lo aporta --brand-primary. */
+  --muted: hsl(30 6% 93%);
+  --muted-foreground: hsl(30 5% 38%);
+  --accent: var(--muted);
+  --accent-foreground: var(--brand-foreground);
+  --primary-foreground: #ffffff;
+  --secondary-foreground: var(--brand-foreground);
+  --border: hsl(30 6% 88%);
+  --input: hsl(30 6% 85%);
+  --card: #ffffff;
+  --card-foreground: var(--brand-foreground);
+  --danger: #dc2626;
+  --success: #16a34a;
+  --warning: #d97706;
+  --radius: var(--brand-radius);
+}
+
+.dark {
+  --background: #121212;
+  --foreground: #ededed;
+  /* Neutros sin tinte: evita el verdoso heredado del hue 95-100. */
+  --muted: hsl(0 0% 17%);
+  --muted-foreground: hsl(0 0% 64%);
+  --accent: var(--muted);
+  --accent-foreground: #ededed;
+  --primary-foreground: #ffffff;
+  --secondary-foreground: #ededed;
+  --border: hsl(0 0% 23%);
+  --input: hsl(0 0% 27%);
+  --card: hsl(0 0% 10%);
+  --card-foreground: #ededed;
+  /* En oscuro los semánticos se aclaran para mantener contraste legible
+     sobre fondos profundos (los mismos tokens, mejor luminancia). */
+  --danger: #f87171;
+  --success: #4ade80;
+  --warning: #fbbf24;
+
+  /* Glassmorphism — dark: tint más opaco + blur un poco mayor. */
+  --glass-bg: color-mix(in srgb, #161616 78%, transparent);
+  --glass-bg-strong: color-mix(in srgb, #161616 92%, transparent);
+  --glass-bg-read: color-mix(in srgb, #161616 88%, transparent);
+  --glass-border: color-mix(in srgb, #ffffff 12%, transparent);
+  --glass-blur: 18px;
+  --glass-blur-read: 24px;
+  --glass-shadow: 0 12px 36px -16px color-mix(in srgb, #000 60%, transparent);
+  --glass-highlight: color-mix(in srgb, #ffffff 14%, transparent);
+}
+
+/*
+ * Glassmorphism — light (default).
+ * Semi-transparente para que se note el fondo animado (HeroPlexus),
+ * con frost suave (no mate plano ni “sopa” lechosa).
+ * Ver DESIGN.md § Glassmorphism.
+ */
+:root,
+.light {
+  --glass-bg: color-mix(in srgb, #ffffff 52%, transparent);
+  --glass-bg-strong: color-mix(in srgb, #ffffff 72%, transparent);
+  --glass-bg-read: color-mix(in srgb, #ffffff 84%, transparent);
+  --glass-border: color-mix(in srgb, #ffffff 55%, var(--brand-primary) 12%);
+  --glass-blur: 14px;
+  --glass-blur-read: 22px;
+  --glass-shadow: 0 1px 0 color-mix(in srgb, #ffffff 45%, transparent),
+    0 10px 28px -16px color-mix(in srgb, var(--brand-primary) 22%, transparent);
+  --glass-highlight: color-mix(in srgb, #ffffff 50%, transparent);
+}
+
+/* Superficie glass estándar (cards, paneles de informe). */
+.glass {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  backdrop-filter: blur(var(--glass-blur));
+}
+
+/* Glass más opaco: sticky headers, overlays, filtros. */
+.glass-strong {
+  background: var(--glass-bg-strong);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  -webkit-backdrop-filter: blur(calc(var(--glass-blur) + 4px));
+  backdrop-filter: blur(calc(var(--glass-blur) + 4px));
+}
+
+/* Panel de lectura: más frost para que el fondo animado no robe legibilidad. */
+.glass-read {
+  background: var(--glass-bg-read);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  -webkit-backdrop-filter: blur(var(--glass-blur-read));
+  backdrop-filter: blur(var(--glass-blur-read));
+}
+
+/* Chip / pill glass (tabs, date range, acciones compactas). */
+.glass-chip {
+  background: var(--glass-bg-strong);
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 1px 0 var(--glass-highlight);
+  -webkit-backdrop-filter: blur(calc(var(--glass-blur) - 4px));
+  backdrop-filter: blur(calc(var(--glass-blur) - 4px));
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .glass,
+  .glass-strong,
+  .glass-read,
+  .glass-chip {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    background: var(--card);
+    border-color: var(--border);
+    box-shadow: none;
+  }
+}
+
+::selection {
+  background: color-mix(in srgb, var(--brand-primary) 24%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --brand-motion: 0;
+  }
+}
+
+/* Crossfade suave entre rutas del shell autenticado (ViewTransition update). */
+::view-transition-old(.nav-fade) {
+  animation: 140ms ease-in both nav-fade-out;
+}
+::view-transition-new(.nav-fade) {
+  animation: 180ms ease-out 60ms both nav-fade-in;
+}
+@keyframes nav-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+@keyframes nav-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+::view-transition {
+  pointer-events: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(*),
+  ::view-transition-new(*),
+  ::view-transition-group(*) {
+    animation: none !important;
+  }
+}
+
+html {
+  /* App-like: sin rebote de overscroll ni pull-to-refresh "suelto" en PWA. */
+  overscroll-behavior: none;
+  /* Navegación por anclas suave, con margen para el header fijo. */
+  scroll-behavior: smooth;
+  scroll-padding-top: 4.5rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+html,
+body {
+  min-width: 0;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior: none;
+}
+
+/* Flex/filtros: el control no impone un ancho mínimo que rompa la fila. */
+input,
+select,
+textarea {
+  max-width: 100%;
+}
+input[type="date"],
+input[type="datetime-local"],
+input[type="time"] {
+  min-width: 0;
+}
+
+/* Manito en todos los elementos clickeables, incluidos los botones
+   nativos (Tailwind v4 no pone cursor:pointer en <button>). */
+button:not(:disabled),
+[role="button"]:not(:disabled),
+[role="switch"]:not(:disabled),
+summary:not(:disabled) {
+  cursor: pointer;
+}
+button:disabled,
+[role="button"]:disabled {
+  cursor: not-allowed;
+}
+a {
+  cursor: pointer;
+}
+
+/* Ocultar scrollbars en toda la app (el scroll sigue funcionando). */
+* {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+*::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+.scrollbar-hide,
+.scrollbar-thin {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar,
+.scrollbar-thin::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+/* Sidebar: fondo orgánico derivado del primary de la marca (texto blanco
+   encima). Mismo lenguaje que los fondos pixel de la landing: base profunda
+   (brand + negro) + dither pixel a baja opacidad + brillos radiales y un
+   gradiente que respira lentamente. Todo se re-teñe solo al cambiar
+   --brand-primary (multi-tenant). */
+.app-sidebar {
+  background-color: color-mix(in srgb, var(--brand-primary) 88%, #000);
+  background-image:
+    /* Dither fino (4px): grano casi imperceptible, acompaña al gradiente. */
+    repeating-conic-gradient(rgba(255, 255, 255, 0.025) 0% 25%, transparent 0% 50%),
+    /* Dither grueso (16px) teñido de marca: textura pixel que solo se nota
+       donde el fondo es más claro (varía con el gradiente, no uniforme). */
+    repeating-conic-gradient(color-mix(in srgb, var(--brand-primary) 12%, transparent) 0% 25%, transparent 0% 50%),
+    /* Gradiente principal en diagonal: es lo que manda; el pixel es grano. */
+    radial-gradient(140% 100% at -10% -10%, color-mix(in srgb, var(--brand-primary) 70%, transparent) 0%, transparent 60%),
+    /* Segundo foco abajo-derecha: profundidad orgánica en diagonal. */
+    radial-gradient(130% 90% at 110% 110%, color-mix(in srgb, var(--brand-primary) 55%, transparent) 0%, transparent 65%),
+    /* Capa que respira (animada con sidebar-breathe). */
+    linear-gradient(165deg, color-mix(in srgb, var(--brand-primary) 50%, transparent) 0%, transparent 40%, color-mix(in srgb, var(--brand-primary) 65%, transparent) 100%);
+  background-size: 4px 4px, 16px 16px, 100% 100%, 100% 100%, 200% 200%;
+  background-position: 0 0, 0 0, 0 0, 0 0, 0% 0%;
+  animation: sidebar-breathe 18s ease-in-out infinite;
+  border-right: 1px solid color-mix(in srgb, var(--brand-primary) 68%, #000);
+}
+.dark .app-sidebar {
+  background-color: color-mix(in srgb, var(--brand-primary) 76%, #000);
+}
+
+/* Respiración del gradiente: solo se mueve la última capa; las texturas
+   pixel quedan fijas (si se animaran, el checkerboard "caminaría"). */
+@keyframes sidebar-breathe {
+  0%,
+  100% {
+    background-position: 0 0, 0 0, 0% 0%;
+  }
+  50% {
+    background-position: 0 0, 0 0, 100% 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-sidebar {
+    animation: none;
+  }
+}
+
+@keyframes bump {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.25); }
+  100% { transform: scale(1); }
+}
+
+.animate-bump {
+  animation: bump 200ms ease-out;
+}
+
+/* Shake del error de login (pasos duros, estilo retro). */
+@keyframes login-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-6px);
+  }
+  40% {
+    transform: translateX(6px);
+  }
+  60% {
+    transform: translateX(-4px);
+  }
+  80% {
+    transform: translateX(4px);
+  }
+}
+
+.login-shake {
+  animation: login-shake 0.4s steps(8);
+}
+
+/* ── Hero FRIG: paisaje del logo (fogata + viento) ───────────────────────── */
+
+/* Brasas que serpentean al subir: curva amplia y continua, sin tirones.
+   El vaivén crece con la altura y el brillo entra y sale suave. */
+@keyframes frig-ember {
+  0% {
+    transform: translate3d(0, 0, 0) scale(0.9) rotate(0deg);
+    opacity: 0;
+  }
+  12% {
+    transform: translate3d(calc(var(--drift, 20px) * 0.25), -5vh, 0) scale(1) rotate(15deg);
+    opacity: 0.9;
+  }
+  30% {
+    transform: translate3d(calc(var(--drift, 20px) * -0.55), -14vh, 0) scale(0.9) rotate(-20deg);
+    opacity: 0.8;
+  }
+  48% {
+    transform: translate3d(calc(var(--drift, 20px) * 0.85), -23vh, 0) scale(0.78) rotate(25deg);
+    opacity: 0.68;
+  }
+  66% {
+    transform: translate3d(calc(var(--drift, 20px) * -0.75), -31vh, 0) scale(0.62) rotate(-15deg);
+    opacity: 0.5;
+  }
+  82% {
+    transform: translate3d(calc(var(--drift, 20px) * 0.5), -38vh, 0) scale(0.48) rotate(10deg);
+    opacity: 0.3;
+  }
+  100% {
+    transform: translate3d(calc(var(--drift, 20px) * -0.3), -45vh, 0) scale(0.34) rotate(0deg);
+    opacity: 0;
+  }
+}
+
+.frig-ember {
+  position: absolute;
+  bottom: -2%;
+  width: 5px;
+  height: 5px;
+  /* Destello de 4 puntas: chispa, no círculo. Se tiñe con la marca activa. */
+  clip-path: polygon(50% 0%, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0% 50%, 38% 38%);
+  background: color-mix(in srgb, var(--color-primary, #c67d52) 72%, #ffd9a8);
+  filter: drop-shadow(0 0 3px rgba(240, 162, 106, 0.7))
+    drop-shadow(0 0 9px rgba(232, 146, 94, 0.3));
+  /* Titileo suave tipo seno, desfasado del trayecto. */
+  animation:
+    frig-ember var(--dur, 10s) ease-in-out infinite,
+    frig-ember-flicker 2.6s ease-in-out infinite;
+  animation-delay: var(--delay, 0s), calc(var(--delay, 0s) * -0.37);
+  will-change: transform, opacity;
+}
+
+@keyframes frig-ember-flicker {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 3px rgba(240, 162, 106, 0.6))
+      drop-shadow(0 0 9px rgba(232, 146, 94, 0.26)) brightness(0.95);
+  }
+  25% {
+    filter: drop-shadow(0 0 4px rgba(240, 162, 106, 0.8))
+      drop-shadow(0 0 11px rgba(232, 146, 94, 0.36)) brightness(1.18);
+  }
+  50% {
+    filter: drop-shadow(0 0 3px rgba(240, 162, 106, 0.62))
+      drop-shadow(0 0 9px rgba(232, 146, 94, 0.28)) brightness(1);
+  }
+  75% {
+    filter: drop-shadow(0 0 2px rgba(240, 162, 106, 0.5))
+      drop-shadow(0 0 7px rgba(232, 146, 94, 0.2)) brightness(0.85);
+  }
+}
+
+/* Chispa blanca-caliente: más grande, más viva, aparece ocasionalmente. */
+.frig-ember-hot {
+  background: color-mix(in srgb, var(--color-primary, #c67d52) 45%, #ffd9a8);
+  filter: drop-shadow(0 0 4px rgba(255, 217, 168, 0.85))
+    drop-shadow(0 0 12px rgba(240, 162, 106, 0.4));
+}
+
+/* Cuerpo del fuego detrás del wordmark: masas de brasa difusas que laten. */
+.frig-fireglow {
+  position: absolute;
+  inset: -40% -14% -30% -14%;
+  border-radius: 50%;
+  background: radial-gradient(
+    52% 62% at 50% 68%,
+    rgba(240, 140, 60, 0.5) 0%,
+    rgba(230, 115, 50, 0.2) 52%,
+    transparent 74%
+  );
+  filter: blur(26px);
+  animation: frig-fireglow 7s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@property --energy-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+/* Mientras el cursor revela nodos, brasas y otros fondos se apartan (fade);
+   al quedar inactivo regresan. Nunca se reinician, solo se desvanecen. */
+.cosmic-backdrop .fade-on-idle {
+  transition: opacity 1s ease;
+}
+.cosmic-backdrop.is-revealing .fade-on-idle {
+  opacity: 0;
+}
+
+/* ── App: item activo del sidebar con arco de energía ─────────────────────
+   Mismo lenguaje que .demo-card: arco que gira alrededor del item activo.
+   Deriva el color de --color-primary (marca del tenant) sin fondo propio. */
+.energy-nav {
+  overflow: hidden;
+}
+.energy-nav::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  pointer-events: none;
+  background: conic-gradient(
+    from var(--energy-angle),
+    transparent 0deg,
+    color-mix(in srgb, var(--color-primary, #c67d52) 75%, #ffffff) 60deg,
+    transparent 140deg
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  animation: energy-spin 3.2s linear infinite;
+}
+
+/* ── App: tarjeta con energía al hover (glow + arco), sin fondo propio ──── */
+.energy-card {
+  position: relative;
+  overflow: hidden;
+  transition: box-shadow 0.4s ease;
+}
+.energy-card::before {
+  content: "";
+  position: absolute;
+  inset: -20%;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  animation: energy-breathe 9s ease-in-out infinite;
+  background: radial-gradient(
+    46% 42% at 22% 8%,
+    color-mix(in srgb, var(--color-primary, #c67d52) 12%, transparent),
+    transparent 72%
+  );
+}
+.energy-card:hover::before {
+  opacity: 0.8;
+}
+.energy-card:hover {
+  box-shadow: 0 14px 34px -16px color-mix(in srgb, var(--color-primary, #c67d52) 45%, transparent);
+}
+
+/* Variante atenuada (planes no destacados): energía más contenida. */
+.demo-card.dim::before {
+  opacity: 0.3;
+}
+.demo-card.dim:hover::before {
+  opacity: 0.75;
+}
+.demo-card.dim::after {
+  background: conic-gradient(
+    from var(--energy-angle),
+    transparent 0deg,
+    color-mix(in srgb, var(--brand) 60%, transparent) 55deg,
+    transparent 125deg
+  );
+}
+
+/* Textura abstracta interior: trazos diagonales + mancha suave, deriva lenta. */
+.plan-texture {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0.6;
+  background-image:
+    repeating-linear-gradient(
+      115deg,
+      color-mix(in srgb, var(--brand, #c67d52) 5%, transparent) 0 1px,
+      transparent 1px 11px
+    ),
+    radial-gradient(
+      50% 40% at 85% 10%,
+      color-mix(in srgb, var(--brand, #c67d52) 8%, transparent),
+      transparent 70%
+    );
+  animation: texture-drift 16s linear infinite;
+}
+@keyframes texture-drift {
+  to {
+    background-position:
+      132px 66px,
+      0 0;
+  }
+}
+
+/* ── Separador fluido: energía cálida que recorre la línea ──────────────── */
+.flow-line {
+  position: relative;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(240, 162, 106, 0.14),
+    transparent
+  );
+  overflow: hidden;
+}
+.flow-line::after {
+  content: "";
+  position: absolute;
+  top: -1px;
+  left: 0;
+  height: 3px;
+  width: 160px;
+  background: radial-gradient(
+    closest-side,
+    rgba(240, 162, 106, 0.5),
+    transparent
+  );
+  filter: blur(1px);
+  animation: flow-pulse 9s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+}
+@keyframes flow-pulse {
+  0% {
+    transform: translateX(-160px);
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.9;
+  }
+  80% {
+    opacity: 0.9;
+  }
+  100% {
+    transform: translateX(calc(100vw));
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .frig-ember,
+  .frig-flame,
+  .frig-fireglow {
+    animation: none;
+  }
+  .flow-line::after {
+    animation: none;
+    opacity: 0;
+  }
+}
+
+
+/* ── Borde neón animado (paleta ⌘K) ──────────────────────────────────────
+   Gradiente cónico rotando sobre un aro de 1px: dos pulsos de luz recorren
+   el borde del panel. El color sigue la marca (--color-primary). */
+
+@property --neon-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@keyframes neon-spin {
+  to {
+    --neon-angle: 360deg;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .frig-flow {
+    animation: none;
+  }
+}
+
+/* Transición de entrada al sistema: solo el resplandor del fuego, sin glitch. */
+.frig-dimension-loop {
+  animation: frig-flicker 2.6s ease-in-out infinite;
+  will-change: filter;
+}

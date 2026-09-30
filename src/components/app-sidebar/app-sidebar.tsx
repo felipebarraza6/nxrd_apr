@@ -1,0 +1,665 @@
+"use client";
+
+import { Children, useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { m, AnimatePresence } from "framer-motion";
+import {
+  LayoutDashboard,
+  LogOut,
+  Search,
+  PanelLeftClose,
+  PanelLeft,
+  Pin,
+  PinOff,
+  User as UserIcon,
+  CreditCard,
+  LifeBuoy,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import {
+  useSessionStore,
+  useCurrentBranch,
+  useIsCashier,
+  useIsWaiter,
+  useIsCook,
+  useIsModuleEnabledFromConfig,
+  useCashierAllowedPaths,
+  useWaiterAllowedPaths,
+  useCookAllowedPaths,
+} from "@/lib/store/session";
+import { useIsSuperAdmin } from "@/lib/store/session";
+import { useCanManageCustomers } from "@/lib/store/session";
+import { useFrigMenu } from "@/lib/hooks/useFrigMenu";
+import { useSubscriptionLock } from "@/lib/hooks/useSubscriptionLock";
+import { HeroPlexus } from "@/components/landing/hero-plexus";
+import { useNavFavorites } from "@/lib/store/nav-favorites";
+import { useSidebarStore } from "@/lib/store/sidebar";
+import { filterNavItemsByRole, type NavRoleFilter } from "@/lib/nav-access";
+import { logout } from "@/lib/api/auth";
+import { logoutLocal } from "@/lib/logout-local";
+import { fetchKitchenTickets } from "@/lib/api/kitchen";
+import { BrandLogo } from "@/components/brand-logo";
+import { useProductBrand } from "@/lib/product-name";
+import { BranchSwitcher } from "@/components/branch-switcher";
+import { CommandPalette, type CommandPaletteItem } from "@/components/command-palette/command-palette";
+
+interface NavItem {
+  href: string;
+  label: string;
+  icon: React.ComponentType<{ className?: string }>;
+  badge?: "kitchenReady";
+}
+
+interface AppSidebarProps {
+  onNavigate?: () => void;
+  forceExpanded?: boolean;
+  defaultOpenGroups?: "all";
+}
+
+export function AppSidebar({ onNavigate, forceExpanded, defaultOpenGroups }: AppSidebarProps) {
+  const pathname = usePathname();
+  const _router = useRouter();
+  const queryClient = useQueryClient();
+  const storeExpanded = useSidebarStore((s) => s.expanded);
+  const toggleExpanded = useSidebarStore((s) => s.toggle);
+  const expanded = forceExpanded ?? storeExpanded;
+  const hovering = useSidebarStore((s) => s.hovering);
+  const setHovering = useSidebarStore((s) => s.setHovering);
+  const [searchOpen, setSearchOpen] = useState(false);
+
+  const handleToggle = () => {
+    // Al colapsar con el pointer sobre el sidebar hay que limpiar el hover:
+    // si no, effectivelyExpanded sigue en true y el click parece no hacer
+    // nada (el panel se queda expandido hasta que el mouse sale).
+    if (expanded) setHovering(false);
+    toggleExpanded();
+  };
+
+  // Si el sidebar se desmonta con el pointer encima (navegar a una ruta que
+  // lo oculta, o pasar a ventana móvil), onMouseLeave nunca llega y el flag
+  // de hover quedaría pegado: al volver, se vería expandido (w-60) con el
+  // contenido reservado a ml-16.
+  useEffect(() => () => setHovering(false), [setHovering]);
+  const [openGroup, setOpenGroup] = useState<string | null>(defaultOpenGroups === "all" ? "all" : null);
+  const effectivelyExpanded = expanded || hovering;
+
+  const isGroupOpen = (title: string) => openGroup === "all" || openGroup === title;
+
+  const hasHydrated = useSessionStore((s) => s.hasHydrated);
+  const user = useSessionStore((s) => s.user);
+  const _theme = useSessionStore((s) => s.theme);
+  const branch = useCurrentBranch();
+  const menuGroups = useFrigMenu();
+  const isCashier = useIsCashier();
+  const isWaiter = useIsWaiter();
+  const isCook = useIsCook();
+  const isSuperAdmin = useIsSuperAdmin();
+  const { locked: subscriptionLocked } = useSubscriptionLock();
+  const { name: appName, logo: brandLogo } = useProductBrand();
+  const { favorites, toggleFavorite, isFavorite } = useNavFavorites();
+
+  const cashierAllowedPaths = useCashierAllowedPaths();
+  const waiterAllowedPaths = useWaiterAllowedPaths();
+  const cookAllowedPaths = useCookAllowedPaths();
+  const canManageCrm = useCanManageCustomers();
+
+  const roleFilter: NavRoleFilter = useMemo(
+    () => ({
+      isCashier,
+      isWaiter,
+      isCook,
+      canManageCrm,
+      cashierAllowedPaths,
+      waiterAllowedPaths,
+      cookAllowedPaths,
+    }),
+    [
+      isCashier,
+      isWaiter,
+      isCook,
+      canManageCrm,
+      cashierAllowedPaths,
+      waiterAllowedPaths,
+      cookAllowedPaths,
+    ],
+  );
+
+  const visibleMenuGroups = useMemo(() => {
+    if (subscriptionLocked) {
+      return [
+        {
+          title: "Suscripción",
+          icon: CreditCard,
+          items: [
+            {
+              href: "/profile",
+              label: "Suscripción",
+              icon: CreditCard,
+              module: null,
+              description: "Activa el plan de la sucursal",
+            },
+            {
+              href: "/help",
+              label: "Documentación",
+              icon: LifeBuoy,
+              module: null,
+              description: "Guías y contrato API",
+            },
+            {
+              href: "/support",
+              label: "Soporte",
+              icon: LifeBuoy,
+              module: null,
+              description: "Casos, dudas e ideas al equipo",
+            },
+          ],
+        },
+      ];
+    }
+    return menuGroups
+      .map((group) => ({
+        ...group,
+        items: filterNavItemsByRole(group.items, roleFilter),
+      }))
+      .filter((group) => group.items.length > 0);
+  }, [menuGroups, roleFilter, subscriptionLocked]);
+
+  const isProductionEnabled = useIsModuleEnabledFromConfig("production");
+  const frontendConfigBranchId = useSessionStore((s) => s.frontendConfigBranchId);
+  const modulesReady = !!branch?.id && String(branch.id) === frontendConfigBranchId;
+
+  const { data: kitchenTickets = [] } = useQuery({
+    queryKey: ["kitchen-tickets", "READY"],
+    queryFn: () => fetchKitchenTickets("READY"),
+    refetchInterval: 15_000,
+    enabled: !!branch && isProductionEnabled && modulesReady,
+  });
+
+  const badges = useMemo(() => {
+    const readyCount = kitchenTickets.length;
+    return { readyCount };
+  }, [kitchenTickets]);
+
+  const handleLogout = useCallback(async () => {
+    try {
+      await logout();
+    } catch {
+      // ignora errores de red en logout
+    }
+    await logoutLocal(queryClient);
+    window.location.assign(window.location.origin + "/login");
+  }, [queryClient]);
+
+  const allItems = useMemo<CommandPaletteItem[]>(() => {
+    const ops = visibleMenuGroups.flatMap((g) =>
+      g.title.toLowerCase() === "operaciones"
+        ? g.items.map((i) => ({
+            href: i.href,
+            label: i.label,
+            group: "Operaciones" as const,
+            icon: i.icon,
+            description: i.description,
+          }))
+        : [],
+    );
+    const admin = visibleMenuGroups
+      .filter((g) => g.title.toLowerCase() !== "operaciones")
+      .flatMap((g) =>
+        g.items.map((i) => ({
+          href: i.href,
+          label: i.label,
+          group: g.title,
+          icon: i.icon,
+          description: i.description,
+        })),
+      );
+    const actions: CommandPaletteItem[] = [
+      { href: "", label: "Cerrar sesión", group: "Acciones", icon: LogOut, action: handleLogout },
+    ];
+    return [...ops, ...admin, ...actions];
+  }, [visibleMenuGroups, handleLogout]);
+
+  const allNavHrefs = useMemo(
+    () => visibleMenuGroups.flatMap((g) => g.items),
+    [visibleMenuGroups],
+  );
+
+  function getBadgeValue(badge?: string) {
+    if (badge === "kitchenReady") return badges.readyCount > 0 ? badges.readyCount : undefined;
+    return undefined;
+  }
+
+  function getActiveHref(items: { href: string }[], path: string): string | null {
+    const normalized = path.replace(/\/$/, "") || "/";
+    const prefixMatches = items.filter((i) => {
+      const href = i.href.replace(/\/$/, "") || "/";
+      return normalized === href || normalized.startsWith(`${href}/`);
+    });
+    if (prefixMatches.length > 0) {
+      return prefixMatches.reduce((a, b) => (a.href.length >= b.href.length ? a : b)).href;
+    }
+    return null;
+  }
+
+  const activeHref = getActiveHref(allNavHrefs, pathname);
+
+  // Auto-abrir el grupo que contiene la página activa. El usuario SÍ puede
+  // volver a cerrarlo: solo corre cuando cambia la ruta o en la primera carga
+  // de grupos. Cambios de datos (refresh de frontend-config, etc.)
+  // no deben reabrir un grupo que el usuario cerró.
+  const autoOpenRef = useRef<{ path: string | null; hadGroups: boolean }>({
+    path: null,
+    hadGroups: false,
+  });
+  useEffect(() => {
+    const pathChanged = autoOpenRef.current.path !== pathname;
+    const groupsJustLoaded =
+      !autoOpenRef.current.hadGroups && visibleMenuGroups.length > 0;
+    if (!pathChanged && !groupsJustLoaded) return;
+    autoOpenRef.current = {
+      path: pathname,
+      hadGroups: visibleMenuGroups.length > 0,
+    };
+    let bestGroup: (typeof visibleMenuGroups)[number] | null = null;
+    let bestLen = 0;
+    for (const g of visibleMenuGroups) {
+      const match = getActiveHref(g.items, pathname);
+      if (match && match.length > bestLen) {
+        bestLen = match.length;
+        bestGroup = g;
+      }
+    }
+    if (bestGroup) setOpenGroup(bestGroup.title);
+  }, [pathname, visibleMenuGroups]);
+
+  useEffect(() => {
+    function handleShortcut(e: KeyboardEvent) {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setSearchOpen((v) => !v);
+      }
+    }
+    window.addEventListener("keydown", handleShortcut);
+    return () => window.removeEventListener("keydown", handleShortcut);
+  }, []);
+
+  if (!hasHydrated || !user) return null;
+
+  // Sombra solo cuando el panel expandido flota como overlay (hover sin pin).
+  const widthClass = effectivelyExpanded
+    ? hovering && !expanded
+      ? "w-60 shadow-xl"
+      : "w-60"
+    : "w-16";
+
+  return (
+    <>
+      <CommandPalette items={allItems} open={searchOpen} onClose={() => setSearchOpen(false)} />
+      <aside
+        className={cn(
+          "app-sidebar fixed inset-y-0 left-0 z-30 flex flex-col overflow-hidden text-white transition-[width,box-shadow] duration-300 ease-out",
+          widthClass,
+          isSuperAdmin && "bg-[color:var(--brand-primary)]",
+        )}
+        onMouseEnter={() => setHovering(true)}
+        onMouseLeave={() => setHovering(false)}
+      >
+        {/* Muralla de datos: textura viva sobre el fondo de marca.
+            El contenido del nav pinta encima (relative z-10). */}
+        <div aria-hidden className="pointer-events-none absolute inset-0 opacity-25">
+          <HeroPlexus className="h-full w-full" />
+        </div>
+        <div className="relative z-10 flex shrink-0 items-center gap-2 px-3 py-2">
+          <BrandLogo
+            src={brandLogo}
+            alt={appName}
+            name={appName}
+            containerClassName="h-9 w-9 shrink-0"
+          />
+          <AnimatePresence>
+            {effectivelyExpanded && (
+              <m.div
+                initial={{ opacity: 0, x: -8 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -8 }}
+                transition={{ duration: 0.2 }}
+                className="flex min-w-0 flex-1 items-center"
+              >
+                {isSuperAdmin ? (
+                  <span className="truncate text-sm font-bold tracking-wide text-white/90">
+                    ROOT
+                  </span>
+                ) : (
+                  <BranchSwitcher appName={appName} />
+                )}
+              </m.div>
+            )}
+          </AnimatePresence>
+          {!effectivelyExpanded && !isSuperAdmin && <BranchSwitcher appName={appName} collapsed />}
+          <button
+            type="button"
+            onClick={handleToggle}
+            className={cn(
+              "ml-auto rounded-lg p-1.5 text-white/70 transition-colors hover:bg-white/10 hover:text-white",
+              !effectivelyExpanded && "ml-0"
+            )}
+            title={expanded ? "Colapsar menú" : "Expandir menú"}
+          >
+            {expanded ? <PanelLeftClose className="h-4 w-4" /> : <PanelLeft className="h-4 w-4" />}
+          </button>
+        </div>
+
+        <div className="relative z-10 flex flex-1 flex-col gap-3 overflow-y-auto px-2.5 py-3 scrollbar-hide">
+          {!isSuperAdmin && (
+          <button
+            type="button"
+            onClick={() => setSearchOpen(true)}
+            className={cn(
+              "flex items-center gap-2 rounded-lg border border-white/20 bg-white/10 px-3 py-1.5 text-sm text-white/80 transition-colors hover:bg-white/15 hover:text-white",
+              !effectivelyExpanded && "justify-center px-0"
+            )}
+          >
+            <Search className="h-4 w-4 shrink-0" />
+            {effectivelyExpanded && (
+              <>
+                <span className="flex-1 text-left">Buscar...</span>
+                <span className="rounded border border-white/20 px-1 text-[10px]">⌘K</span>
+              </>
+            )}
+          </button>
+          )}
+
+          {!isSuperAdmin && favorites.length > 0 && effectivelyExpanded && (
+            <nav className="flex flex-col gap-1">
+              <p className="px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-white/60">
+                Accesos directos
+              </p>
+              {favorites
+                .map((href) => {
+                  const item = allItems.find((i) => i.href === href);
+                  const menuItem = menuGroups
+                    .flatMap((g) => g.items)
+                    .find((i) => i.href === href);
+                  return item
+                    ? { ...item, icon: menuItem?.icon ?? LayoutDashboard }
+                    : null;
+                })
+                .filter(Boolean)
+                .map((item) =>
+                  item ? (
+                    <NavItem
+                      key={item.href}
+                      href={item.href}
+                      label={item.label}
+                      icon={item.icon}
+                      active={pathname === item.href || pathname.startsWith(`${item.href}/`)}
+                      expanded
+                      favorited
+                      onToggleFavorite={() => toggleFavorite(item.href)}
+                    />
+                  ) : null
+                )}
+            </nav>
+          )}
+
+          {visibleMenuGroups.some((g) => g.title.toLowerCase() === "operaciones") && (
+            <nav className="flex flex-col gap-1">
+              {effectivelyExpanded && (
+                <p className="px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-white/60">
+                  Operaciones
+                </p>
+              )}
+              {visibleMenuGroups
+                .find((g) => g.title.toLowerCase() === "operaciones")
+                ?.items.map((item) => (
+                  <NavItem
+                    key={item.href}
+                    href={
+                      (isCashier || isWaiter) && item.href === "/pos"
+                        ? ("/pos/terminal" as string)
+                        : item.href
+                    }
+                    label={item.label}
+                    icon={item.icon}
+                    active={activeHref === item.href}
+                    expanded={effectivelyExpanded}
+                    badge={getBadgeValue(item.badge)}
+                    onToggleFavorite={() => toggleFavorite(item.href)}
+                    favorited={isFavorite(item.href)}
+                    onClick={onNavigate}
+                  />
+                ))}
+            </nav>
+          )}
+
+          {visibleMenuGroups
+            .filter((g) => g.title.toLowerCase() !== "operaciones")
+            .map((group) => {
+              const groupActiveHref = getActiveHref(group.items, pathname);
+              return (
+                <NavGroup
+                  key={group.title}
+                  title={group.title}
+                  icon={group.icon}
+                  expanded={effectivelyExpanded}
+                  isOpen={isGroupOpen(group.title)}
+                  onToggle={() =>
+                    setOpenGroup((prev) => (prev === group.title ? null : group.title))
+                  }
+                >
+                  {group.items.map((item) => (
+                    <NavItem
+                      key={item.href}
+                      href={item.href}
+                      label={item.label}
+                      icon={item.icon}
+                      active={groupActiveHref === item.href}
+                      expanded={effectivelyExpanded}
+                      badge={getBadgeValue(
+                        "badge" in item
+                          ? (item as { badge?: "kitchenReady" }).badge
+                          : undefined,
+                      )}
+                      onToggleFavorite={() => toggleFavorite(item.href)}
+                      favorited={isFavorite(item.href)}
+                      onClick={onNavigate}
+                    />
+                  ))}
+                </NavGroup>
+              );
+            })}
+        </div>
+
+        <div className="relative z-10 flex shrink-0 flex-col border-t border-white/15 p-1.5 pt-0">
+          <div className="flow-line mx-2 mt-1" aria-hidden />
+          <div
+            className={cn(
+              "flex flex-col rounded-lg",
+              effectivelyExpanded ? "px-1.5 py-1" : "items-center"
+            )}
+          >
+            {/* Avatar + nombre + email → link a perfil */}
+            <Link
+              href="/profile"
+              className={cn(
+                "flex w-full cursor-pointer items-center gap-2.5 rounded-lg transition-colors hover:bg-white/10",
+                !effectivelyExpanded && "justify-center"
+              )}
+            >
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/20">
+                <UserIcon className="h-4 w-4 text-white" />
+              </div>
+              {effectivelyExpanded && (
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-semibold text-white">
+                    {user?.first_name ?? user?.email}
+                  </p>
+                  <p className="truncate text-xs text-white/75">{user?.email}</p>
+                </div>
+              )}
+            </Link>
+          </div>
+        </div>
+      </aside>
+    </>
+  );
+}
+
+function NavGroup({
+  title,
+  icon: Icon,
+  children,
+  expanded,
+  isOpen,
+  onToggle,
+}: {
+  title: string;
+  icon: React.ComponentType<{ className?: string }>;
+  children: ReactNode;
+  expanded: boolean;
+  isOpen: boolean;
+  onToggle: () => void;
+}) {
+  if (!expanded) {
+    return <div className="flex flex-col gap-1">{children}</div>;
+  }
+
+  return (
+    <div className="flex flex-col">
+      <button
+        type="button"
+        onClick={onToggle}
+        className={cn(
+          "flex items-center gap-2 rounded-lg px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] transition-colors",
+          isOpen
+            ? "text-white"
+            : "text-white/60 hover:bg-white/10 hover:text-white"
+        )}
+      >
+        {/* Icono del grupo: solo cerrado, porque abierto sus ítems ya tienen icono. */}
+        {!isOpen && <Icon className="h-3.5 w-3.5 shrink-0" />}
+        {title}
+      </button>
+      <AnimatePresence initial={false}>
+        {isOpen && (
+          <m.div
+            key="content"
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
+            className="overflow-hidden"
+          >
+            <div className="flex min-h-0 flex-col gap-0.5 pb-0.5 pl-2 pt-0.5">
+              {Children.map(children, (child, i) => (
+                <m.div
+                  key={i}
+                  initial={{ opacity: 0, x: -8 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.2, delay: 0.04 * i, ease: "easeOut" }}
+                >
+                  {child}
+                </m.div>
+              ))}
+            </div>
+          </m.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+interface NavItemProps {
+  href: string;
+  label: string;
+  icon: React.ComponentType<{ className?: string }>;
+  active?: boolean;
+  expanded: boolean;
+  badge?: string | number;
+  favorited?: boolean;
+  onToggleFavorite?: () => void;
+  onClick?: () => void;
+}
+
+function NavItem({
+  href,
+  label,
+  icon: Icon,
+  active,
+  expanded,
+  badge,
+  favorited,
+  onToggleFavorite,
+  onClick,
+}: NavItemProps) {
+  return (
+    <div className={cn("group relative", !expanded && "flex justify-center")}>
+      <Link
+        href={href}
+        onClick={onClick}
+        className={cn(
+          "relative flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40",
+          active
+            ? // Glass translúcido + glow de marca: activo con energía, deja
+              // ver la textura del fondo y se siente ligero.
+              "energy-nav bg-white/[0.16] text-white shadow-sm shadow-black/25 ring-1 ring-inset ring-white/25 backdrop-blur-sm"
+            : "text-white/80 hover:bg-white/10 hover:text-white hover:shadow-[0_0_18px_-6px_var(--color-primary)]",
+          !expanded && "h-9 w-9 justify-center p-0"
+        )}
+        title={!expanded ? label : undefined}
+      >
+        {active && (
+          <span className="absolute left-0 top-1/2 h-5 w-1 -translate-y-1/2 rounded-r-full bg-[color:var(--brand-primary)]" />
+        )}
+        <Icon className="h-4 w-4 shrink-0" />
+        {expanded && (
+          <span className="flex min-w-0 flex-1 items-center">
+            <span className="flex-1 truncate">{label}</span>
+            {badge !== undefined && (
+              <span
+                className={cn(
+                  "ml-auto rounded-full px-2 py-0.5 text-[10px] font-semibold",
+                  typeof badge === "number"
+                    ? "bg-danger text-white"
+                    : "border border-white/20 bg-white/10 text-white/80"
+                )}
+              >
+                {badge}
+              </span>
+            )}
+          </span>
+        )}
+        {!expanded && badge !== undefined && typeof badge === "number" && badge > 0 && (
+          <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-danger px-1 text-[9px] font-bold text-white">
+            {badge > 9 ? "9+" : badge}
+          </span>
+        )}
+      </Link>
+      {expanded && onToggleFavorite && (
+        <button
+          type="button"
+          onClick={(e) => {
+            e.preventDefault();
+            onToggleFavorite();
+          }}
+          className={cn(
+            "absolute right-1 top-1/2 z-10 -translate-y-1/2 rounded-md p-1 text-white",
+            "opacity-0 shadow-sm group-hover:opacity-100 group-hover:bg-white/20",
+            "hover:bg-white/30 hover:text-white",
+            favorited && "opacity-100 bg-white/20",
+          )}
+          title={favorited ? "Quitar de favoritos" : "Añadir a favoritos"}
+        >
+          {favorited ? (
+            <Pin className="h-3.5 w-3.5 fill-white text-white" strokeWidth={2.25} />
+          ) : (
+            <PinOff className="h-3.5 w-3.5 text-white" strokeWidth={2.25} />
+          )}
+        </button>
+      )}
+    </div>
+  );
+}

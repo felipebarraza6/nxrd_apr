@@ -1,0 +1,123 @@
+import type { Metadata, Viewport } from "next";
+import { Geist, Geist_Mono, Pixelify_Sans, Space_Grotesk } from "next/font/google";
+import "./globals.css";
+import { Providers } from "@/components/providers";
+import { ThemeApplier } from "@/components/theme-applier";
+import { ServiceWorkerRegister } from "@/components/service-worker-register";
+
+const geistSans = Geist({
+  variable: "--font-geist-sans",
+  subsets: ["latin"],
+});
+
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
+
+const pixelify = Pixelify_Sans({
+  variable: "--font-pixelify",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+});
+
+// Display: titulares de la landing (carácter técnico-digital).
+const spaceGrotesk = Space_Grotesk({
+  variable: "--font-space",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+});
+
+export const metadata: Metadata = {
+  title: "FRIG — Punto de venta gastronómico",
+  description: "POS, comandas y cocina para restaurantes.",
+  manifest: "/manifest.webmanifest",
+  applicationName: "FRIG",
+  appleWebApp: {
+    capable: true,
+    title: "FRIG",
+    statusBarStyle: "default",
+  },
+  formatDetection: { telephone: false },
+  icons: {
+    icon: [
+      { url: "/icon.png", sizes: "any", type: "image/png" },
+      { url: "/icons/icon-192x192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icons/icon-512x512.png", sizes: "512x512", type: "image/png" },
+    ],
+    shortcut: "/icon.png",
+    apple: [{ url: "/brand/frig-symbol.png", sizes: "180x180", type: "image/png" }],
+  },
+};
+
+export const viewport: Viewport = {
+  // App-like: sin zoom de doble tap ni zoom por foco en inputs en iOS.
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: "cover",
+  // Evita que el viewport "salte" al abrir el teclado en inputs del POS:
+  // el contenido se redimensiona en vez de hacer pan/overlay.
+  interactiveWidget: "resizes-content",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#f7f6f1" },
+    { media: "(prefers-color-scheme: dark)", color: "#14160f" },
+  ],
+};
+
+/*
+ * Anti-FOUC: aplica el tema multi-tenant persistido (store Zustand
+ * `frig.session`) antes del primer paint. Replica la lógica de
+ * applyThemeConfig (src/lib/api/branches.ts): mismas CSS vars, mismo
+ * cálculo de foreground por luminancia y misma clase .dark. Es
+ * idempotente y silencioso si no hay datos; ThemeApplier re-aplica el
+ * tema definitivo tras hidratar.
+ */
+const themeInitScript = `(function(){try{
+var raw=localStorage.getItem("frig.session");if(!raw)return;
+var theme=JSON.parse(raw);theme=theme&&theme.state&&theme.state.theme;if(!theme)return;
+var root=document.documentElement;
+function fg(hex){var m=/^#?([0-9a-f]{6})$/i.exec(String(hex||"").trim());if(!m)return "#ffffff";
+var n=parseInt(m[1],16);var l=0.299*((n>>16)&255)+0.587*((n>>8)&255)+0.114*(n&255);
+return l>150?"#1a1d18":"#ffffff";}
+var primary=theme.primary_color||"#c67d52";
+var secondary=theme.secondary_color||"#f2e8cf";
+root.style.setProperty("--brand-primary",primary);
+root.style.setProperty("--brand-secondary",secondary);
+root.style.setProperty("--primary-foreground",fg(primary));
+root.style.setProperty("--secondary-foreground",fg(secondary));
+root.style.setProperty("--color-primary-foreground",fg(primary));
+root.style.setProperty("--color-secondary-foreground",fg(secondary));
+if(typeof theme.borderRadius==="number"&&theme.borderRadius>0){root.style.setProperty("--brand-radius",theme.borderRadius+"px");}
+/* Favicon del tenant persistido: sobrevive recargas duras dentro de su dominio. */
+var fav=(typeof theme.favicon==="string"&&theme.favicon)||(typeof theme.logo==="string"&&theme.logo);
+if(fav){try{document.querySelectorAll("link[rel='icon']").forEach(function(l){l.remove()});var fl=document.createElement("link");fl.rel="icon";fl.href=fav;document.head.appendChild(fl);}catch(e){}}
+if(theme.algorithm==="dark"){root.classList.add("dark");}
+else if(theme.algorithm==="light"){root.classList.remove("dark");}
+}catch(e){}})();`;
+
+export default function RootLayout({ children }: LayoutProps<"/">) {
+  return (
+    <html
+      lang="es"
+      data-scroll-behavior="smooth"
+      className={`${geistSans.variable} ${geistMono.variable} ${pixelify.variable} ${spaceGrotesk.variable} h-full antialiased`}
+      suppressHydrationWarning
+    >
+      <head>
+        {/* Next no emite apple-mobile-web-app-capable (solo mobile-web-app-capable);
+            iOS ≤15 no abre la PWA instalada en standalone sin este meta. */}
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+      </head>
+      <body className="flex min-h-full flex-col">
+        <Providers>
+          <ThemeApplier />
+          <ServiceWorkerRegister />
+          {children}
+        </Providers>
+      </body>
+    </html>
+  );
+}

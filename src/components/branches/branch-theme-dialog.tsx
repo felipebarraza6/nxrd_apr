@@ -1,0 +1,456 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { X, Palette } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Select } from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
+import { AnimatedOverlay } from "@/components/ui/animated-overlay";
+import { cn } from "@/lib/utils";
+import { useToast } from "@/lib/store/toast";
+import { useSessionStore } from "@/lib/store/session";
+import { ThemeGallery, ThemeDescription } from "@/components/settings/theme-gallery";
+import { getThemeById, PRESET_THEMES } from "@/lib/themes";
+import {
+  fetchBranchThemeById,
+  updateBranchTheme,
+  applyThemeConfig,
+  type BranchThemeConfigPayload,
+} from "@/lib/api/branches";
+import { branchName } from "@/lib/types";
+import type { Branch } from "@/lib/types";
+
+interface BranchThemeDialogProps {
+  branch: Branch;
+  onClose: () => void;
+}
+
+function fileOrNull(file?: File | null): File | null | undefined {
+  return file === null ? null : file;
+}
+
+export function BranchThemeDialog({ branch, onClose }: BranchThemeDialogProps) {
+  const queryClient = useQueryClient();
+  const toast = useToast();
+  const currentBranchId = useSessionStore((s) => s.currentBranchId);
+  const setTheme = useSessionStore((s) => s.setTheme);
+
+  const [appName, setAppName] = useState("");
+  const [loginWelcome, setLoginWelcome] = useState("");
+  const [tagline, setTagline] = useState("");
+  const [selectedThemeId, setSelectedThemeId] = useState<string>("");
+  const [primaryColor, setPrimaryColor] = useState("#2f6b3c");
+  const [secondaryColor, setSecondaryColor] = useState("#f2e8cf");
+  const [algorithm, setAlgorithm] = useState<"light" | "dark" | "auto">("light");
+  const [borderRadius, setBorderRadius] = useState("12");
+  const [motion, setMotion] = useState(true);
+  const [compact, setCompact] = useState(false);
+  const [logoFile, setLogoFile] = useState<File | null | undefined>(undefined);
+  const [logoPreview, setLogoPreview] = useState<string | null>(null);
+
+  const branchId = String(branch.branch_id ?? branch.id ?? "");
+
+  const { data: theme, isLoading } = useQuery({
+    queryKey: ["branches", branchId, "theme-config"],
+    queryFn: () => fetchBranchThemeById(branchId),
+    enabled: Boolean(branchId),
+  });
+
+  // Sincroniza el formulario local con el tema cargado del servidor.
+  /* eslint-disable react-hooks/set-state-in-effect */
+  useEffect(() => {
+    if (!theme) return;
+    setAppName(theme.app_name ?? "");
+    setLoginWelcome(theme.login_welcome_message ?? "");
+    setTagline(theme.tagline ?? "");
+    setPrimaryColor(theme.primary_color ?? "#2f6b3c");
+    setSecondaryColor(theme.secondary_color ?? "#f2e8cf");
+    // Detectar si los colores del servidor coinciden con un preset
+    const matching = PRESET_THEMES.find(
+      (t) =>
+        t.primary.toLowerCase() === (theme.primary_color ?? "").toLowerCase() &&
+        t.secondary.toLowerCase() === (theme.secondary_color ?? "").toLowerCase(),
+    );
+    setSelectedThemeId(matching?.id ?? "");
+    setAlgorithm((theme.algorithm as "light" | "dark" | "auto") ?? "light");
+    setBorderRadius(String(theme.borderRadius ?? 12));
+    setMotion(theme.motion ?? true);
+    setCompact(theme.compact ?? false);
+    setLogoPreview(theme.logo ?? null);
+  }, [theme]);
+  /* eslint-enable react-hooks/set-state-in-effect */
+
+  /** Cuando el usuario elige un preset, actualiza los colores del formulario. */
+  function handleThemeSelect(id: string) {
+    const preset = getThemeById(id);
+    if (!preset) return;
+    setSelectedThemeId(id);
+    setPrimaryColor(preset.primary);
+    setSecondaryColor(preset.secondary);
+    setAlgorithm(preset.mode);
+  }
+
+  const save = useMutation({
+    mutationFn: () => {
+      const payload: BranchThemeConfigPayload = {
+        app_name: appName || undefined,
+        login_welcome_message: loginWelcome || undefined,
+        tagline: tagline || undefined,
+        primary_color: primaryColor,
+        secondary_color: secondaryColor,
+        algorithm,
+        borderRadius: Number(borderRadius) || 0,
+        motion,
+        compact,
+        logo: fileOrNull(logoFile),
+      };
+      return updateBranchTheme(branchId, payload);
+    },
+    onSuccess: (updated) => {
+      queryClient.invalidateQueries({ queryKey: ["branches", branchId, "theme-config"] });
+      queryClient.invalidateQueries({ queryKey: ["branches"] });
+      // Si estamos editando la sucursal activa, aplicar el tema en caliente.
+      if (branchId === currentBranchId) {
+        setTheme(updated);
+        applyThemeConfig(updated);
+      }
+      onClose();
+    },
+    onError: (err: Error) => {
+      toast.error(err.message || "No se pudo guardar el tema");
+    },
+  });
+
+  function handleFileChange(
+    e: React.ChangeEvent<HTMLInputElement>,
+    setter: (f: File | null | undefined) => void,
+    previewSetter?: (url: string | null) => void,
+  ) {
+    const file = e.target.files?.[0];
+    if (file === undefined) return;
+    setter(file);
+    if (previewSetter) {
+      if (file) {
+        previewSetter(URL.createObjectURL(file));
+      } else {
+        previewSetter(null);
+      }
+    }
+  }
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    save.mutate();
+  };
+
+  return (
+    <AnimatedOverlay
+      open={true}
+      onClose={onClose}
+      panelClassName="flex items-end justify-center overflow-hidden p-0 md:items-center md:p-4"
+    >
+      <div className="flex h-[92dvh] w-full flex-col overflow-hidden rounded-t-xl border-x border-t border-border bg-background shadow-lg md:h-auto md:max-h-[90vh] md:max-w-2xl md:rounded-xl md:border">
+        <div className="flex shrink-0 items-center justify-between border-b border-border px-4 py-3 md:px-6">
+          <div className="flex items-center gap-2">
+            <Palette className="h-5 w-5 text-primary" />
+            <div>
+              <h2 className="text-base font-semibold">Tema de {branchName(branch)}</h2>
+              <p className="text-xs text-muted-foreground">Personaliza colores, logo y mensajes.</p>
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            className="text-muted-foreground hover:text-foreground"
+            aria-label="Cerrar"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+
+        <form
+          id="theme-form"
+          onSubmit={handleSubmit}
+          className="flex flex-1 flex-col overflow-hidden"
+        >
+          {isLoading ? (
+            <div className="grid flex-1 place-items-center py-12">
+              <Skeleton className="h-6 w-6 rounded-full" />
+            </div>
+          ) : (
+            <>
+              <div className="flex-1 overflow-y-auto p-4 md:p-6">
+                {/* Preview visual: logo + slogan */}
+                {appName && (
+                  <div className="mb-5 flex items-center gap-3 rounded-xl border border-border bg-muted/20 p-4">
+                    {logoPreview ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={logoPreview} alt="" className="h-14 w-14 rounded-xl object-contain bg-background shadow-sm" />
+                    ) : (
+                      <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-primary text-xl font-bold text-white shadow-sm">
+                        {(appName[0] || "A").toUpperCase()}
+                      </div>
+                    )}
+                    <div>
+                      <p className="text-base font-semibold">{appName}</p>
+                      {tagline && <p className="text-sm text-muted-foreground">{tagline}</p>}
+                      {loginWelcome && <p className="mt-0.5 text-xs text-muted-foreground">{loginWelcome}</p>}
+                    </div>
+                  </div>
+                )}
+
+                {/* Galería de temas presets */}
+                <div className="mb-5">
+                  <h3 className="mb-3 text-sm font-semibold text-foreground">Temas predefinidos</h3>
+                  <p className="mb-3 text-xs text-muted-foreground">
+                    Elige un tema y ajusta los colores a tu gusto.
+                  </p>
+                  <ThemeGallery value={selectedThemeId} onChange={handleThemeSelect} />
+                  {selectedThemeId && <ThemeDescription themeId={selectedThemeId} />}
+                </div>
+
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <div className="flex flex-col gap-1.5">
+                    <label htmlFor="app_name" className="text-sm font-medium">
+                      Nombre de la app
+                    </label>
+                    <Input
+                      id="app_name"
+                      value={appName}
+                      onChange={(e) => setAppName(e.target.value)}
+                      placeholder="Ej: Macanuo Bowl"
+                    />
+                  </div>
+
+                  <div className="flex flex-col gap-1.5">
+                    <label htmlFor="login_welcome" className="text-sm font-medium">
+                      Mensaje de bienvenida (login)
+                    </label>
+                    <Input
+                      id="login_welcome"
+                      value={loginWelcome}
+                      onChange={(e) => setLoginWelcome(e.target.value)}
+                      placeholder="Ej: Bienvenido a tu punto de venta"
+                    />
+                  </div>
+
+                  <div className="flex flex-col gap-1.5">
+                    <label htmlFor="tagline" className="text-sm font-medium">
+                      Slogan
+                    </label>
+                    <Input
+                      id="tagline"
+                      value={tagline}
+                      onChange={(e) => setTagline(e.target.value)}
+                      placeholder="Ej: Comida bowl saludable"
+                    />
+                  </div>
+
+                  {/* Modo de color gestionado por la galería — oculto */}
+                  <div className="hidden">
+                  <div className="flex flex-col gap-1.5">
+                    <label htmlFor="algorithm" className="text-sm font-medium">
+                      Modo de color
+                    </label>
+                    <Select
+                      id="algorithm"
+                      value={algorithm}
+                      onChange={(e) => setAlgorithm(e.target.value as "light" | "dark" | "auto")}
+                    >
+                      <option value="light">Claro</option>
+                      <option value="dark">Oscuro</option>
+                      <option value="auto">Auto</option>
+                    </Select>
+                  </div>
+                  </div>
+
+                  {/* Colores gestionados por la galería de temas — ocultos pero funcionales */}
+                  <div className="hidden">
+                  <div className="flex flex-col gap-1.5">
+                    <label htmlFor="primary_color" className="text-sm font-medium">
+                      Color primario
+                    </label>
+                    <div className="flex items-center gap-2">
+                      <input
+                        id="primary_color"
+                        type="color"
+                        value={primaryColor}
+                        onChange={(e) => setPrimaryColor(e.target.value)}
+                        className="h-10 w-14 cursor-pointer rounded-md border border-border bg-transparent p-1"
+                      />
+                      <Input
+                        value={primaryColor}
+                        onChange={(e) => setPrimaryColor(e.target.value)}
+                        placeholder="#FF6B35"
+                        className="flex-1"
+                      />
+                    </div>
+                    <div
+                      className="mt-1 h-2 w-full rounded-full"
+                      style={{ backgroundColor: primaryColor }}
+                    />
+                  </div>
+
+                  <div className="flex flex-col gap-1.5">
+                    <label htmlFor="secondary_color" className="text-sm font-medium">
+                      Color secundario
+                    </label>
+                    <div className="flex items-center gap-2">
+                      <input
+                        id="secondary_color"
+                        type="color"
+                        value={secondaryColor}
+                        onChange={(e) => setSecondaryColor(e.target.value)}
+                        className="h-10 w-14 cursor-pointer rounded-md border border-border bg-transparent p-1"
+                      />
+                      <Input
+                        value={secondaryColor}
+                        onChange={(e) => setSecondaryColor(e.target.value)}
+                        placeholder="#f2e8cf"
+                        className="flex-1"
+                      />
+                    </div>
+                  </div>
+                  </div>
+
+                  {/* Radio de bordes — gestionado por el theme, oculto */}
+                  <div className="hidden">
+                  <div className="flex flex-col gap-1.5">
+                    <label htmlFor="borderRadius" className="text-sm font-medium">
+                      Radio de bordes (px)
+                    </label>
+                    <Input
+                      id="borderRadius"
+                      type="number"
+                      min={0}
+                      max={32}
+                      value={borderRadius}
+                      onChange={(e) => setBorderRadius(e.target.value)}
+                    />
+                  </div>
+                  </div>
+                </div>
+
+                {/* Opciones visuales — cards clickeables estilo toggle */}
+                <div className="mt-4 grid grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setMotion((v) => !v)}
+                    className={cn(
+                      "flex items-center gap-3 rounded-xl border p-3 text-left transition-all",
+                      motion
+                        ? "border-primary/40 bg-primary/10"
+                        : "border-border bg-background",
+                    )}
+                  >
+                    <div
+                      className={cn(
+                        "flex h-5 w-5 shrink-0 items-center justify-center rounded-md transition-colors",
+                        motion ? "bg-primary" : "bg-muted",
+                      )}
+                    >
+                      {motion && (
+                        <svg viewBox="0 0 12 12" fill="none" className="h-3 w-3" style={{ color: "#fff" }}>
+                          <path d="M2.5 6L5 8.5L9.5 3.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      )}
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium" style={{ color: motion ? undefined : "var(--muted-foreground)" }}>
+                        Animaciones
+                      </p>
+                      <p className="text-[11px]" style={{ color: "var(--muted-foreground)" }}>
+                        Transiciones suaves
+                      </p>
+                    </div>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setCompact((v) => !v)}
+                    className={cn(
+                      "flex items-center gap-3 rounded-xl border p-3 text-left transition-all",
+                      compact
+                        ? "border-primary/40 bg-primary/10"
+                        : "border-border bg-background",
+                    )}
+                  >
+                    <div
+                      className={cn(
+                        "flex h-5 w-5 shrink-0 items-center justify-center rounded-md transition-colors",
+                        compact ? "bg-primary" : "bg-muted",
+                      )}
+                    >
+                      {compact && (
+                        <svg viewBox="0 0 12 12" fill="none" className="h-3 w-3" style={{ color: "#fff" }}>
+                          <path d="M2.5 6L5 8.5L9.5 3.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      )}
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium" style={{ color: compact ? undefined : "var(--muted-foreground)" }}>
+                        Modo compacto
+                      </p>
+                      <p className="text-[11px]" style={{ color: "var(--muted-foreground)" }}>
+                        Menos espaciado
+                      </p>
+                    </div>
+                  </button>
+                </div>
+
+                {/* Assets de marca — solo logo */}
+                <div className="mt-4">
+                  <h3 className="mb-3 text-sm font-semibold text-foreground">Logo</h3>
+                  <div className="rounded-xl border border-border bg-muted/20 p-3">
+                    <Input
+                      id="logo"
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => handleFileChange(e, setLogoFile, setLogoPreview)}
+                      className="text-xs"
+                    />
+                    {logoPreview && (
+                      <div className="mt-2 flex items-center gap-3 rounded-lg border border-border bg-background p-2">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={logoPreview}
+                          alt="Vista previa del logo"
+                          className="h-12 w-12 rounded-lg object-contain bg-white"
+                        />
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-[11px] text-muted-foreground">
+                            {logoFile?.name ?? "Logo actual"}
+                          </p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setLogoFile(null);
+                            setLogoPreview(null);
+                          }}
+                          className="shrink-0 text-[11px] text-danger hover:underline"
+                        >
+                          Quitar
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex shrink-0 justify-end gap-2 border-t border-border px-4 py-3 md:px-6">
+                <Button type="button" variant="outline" onClick={onClose} disabled={save.isPending}>
+                  Cancelar
+                </Button>
+                <Button type="submit" isLoading={save.isPending}>
+                  Guardar tema
+                </Button>
+              </div>
+            </>
+          )}
+        </form>
+      </div>
+    </AnimatedOverlay>
+  );
+}
