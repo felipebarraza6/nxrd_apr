@@ -1,11 +1,14 @@
 {
-  "name": "FRIG — Punto de venta gastronómico",
-  "short_name": "FRIG",
-  "description": "POS, comandas, cocina y CRM comercial para restaurantes.",
+  "name": "nxrd_apr — Gestión de APR",
+  "short_name": "nxrd_apr",
+  "description": "Socios, medidores, lecturas y cobros de agua para APR.",
   "start_url": "/login",
   "scope": "/",
   "display": "standalone",
-  "display_override": ["standalone", "browser"],
+  "display_override": [
+    "standalone",
+    "browser"
+  ],
   "orientation": "portrait",
   "background_color": "#f7f6f1",
   "theme_color": "#2f6b3c",

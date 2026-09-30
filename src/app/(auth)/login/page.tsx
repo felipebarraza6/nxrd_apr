@@ -20,11 +20,8 @@ import { setToken } from "@/lib/api/session-storage";
 import { pickDefaultBranchId } from "@/lib/branch-session";
 import { cn } from "@/lib/utils";
 import { FRIG_IDENTITY_STYLE, FRIG_REPO_URL, setTenantFavicon } from "@/lib/frig-identity";
-import { FrigWordmarkMatrix } from "@/components/landing/frig-wordmark-matrix";
 import { HeroPlexus } from "@/components/landing/hero-plexus";
 import { BrandLogo } from "@/components/brand-logo";
-import { LANDING_USE_CASES } from "@/content/landing";
-import type { LandingUseCase } from "@/content/landing";
 import type { LoginCompleteResponse } from "@/lib/types";
 import { Clock, Copy, KeyRound } from "lucide-react";
 
@@ -177,29 +174,9 @@ export default function LoginPage() {
   const [brandTheme, setBrandTheme] = useState<BranchThemeConfig | null>(null);
   // Demo activa según ?branch=<slug>: muestra credenciales de acceso y aviso de 1 hora.
   // Se calcula una sola vez (lazy init) — no necesita effect.
-  const [demoCase] = useState<LandingUseCase | null>(() => {
-    if (typeof window === "undefined") return null;
-    const slug = new URLSearchParams(window.location.search).get("branch");
-    return LANDING_USE_CASES.find((u) => u.slug === slug) ?? null;
-  });
-  const [copied, setCopied] = useState<string | null>(null);
 
-  async function copyCredential(kind: "user" | "password", value: string) {
-    try {
-      await navigator.clipboard.writeText(value);
-      setCopied(kind);
-      setTimeout(() => setCopied(null), 1500);
-    } catch {
-      // clipboard no disponible: el texto igual es seleccionable
-    }
-  }
 
-  function useDemoCredentials() {
-    if (!demoCase) return;
-    setEmail(demoCase.demoUser);
-    setPassword(demoCase.demoPassword);
-    setError(null);
-  }
+
   useEffect(() => {
     let cancelled = false;
     (async () => {
@@ -469,59 +446,7 @@ export default function LoginPage() {
                 )}
               </div>
             </div>
-          ) : (
-            <FrigWordmarkMatrix className="mb-8 h-12 w-auto self-center" />
-          )}
-          {demoCase && mode === "login" && (
-            <div
-              className="mb-6 rounded-lg border-2 bg-card/60 p-3"
-              style={{ borderColor: demoCase.brandColor }}
-            >
-              <p className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground">
-                <KeyRound className="h-3.5 w-3.5" style={{ color: demoCase.brandColor }} />
-                Acceso demo — {demoCase.name}
-              </p>
-              <div className="mt-2 flex flex-col gap-1.5">
-                {(
-                  [
-                    { kind: "user" as const, label: "Usuario", value: demoCase.demoUser },
-                    { kind: "password" as const, label: "Clave", value: demoCase.demoPassword },
-                  ]
-                ).map((item) => (
-                  <button
-                    key={item.kind}
-                    type="button"
-                    onClick={() => copyCredential(item.kind, item.value)}
-                    title="Clic para copiar"
-                    className="flex cursor-pointer items-center justify-between gap-2 rounded border border-border bg-background/80 px-2 py-1.5 text-left font-sans text-xs transition-colors hover:border-foreground/40"
-                  >
-                    <span className="truncate">
-                      <span className="text-muted-foreground">{item.label}: </span>
-                      <span className="font-medium">{item.value}</span>
-                    </span>
-                    {copied === item.kind ? (
-                      <span className="shrink-0 text-[10px] text-[#c67d52]">¡Copiado!</span>
-                    ) : (
-                      <Copy className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-                    )}
-                  </button>
-                ))}
-              </div>
-              <button
-                type="button"
-                onClick={useDemoCredentials}
-                className="mt-2 w-full cursor-pointer rounded border border-dashed px-2 py-1.5 text-xs font-medium transition-colors hover:bg-foreground/5"
-                style={{ borderColor: demoCase.brandColor, color: demoCase.brandColor }}
-              >
-                Usar estas credenciales
-              </button>
-              <p className="mt-2 flex items-center gap-1.5 text-[11px] text-muted-foreground">
-                <Clock className="h-3 w-3" />
-                La sesión demo dura 1 hora. Juega, prueba y revienta el sistema.
-              </p>
-            </div>
-          )}
-
+          ) : null}
           {mode === "set_password" ? (
             <form onSubmit={handleSetPasswordSubmit} className="flex flex-col gap-4">
               <div className="rounded-lg bg-primary/10 px-3 py-3 text-sm text-primary">
