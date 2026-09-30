@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import Script from "next/script";
 import { Geist, Geist_Mono, Pixelify_Sans, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/providers";
@@ -113,7 +114,9 @@ export default function RootLayout({
         {/* Next no emite apple-mobile-web-app-capable (solo mobile-web-app-capable);
             iOS ≤15 no abre la PWA instalada en standalone sin este meta. */}
         <meta name="apple-mobile-web-app-capable" content="yes" />
-        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+        {/* beforeInteractive: Next lo inyecta en head y evita el warning de
+            React al re-renderizar el layout en cliente. */}
+        <Script id="theme-init" strategy="beforeInteractive" dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>
       <body className="flex min-h-full flex-col">
         <Providers>
