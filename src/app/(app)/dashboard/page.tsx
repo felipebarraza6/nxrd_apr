@@ -18,6 +18,7 @@ import {
   FlaskConical,
   ArrowRight,
   UserPlus,
+  ShoppingBag,
   Droplets,
   type LucideIcon,
   LayoutDashboard,
@@ -102,14 +103,14 @@ export default function DashboardPage() {
   });
 
 
-  // Últimos 5 registros para los widgets de pendientes (entrega solo con módulo deliveries).
-  const { data: pendingDelivery = [] } = useQuery({
-    queryKey: ["dashboard", "pending-delivery", "v2", branchId],
+  // Últimas órdenes creadas (cargos de agua del período) y pendientes de pago.
+  const { data: recentOrders = [] } = useQuery({
+    queryKey: ["dashboard", "recent-orders", "v2", branchId],
     queryFn: async () => {
-      const data = await fetchOrders({ order_type: "ORDER", status: ["PENDING", "IN_PROGRESS"], page_size: 5 });
+      const data = await fetchOrders({ page_size: 5 });
       return data.results ?? [];
     },
-    enabled: !!branch && deliveriesEnabled,
+    enabled: !!branch,
   });
 
   const { data: pendingPayment = [] } = useQuery({
@@ -379,10 +380,10 @@ export default function DashboardPage() {
           }
         />
         <SharedStatCard
-          label="Clientes"
+          label="Socios"
           value={customers}
           icon={Users}
-          sub="registrados"
+          sub={`${metersCount} medidores activos`}
           tone="primary"
           href="/customers"
 
@@ -390,28 +391,23 @@ export default function DashboardPage() {
             setDrawer({
               open: true,
               metric: {
-                title: "Clientes",
+                title: "Socios",
                 value: customers,
                 icon: Users,
-                description: "Base de clientes registrados en la sucursal. Click para ver el listado.",
-                sections: [{ label: "Total registrados", value: String(customers) }],
+                description: "Socios del APR con su punto de medición asignado.",
+                sections: [
+                  { label: "Total socios", value: String(customers) },
+                  { label: "Medidores", value: String(metersCount) },
+                ],
                 children: (
                                       <CustomersMetricDetail
                       filter={{}}
-                      emptyMessage="No hay clientes registrados en la sucursal."
+                      emptyMessage="No hay socios registrados en el APR."
                     />
                 ),
               },
             })
           }
-        />
-        <SharedStatCard
-          label="Medidores"
-          value={metersCount}
-          icon={Droplets}
-          sub="puntos de medición"
-          tone="primary"
-          href="/meters"
         />
       </motion.section>
 
@@ -689,61 +685,48 @@ export default function DashboardPage() {
         )}
       </motion.section>
 
-      {/* Pendientes de entrega (solo módulo deliveries) o resumen del negocio */}
+      {/* Últimas órdenes creadas + pendientes por pagar */}
       <motion.section variants={container} initial="hidden" animate="show" className="grid grid-cols-1 gap-3 lg:grid-cols-2">
-        {deliveriesEnabled ? (
-          <motion.div variants={item} className="glass rounded-2xl p-5">
-            <div className="mb-3 flex items-center justify-between">
-              <h2 className="flex items-center gap-2 text-sm font-semibold">
-                <Truck className="h-4 w-4 text-primary" />
-                Últimas órdenes pendientes de entrega
-              </h2>
-              <Link href="/sales" className="text-xs font-medium text-primary transition-colors hover:underline">
-                Ver todas
-              </Link>
-            </div>
-            {pendingDelivery.length === 0 ? (
-              <p className="py-4 text-center text-xs text-muted-foreground">
-                No hay órdenes pendientes de entrega.
-              </p>
-            ) : (
-              <ul className="divide-y divide-border">
-                {pendingDelivery.map((o) => (
-                  <li key={o.id} className="flex items-center justify-between gap-3 py-2">
-                    <div className="min-w-0">
-                      <p className="truncate text-sm font-medium">
-                        {o.order_number ? `#${o.order_number}` : o.client?.name ?? "Sin cliente"}
-                        {o.order_number && o.client?.name && (
-                          <span className="ml-2 text-xs font-normal text-muted-foreground">
-                            {o.client.name}
-                          </span>
-                        )}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {new Date(o.date).toLocaleDateString("es-CL", { day: "2-digit", month: "short" })}
-                        {" · "}{orderStatusLabel(o.status)}
-                      </p>
-                    </div>
-                    <span className="shrink-0 text-sm font-semibold tabular-nums">
-                      {formatCLP(Number(o.total_amount ?? 0))}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </motion.div>
-        ) : (
-          <motion.div variants={item} className="glass rounded-2xl p-5">
-            <BusinessSummaryPanel
-              salesTotal={salesTotal}
-              salesCount={salesCount}
-              ordersCount={ordersCount}
-              customers={customers}
-              totalProfit={totalProfit}
-              totalRevenue={totalRevenue}
-            />
-          </motion.div>
-        )}
+        <motion.div variants={item} className="glass rounded-2xl p-5">
+          <div className="mb-3 flex items-center justify-between">
+            <h2 className="flex items-center gap-2 text-sm font-semibold">
+              <ShoppingBag className="h-4 w-4 text-primary" />
+              Últimas órdenes creadas
+            </h2>
+            <Link href="/sales" className="text-xs font-medium text-primary transition-colors hover:underline">
+              Ver todas
+            </Link>
+          </div>
+          {recentOrders.length === 0 ? (
+            <p className="py-4 text-center text-xs text-muted-foreground">
+              No hay órdenes creadas todavía.
+            </p>
+          ) : (
+            <ul className="divide-y divide-border">
+              {recentOrders.map((o) => (
+                <li key={o.id} className="flex items-center justify-between gap-3 py-2">
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-medium">
+                      {o.order_number ? `#${o.order_number}` : o.client?.name ?? "Sin cliente"}
+                      {o.order_number && o.client?.name && (
+                        <span className="ml-2 text-xs font-normal text-muted-foreground">
+                          {o.client.name}
+                        </span>
+                      )}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {new Date(o.date).toLocaleDateString("es-CL", { day: "2-digit", month: "short" })}
+                      {" · "}{orderStatusLabel(o.status)}
+                    </p>
+                  </div>
+                  <span className="shrink-0 text-sm font-semibold tabular-nums">
+                    {formatCLP(Number(o.total_amount ?? 0))}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </motion.div>
 
         <motion.div variants={item} className="glass rounded-2xl p-5">
           <div className="mb-3 flex items-center justify-between">
