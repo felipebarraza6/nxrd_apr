@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Phone } from "lucide-react";
 import { StandaloneRedirect } from "@/components/standalone-redirect";
 import { HeroPlexus } from "@/components/landing/hero-plexus";
 import { LandingCtas } from "@/components/landing/landing-ctas";
@@ -287,7 +288,7 @@ export default function HomePage() {
               Solicitar Plan Piloto
             </a>
             <p className="mt-4 text-sm text-sky-200/80">
-              📞 +56 9 9093 2133 · contacto@smartapr.cl
+              <Phone className="mr-1 inline h-4 w-4 -translate-y-0.5" />+56 9 9093 2133 · contacto@smartapr.cl
             </p>
           </div>
         </section>
