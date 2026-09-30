@@ -28036,6 +28036,214 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/water/billing-runs/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description GET: corridas del APR · POST: generar corrida del período (idempotente). */
+        get: operations["water_billing_runs_retrieve"];
+        put?: never;
+        /** @description GET: corridas del APR · POST: generar corrida del período (idempotente). */
+        post: operations["water_billing_runs_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/water/billing-runs/{id}/emit-dtes/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description POST: emite boletas SII de todos los cargos de la corrida que falten. */
+        post: operations["water_billing_runs_emit_dtes_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/water/meters/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Listar medidores
+         * @description Puntos de medición del APR.
+         */
+        get: operations["water_meters_list"];
+        put?: never;
+        /**
+         * Crear medidor
+         * @description Puntos de medición del APR.
+         */
+        post: operations["water_meters_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/water/meters/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Puntos de medición del APR. */
+        get: operations["water_meters_retrieve"];
+        /**
+         * Actualizar medidor
+         * @description Puntos de medición del APR.
+         */
+        put: operations["water_meters_update"];
+        post?: never;
+        /**
+         * Eliminar medidor
+         * @description Puntos de medición del APR.
+         */
+        delete: operations["water_meters_destroy"];
+        options?: never;
+        head?: never;
+        /** @description Puntos de medición del APR. */
+        patch: operations["water_meters_partial_update"];
+        trace?: never;
+    };
+    "/api/water/readings/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Listar lecturas
+         * @description Lecturas mensuales por medidor.
+         */
+        get: operations["water_readings_list"];
+        put?: never;
+        /**
+         * Registrar lectura
+         * @description Lecturas mensuales por medidor.
+         */
+        post: operations["water_readings_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/water/readings/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Lecturas mensuales por medidor. */
+        get: operations["water_readings_retrieve"];
+        /**
+         * Actualizar lectura
+         * @description Lecturas mensuales por medidor.
+         */
+        put: operations["water_readings_update"];
+        post?: never;
+        /**
+         * Eliminar lectura
+         * @description Lecturas mensuales por medidor.
+         */
+        delete: operations["water_readings_destroy"];
+        options?: never;
+        head?: never;
+        /** @description Lecturas mensuales por medidor. */
+        patch: operations["water_readings_partial_update"];
+        trace?: never;
+    };
+    "/api/water/readings/import-csv/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Importar lecturas desde CSV
+         * @description POST multipart: carga masiva de lecturas desde CSV.
+         *
+         *     Campos: file (CSV con header meter_number,period,current_reading) y
+         *     period_default opcional si el CSV no trae la columna period.
+         */
+        post: operations["water_readings_import_csv_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/water/tariffs/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Listar tarifarios
+         * @description Tarifarios: cargo fijo + tramos por m³.
+         */
+        get: operations["water_tariffs_list"];
+        put?: never;
+        /**
+         * Crear tarifario
+         * @description Tarifarios: cargo fijo + tramos por m³.
+         */
+        post: operations["water_tariffs_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/water/tariffs/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Tarifarios: cargo fijo + tramos por m³. */
+        get: operations["water_tariffs_retrieve"];
+        /**
+         * Actualizar tarifario
+         * @description Tarifarios: cargo fijo + tramos por m³.
+         */
+        put: operations["water_tariffs_update"];
+        post?: never;
+        /**
+         * Eliminar tarifario
+         * @description Tarifarios: cargo fijo + tramos por m³.
+         */
+        delete: operations["water_tariffs_destroy"];
+        options?: never;
+        head?: never;
+        /** @description Tarifarios: cargo fijo + tramos por m³. */
+        patch: operations["water_tariffs_partial_update"];
+        trace?: never;
+    };
     "/api/workflows/data-mappings/": {
         parameters: {
             query?: never;
@@ -46153,6 +46361,94 @@ export interface components {
             /** @description UUID de la sucursal. Solo editable por super administradores. */
             branch?: number | null;
         };
+        Meter: {
+            readonly id: number;
+            /**
+             * Número de medidor
+             * @description Identificador físico del medidor. Único por APR.
+             */
+            number: string;
+            /**
+             * Socio
+             * @description Socio responsable del punto de medición
+             */
+            client?: number | null;
+            readonly client_name: string;
+            /**
+             * Sector / ruta
+             * @description Sector o ruta de lectura para organizar la toma de datos
+             */
+            sector?: string;
+            /**
+             * Fecha de instalación
+             * Format: date
+             */
+            installed_at?: string | null;
+            /**
+             * Estado
+             * @description * `ACTIVE` - Activo
+             *     * `RETIRED` - Retirado
+             *     * `DAMAGED` - Dañado
+             * @enum {string}
+             */
+            status?: "ACTIVE" | "RETIRED" | "DAMAGED";
+            /**
+             * Lectura inicial
+             * Format: double
+             * @description Lectura con la que se instaló el medidor (m³)
+             */
+            initial_reading?: number;
+            readonly readings_count: number;
+            readonly last_reading: string;
+            /**
+             * Created at
+             * Format: date-time
+             * @description Fecha de creacion.
+             */
+            readonly created: string;
+            /**
+             * Modified at
+             * Format: date-time
+             * @description Fecha de modificacion.
+             */
+            readonly modified: string;
+        };
+        MeterRequest: {
+            /**
+             * Número de medidor
+             * @description Identificador físico del medidor. Único por APR.
+             */
+            number: string;
+            /**
+             * Socio
+             * @description Socio responsable del punto de medición
+             */
+            client?: number | null;
+            /**
+             * Sector / ruta
+             * @description Sector o ruta de lectura para organizar la toma de datos
+             */
+            sector?: string;
+            /**
+             * Fecha de instalación
+             * Format: date
+             */
+            installed_at?: string | null;
+            /**
+             * Estado
+             * @description * `ACTIVE` - Activo
+             *     * `RETIRED` - Retirado
+             *     * `DAMAGED` - Dañado
+             * @enum {string}
+             */
+            status?: "ACTIVE" | "RETIRED" | "DAMAGED";
+            /**
+             * Lectura inicial
+             * Format: double
+             * @description Lectura con la que se instaló el medidor (m³)
+             */
+            initial_reading?: number;
+        };
         /** @description Serializer para grupos de modificadores. */
         ModifierGroup: {
             readonly id: number;
@@ -49945,6 +50241,21 @@ export interface components {
             previous?: string | null;
             results: components["schemas"]["MessageTemplateList"][];
         };
+        PaginatedMeterList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next?: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous?: string | null;
+            results: components["schemas"]["Meter"][];
+        };
         PaginatedModifierGroupListList: {
             /** @example 123 */
             count: number;
@@ -50544,6 +50855,21 @@ export interface components {
              */
             previous?: string | null;
             results: components["schemas"]["RawMaterialMeasurement"][];
+        };
+        PaginatedReadingList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next?: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous?: string | null;
+            results: components["schemas"]["Reading"][];
         };
         PaginatedRecipeIngredientList: {
             /** @example 123 */
@@ -57207,6 +57533,42 @@ export interface components {
             /** @description UUID de la sucursal. Solo editable por super administradores. */
             branch?: number | null;
         };
+        PatchedMeterRequest: {
+            /**
+             * Número de medidor
+             * @description Identificador físico del medidor. Único por APR.
+             */
+            number?: string;
+            /**
+             * Socio
+             * @description Socio responsable del punto de medición
+             */
+            client?: number | null;
+            /**
+             * Sector / ruta
+             * @description Sector o ruta de lectura para organizar la toma de datos
+             */
+            sector?: string;
+            /**
+             * Fecha de instalación
+             * Format: date
+             */
+            installed_at?: string | null;
+            /**
+             * Estado
+             * @description * `ACTIVE` - Activo
+             *     * `RETIRED` - Retirado
+             *     * `DAMAGED` - Dañado
+             * @enum {string}
+             */
+            status?: "ACTIVE" | "RETIRED" | "DAMAGED";
+            /**
+             * Lectura inicial
+             * Format: double
+             * @description Lectura con la que se instaló el medidor (m³)
+             */
+            initial_reading?: number;
+        };
         /** @description Serializer de escritura para grupos. */
         PatchedModifierGroupWriteRequest: {
             /** Nombre del Grupo */
@@ -59225,6 +59587,20 @@ export interface components {
              * @description Si esta medición está activa
              */
             is_active?: boolean;
+        };
+        PatchedReadingRequest: {
+            /** Medidor */
+            meter?: number;
+            /**
+             * Período
+             * @description Mes de consumo en formato YYYY-MM
+             */
+            period?: string;
+            /**
+             * Lectura actual (m³)
+             * Format: double
+             */
+            current_reading?: number;
         };
         /** @description Serializer para ingredientes de recetas. */
         PatchedRecipeIngredientRequest: {
@@ -67263,6 +67639,64 @@ export interface components {
              * @description Si esta medición está activa
              */
             is_active?: boolean;
+        };
+        Reading: {
+            readonly id: number;
+            /** Medidor */
+            meter: number;
+            readonly meter_number: string;
+            readonly client_name: string;
+            /**
+             * Período
+             * @description Mes de consumo en formato YYYY-MM
+             */
+            period: string;
+            /**
+             * Lectura anterior (m³)
+             * Format: double
+             */
+            readonly previous_reading: number;
+            /**
+             * Lectura actual (m³)
+             * Format: double
+             */
+            current_reading: number;
+            /** Format: double */
+            readonly consumed_m3: number;
+            /**
+             * Origen
+             * @description * `MANUAL` - Captura manual
+             *     * `CSV` - Carga masiva
+             * @enum {string}
+             */
+            readonly source: "MANUAL" | "CSV";
+            /** Leído por */
+            readonly read_by: number | null;
+            /**
+             * Fecha de lectura
+             * Format: date-time
+             */
+            readonly read_at: string;
+            /**
+             * Created at
+             * Format: date-time
+             * @description Fecha de creacion.
+             */
+            readonly created: string;
+        };
+        ReadingRequest: {
+            /** Medidor */
+            meter: number;
+            /**
+             * Período
+             * @description Mes de consumo en formato YYYY-MM
+             */
+            period: string;
+            /**
+             * Lectura actual (m³)
+             * Format: double
+             */
+            current_reading: number;
         };
         /** @description Serializer para recetas. */
         Recipe: {
@@ -131275,6 +131709,595 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["UnifiedConfigSchema"];
                     "*/*": components["schemas"]["UnifiedConfigSchema"];
+                };
+            };
+        };
+    };
+    water_billing_runs_retrieve: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    water_billing_runs_create: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    water_billing_runs_emit_dtes_create: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    water_meters_list: {
+        parameters: {
+            query?: {
+                client?: number;
+                format?: "binary" | "json";
+                /** @description Un número de página dentro del conjunto de resultados paginado. */
+                page?: number;
+                /** @description Número de resultados a devolver por página. */
+                page_size?: number;
+                sector?: string;
+                /**
+                 * @description * `ACTIVE` - Activo
+                 *     * `RETIRED` - Retirado
+                 *     * `DAMAGED` - Dañado
+                 */
+                status?: "ACTIVE" | "DAMAGED" | "RETIRED";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedMeterList"];
+                    "*/*": components["schemas"]["PaginatedMeterList"];
+                };
+            };
+        };
+    };
+    water_meters_create: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MeterRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["MeterRequest"];
+                "multipart/form-data": components["schemas"]["MeterRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Meter"];
+                    "*/*": components["schemas"]["Meter"];
+                };
+            };
+        };
+    };
+    water_meters_retrieve: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                /** @description Un valor de entero único que identifique este Medidor. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Meter"];
+                    "*/*": components["schemas"]["Meter"];
+                };
+            };
+        };
+    };
+    water_meters_update: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                /** @description Un valor de entero único que identifique este Medidor. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MeterRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["MeterRequest"];
+                "multipart/form-data": components["schemas"]["MeterRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Meter"];
+                    "*/*": components["schemas"]["Meter"];
+                };
+            };
+        };
+    };
+    water_meters_destroy: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                /** @description Un valor de entero único que identifique este Medidor. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    water_meters_partial_update: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                /** @description Un valor de entero único que identifique este Medidor. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedMeterRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedMeterRequest"];
+                "multipart/form-data": components["schemas"]["PatchedMeterRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Meter"];
+                    "*/*": components["schemas"]["Meter"];
+                };
+            };
+        };
+    };
+    water_readings_list: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+                meter?: number;
+                /** @description Un número de página dentro del conjunto de resultados paginado. */
+                page?: number;
+                /** @description Número de resultados a devolver por página. */
+                page_size?: number;
+                period?: string;
+                /**
+                 * @description * `MANUAL` - Captura manual
+                 *     * `CSV` - Carga masiva
+                 */
+                source?: "CSV" | "MANUAL";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedReadingList"];
+                    "*/*": components["schemas"]["PaginatedReadingList"];
+                };
+            };
+        };
+    };
+    water_readings_create: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReadingRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ReadingRequest"];
+                "multipart/form-data": components["schemas"]["ReadingRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Reading"];
+                    "*/*": components["schemas"]["Reading"];
+                };
+            };
+        };
+    };
+    water_readings_retrieve: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                /** @description Un valor de entero único que identifique este Lectura. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Reading"];
+                    "*/*": components["schemas"]["Reading"];
+                };
+            };
+        };
+    };
+    water_readings_update: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                /** @description Un valor de entero único que identifique este Lectura. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReadingRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ReadingRequest"];
+                "multipart/form-data": components["schemas"]["ReadingRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Reading"];
+                    "*/*": components["schemas"]["Reading"];
+                };
+            };
+        };
+    };
+    water_readings_destroy: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                /** @description Un valor de entero único que identifique este Lectura. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    water_readings_partial_update: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                /** @description Un valor de entero único que identifique este Lectura. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedReadingRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedReadingRequest"];
+                "multipart/form-data": components["schemas"]["PatchedReadingRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Reading"];
+                    "*/*": components["schemas"]["Reading"];
+                };
+            };
+        };
+    };
+    water_readings_import_csv_create: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    water_tariffs_list: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+                /** @description Un número de página dentro del conjunto de resultados paginado. */
+                page?: number;
+                /** @description Número de resultados a devolver por página. */
+                page_size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedTariffList"];
+                    "*/*": components["schemas"]["PaginatedTariffList"];
+                };
+            };
+        };
+    };
+    water_tariffs_create: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TariffRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["TariffRequest"];
+                "multipart/form-data": components["schemas"]["TariffRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Tariff"];
+                    "*/*": components["schemas"]["Tariff"];
+                };
+            };
+        };
+    };
+    water_tariffs_retrieve: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                /** @description Un valor de entero único que identifique este Tarifario. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Tariff"];
+                    "*/*": components["schemas"]["Tariff"];
+                };
+            };
+        };
+    };
+    water_tariffs_update: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                /** @description Un valor de entero único que identifique este Tarifario. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TariffRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["TariffRequest"];
+                "multipart/form-data": components["schemas"]["TariffRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Tariff"];
+                    "*/*": components["schemas"]["Tariff"];
+                };
+            };
+        };
+    };
+    water_tariffs_destroy: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                /** @description Un valor de entero único que identifique este Tarifario. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    water_tariffs_partial_update: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                /** @description Un valor de entero único que identifique este Tarifario. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedTariffRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedTariffRequest"];
+                "multipart/form-data": components["schemas"]["PatchedTariffRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Tariff"];
+                    "*/*": components["schemas"]["Tariff"];
                 };
             };
         };

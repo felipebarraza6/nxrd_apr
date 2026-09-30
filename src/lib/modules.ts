@@ -11,6 +11,10 @@ export const ROUTE_MODULE_MAP: Record<string, ModuleName | null> = {
   "/pos/terminal": "pos",
   "/sales": "sales",
     "/reports": null,
+    "/meters": null,
+    "/readings": null,
+    "/tariffs": null,
+    "/billing": null,
     "/reports/nutrition": "nutrition",
     "/reports/sales": null,
     "/reports/money": null,
@@ -227,6 +231,16 @@ export const FRIG_MENU_DEF: FrigMenuGroup[] = [
     icon: "LayoutDashboard",
     items: [
       { href: "/dashboard", label: "Dashboard", icon: "LayoutDashboard", module: "dashboard", description: "Resumen general del negocio en tiempo real" },
+    ],
+  },
+  {
+    title: "Agua",
+    icon: "Droplets",
+    items: [
+      { href: "/meters", label: "Medidores", icon: "Gauge", module: null, description: "Puntos de medición por socio y sector" },
+      { href: "/readings", label: "Lecturas", icon: "NotebookPen", module: null, description: "Toma por ruta y carga masiva del período" },
+      { href: "/tariffs", label: "Tarifarios", icon: "ScrollText", module: null, description: "Cargo fijo y tramos por m³" },
+      { href: "/billing", label: "Cobros de agua", icon: "Receipt", module: null, description: "Corridas del período y boletas SII" },
     ],
   },
   {

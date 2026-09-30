@@ -18,6 +18,7 @@ import {
   FlaskConical,
   ArrowRight,
   UserPlus,
+  Droplets,
   type LucideIcon,
   LayoutDashboard,
 } from "lucide-react";
@@ -30,6 +31,7 @@ import {
 import { formatCLP, cn, orderStatusLabel, paymentStatusLabel } from "@/lib/utils";
 import { useCurrentBranch, useIsModuleEnabledFromConfig, useIsNutritionEnabled, useCanManageCustomers } from "@/lib/store/session";
 import { useCrmNavCounts } from "@/lib/hooks/useCrm";
+import { fetchMeters } from "@/lib/api/water";
 import { fetchOrders } from "@/lib/api/orders";
 import { MetricDrawer, type MetricDrawerSection } from "@/components/metric-drawer";
 import { Sparkline } from "@/components/sparkline";
@@ -89,6 +91,8 @@ export default function DashboardPage() {
 
   const nutritionEnabled = useIsNutritionEnabled();
   const canManageCrm = useCanManageCustomers();
+  const metersQuery = useQuery({ queryKey: ["water", "meters", "dash"], queryFn: () => fetchMeters(), staleTime: 60_000 });
+  const metersCount = (metersQuery.data ?? []).length;
   const crmCounts = useCrmNavCounts();
 
   const { data: ingredientConsumption, isLoading: loadingIngredients } = useQuery({
@@ -400,6 +404,14 @@ export default function DashboardPage() {
               },
             })
           }
+        />
+        <SharedStatCard
+          label="Medidores"
+          value={metersCount}
+          icon={Droplets}
+          sub="puntos de medición"
+          tone="primary"
+          href="/meters"
         />
       </motion.section>
 
@@ -1005,7 +1017,7 @@ function BusinessSummaryPanel({
           metrics={[
             { label: "Ventas", value: Math.min(salesTotal / 100000, 1) },
             { label: "Órdenes", value: Math.min(ordersCount / 50, 1) },
-            { label: "Clientes", value: Math.min(customers / 100, 1) },
+            { label: "Clientes", value: Math.min(customers / 100, 1) },
             { label: "Ganancia", value: Math.min(totalProfit / 50000, 1) },
           ]}
         />
