@@ -27,7 +27,6 @@ import {
 } from "@/lib/api/orders";
 import { fetchTables } from "@/lib/api/tables";
 import { generateTaxDocumentFromOrder } from "@/lib/api/tax-documents";
-import { CashierTableTiles } from "@/components/tables/cashier-table-tiles";
 import { searchCustomers, createCustomer } from "@/lib/api/customers";
 import { formatCLP, cn, paymentStatusLabel } from "@/lib/utils";
 import {
@@ -43,7 +42,6 @@ import {
 import dynamic from "next/dynamic";
 import { useDownloadFile, exportFilename } from "@/lib/hooks/useDownloadFile";
 import { OrderProductLines } from "@/components/sales/order-return-panel";
-import { fetchDiscountUsages } from "@/lib/api/discounts";
 import { useToast } from "@/lib/store/toast";
 import type { YggdraSchemas } from "@/lib/api/types";
 import { AnimatePresence, m } from "framer-motion";
@@ -1173,12 +1171,6 @@ export default function SalesPage() {
     staleTime: 60_000,
   });
 
-  const { data: orderDiscountUsages = [] } = useQuery({
-    queryKey: ["discounts", "usage", "order", detail?.id],
-    queryFn: () => fetchDiscountUsages({ order: detail!.id, page_size: 20 }),
-    enabled: Boolean(detail?.id),
-    staleTime: 30_000,
-  });
 
   const tableById = useMemo(() => {
     const tables = tablesPage?.results ?? [];
@@ -1884,49 +1876,6 @@ export default function SalesPage() {
                 </div>
               </div>
 
-              {/* Cupones / descuentos de promoción aplicados */}
-              {orderDiscountUsages.length > 0 && (
-                <div className="mt-5">
-                  <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                    Cupones aplicados
-                  </p>
-                  <div className="mt-2 flex flex-col divide-y divide-border rounded-xl border border-emerald-500/20 bg-emerald-500/5">
-                    {orderDiscountUsages.map((u) => (
-                      <div
-                        key={u.id}
-                        className="flex items-center justify-between gap-3 px-3 py-2.5 text-sm"
-                      >
-                        <div className="min-w-0 flex-1">
-                          <p className="truncate font-medium text-emerald-900 dark:text-emerald-200">
-                            {u.discount_name}
-                          </p>
-                          <p className="mt-0.5 text-xs text-muted-foreground">
-                            {u.user_email || "—"}
-                            {u.created
-                              ? ` · ${new Date(u.created).toLocaleString("es-CL", {
-                                  day: "2-digit",
-                                  month: "short",
-                                  hour: "2-digit",
-                                  minute: "2-digit",
-                                  hour12: false,
-                                })}`
-                              : ""}
-                          </p>
-                        </div>
-                        <div className="shrink-0 text-right text-xs tabular-nums">
-                          <p className="font-semibold text-emerald-700">
-                            −{formatCLP(u.discount_amount)}
-                          </p>
-                          <p className="text-muted-foreground">
-                            {formatCLP(u.original_amount)} → {formatCLP(u.final_amount)}
-                          </p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
               {/* Productos: devolución por línea, no de la orden entera */}
               {detail.products && detail.products.length > 0 && (
                 <OrderProductLines
@@ -2429,18 +2378,6 @@ export default function SalesPage() {
                     </div>
                   )}
                 </div>
-
-                {showTables && (
-                  <div className="flex min-w-0 flex-col gap-1.5">
-                    <p className="text-xs font-medium text-muted-foreground">Mesa</p>
-                    <CashierTableTiles
-                      tables={tablesPage?.results ?? []}
-                      selectedId={selectedTableId || null}
-                      hideUnavailable
-                      onSelect={(t) => setSelectedTableId(t ? String(t.id) : "")}
-                    />
-                  </div>
-                )}
 
                 {accountError && (
                   <p className="rounded-lg bg-danger/10 px-3 py-2 text-xs text-danger">{accountError}</p>

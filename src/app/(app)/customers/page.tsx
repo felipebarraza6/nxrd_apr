@@ -23,7 +23,6 @@ import {
   MessageCircle,
   NotebookPen,
   Pencil,
-  Percent,
   Phone,
   Plus,
   Power,
@@ -34,7 +33,6 @@ import {
   Users,
   X,
 } from "lucide-react";
-import { fetchDiscountDashboard } from "@/lib/api/discounts";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select } from "@/components/ui/select";
@@ -200,12 +198,6 @@ function CustomersInner() {
 
   const crmCounts = useCrmNavCounts();
 
-  const promotionsDashboardQuery = useQuery({
-    queryKey: ["discounts", "hub-kpi"],
-    queryFn: () => fetchDiscountDashboard(),
-    enabled: canManage,
-    staleTime: 45_000,
-  });
 
   // Map of client ID -> pending debt amount
   const debtMap = useMemo(() => {
@@ -451,15 +443,6 @@ function CustomersInner() {
             icon={NotebookPen}
             tone="muted"
             href="/customers/follow-ups"
-          />
-          <StatCard
-            variant="compact"
-            label="Promos Activas"
-            value={promotionsDashboardQuery.data?.summary?.active_discounts ?? 0}
-            sub={`${promotionsDashboardQuery.data?.summary?.total_discounts ?? 0} promociones`}
-            icon={Percent}
-            tone="success"
-            href="/promotions/discounts"
           />
         </div>
 

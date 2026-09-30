@@ -33,10 +33,7 @@ const FRIG_ROLE_CATALOG: { codes: string[]; label: string; module: string | null
   { codes: ["ADMIN_LOCAL"], label: "Administrador local", module: null },
   { codes: ["MANAGER"], label: "Gerente comercial", module: null },
   { codes: ["EMPLOYEE", "EMPLEADO"], label: "Empleado", module: null },
-  { codes: ["CAJERO"], label: "Cajero", module: "pos" },
-  { codes: ["WAITER", "MESERO"], label: "Mesero", module: "tables" },
-  { codes: ["COCINERO", "COOK"], label: "Cocinero", module: "production" },
-  { codes: ["REPARTIDOR", "COURIER"], label: "Repartidor", module: "deliveries" },
+  { codes: ["CAJERO"], label: "Cajero de oficina", module: "cash_register" },
 ];
 
 export interface FrigRoleOption {

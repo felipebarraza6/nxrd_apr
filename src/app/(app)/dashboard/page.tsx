@@ -30,11 +30,10 @@ import {
 import { formatCLP, cn, orderStatusLabel, paymentStatusLabel } from "@/lib/utils";
 import { useCurrentBranch, useIsModuleEnabledFromConfig, useIsNutritionEnabled, useCanManageCustomers } from "@/lib/store/session";
 import { useCrmNavCounts } from "@/lib/hooks/useCrm";
-import { useProducts } from "@/lib/hooks/useCatalog";
 import { fetchOrders } from "@/lib/api/orders";
 import { MetricDrawer, type MetricDrawerSection } from "@/components/metric-drawer";
 import { Sparkline } from "@/components/sparkline";
-import { CustomersMetricDetail, IncomeMetricDetail, OrdersMetricDetail, ProductsMetricDetail } from "@/components/metric-drawer-detail";
+import { CustomersMetricDetail, IncomeMetricDetail, OrdersMetricDetail } from "@/components/metric-drawer-detail";
 import Link from "next/link";
 import { Skeleton } from "@/components/ui/skeleton";
 import { StatCard as SharedStatCard, type StatTone } from "@/components/ui/stat-card";
@@ -98,7 +97,6 @@ export default function DashboardPage() {
     enabled: !!branch && nutritionEnabled,
   });
 
-  const { data: products = [] } = useProducts(!!branch);
 
   // Últimos 5 registros para los widgets de pendientes (entrega solo con módulo deliveries).
   const { data: pendingDelivery = [] } = useQuery({
@@ -152,9 +150,6 @@ export default function DashboardPage() {
   // Métricas de contexto para estados y totales generales.
   const completedOrders = summary?.orders?.completed ?? 0;
   const customers = counts?.customers?.total ?? 0;
-  // El contador de productos del backend llega en 0 para esta sucursal a pesar de
-  // tener catálogo. Usamos la lista local que ya cargamos.
-  const productsCount = products.length;
   const pendingOrders = counts?.sales?.pending_orders ?? 0;
   const pendingSalesAmount = counts?.sales?.pending_sales_amount ?? 0;
   const expensesTotal = counts?.expenses_by_supplier?.reduce((sum, e) => sum + e.total, 0) ?? 0;
@@ -415,38 +410,6 @@ export default function DashboardPage() {
         animate="show"
         className={cn("grid grid-cols-2 gap-3", nutritionEnabled ? "lg:grid-cols-5" : "lg:grid-cols-4")}
       >
-        <SharedStatCard
-          label="Productos"
-          value={productsCount}
-          icon={Package}
-          sub="activos en catálogo"
-          tone="warning"
-          href="/products"
-
-          onClick={() =>
-            setDrawer({
-              open: true,
-              metric: {
-                title: "Productos",
-                value: productsCount,
-                icon: Package,
-                description: "Productos activos en el catálogo.",
-                children: <ProductsMetricDetail products={products} />,
-                actions: (
-                  <Link
-                    href="/products"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-primary/90"
-                  >
-                    Ir a productos
-                    <ArrowRight className="h-4 w-4" />
-                  </Link>
-                ),
-              },
-            })
-          }
-        />
         <SharedStatCard
           label="Ingresos"
           value={formatCLP(totalRevenue)}
@@ -764,7 +727,6 @@ export default function DashboardPage() {
               salesCount={salesCount}
               ordersCount={ordersCount}
               customers={customers}
-              productsCount={productsCount}
               totalProfit={totalProfit}
               totalRevenue={totalRevenue}
             />
@@ -840,8 +802,7 @@ export default function DashboardPage() {
                 salesCount={salesCount}
                 ordersCount={ordersCount}
                 customers={customers}
-                productsCount={productsCount}
-                totalProfit={totalProfit}
+                  totalProfit={totalProfit}
                 totalRevenue={totalRevenue}
                 hideTitle
               />
@@ -1019,7 +980,6 @@ function BusinessSummaryPanel({
   salesCount,
   ordersCount,
   customers,
-  productsCount,
   totalProfit,
   totalRevenue,
   hideTitle = false,
@@ -1028,7 +988,6 @@ function BusinessSummaryPanel({
   salesCount: number;
   ordersCount: number;
   customers: number;
-  productsCount: number;
   totalProfit: number;
   totalRevenue: number;
   hideTitle?: boolean;
@@ -1046,8 +1005,7 @@ function BusinessSummaryPanel({
           metrics={[
             { label: "Ventas", value: Math.min(salesTotal / 100000, 1) },
             { label: "Órdenes", value: Math.min(ordersCount / 50, 1) },
-            { label: "Clientes", value: Math.min(customers / 100, 1) },
-            { label: "Productos", value: Math.min(productsCount / 50, 1) },
+            { label: "Clientes", value: Math.min(customers / 100, 1) },
             { label: "Ganancia", value: Math.min(totalProfit / 50000, 1) },
           ]}
         />

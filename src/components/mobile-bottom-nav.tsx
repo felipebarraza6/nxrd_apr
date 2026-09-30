@@ -8,11 +8,7 @@ import { LayoutGrid, LineChart, CreditCard, LifeBuoy, type LucideIcon } from "lu
 import { cn } from "@/lib/utils";
 import {
   useIsCashier,
-  useIsWaiter,
-  useIsCook,
   useCashierAllowedPaths,
-  useWaiterAllowedPaths,
-  useCookAllowedPaths,
   useCanManageCustomers,
 } from "@/lib/store/session";
 import { useFrigMenu } from "@/lib/hooks/useFrigMenu";
@@ -49,11 +45,7 @@ export const MobileBottomNav = memo(function MobileBottomNav({
   const router = useRouter();
   const reduceMotion = useReducedMotion();
   const isCashier = useIsCashier();
-  const isWaiter = useIsWaiter();
-  const isCook = useIsCook();
   const cashierAllowedPaths = useCashierAllowedPaths();
-  const waiterAllowedPaths = useWaiterAllowedPaths();
-  const cookAllowedPaths = useCookAllowedPaths();
   const canManageCrm = useCanManageCustomers();
   const menuGroups = useFrigMenu();
   const { favorites } = useNavFavorites();
@@ -69,21 +61,13 @@ export const MobileBottomNav = memo(function MobileBottomNav({
   const roleFilter: NavRoleFilter = useMemo(
     () => ({
       isCashier,
-      isWaiter,
-      isCook,
       canManageCrm,
       cashierAllowedPaths,
-      waiterAllowedPaths,
-      cookAllowedPaths,
     }),
     [
       isCashier,
-      isWaiter,
-      isCook,
       canManageCrm,
       cashierAllowedPaths,
-      waiterAllowedPaths,
-      cookAllowedPaths,
     ],
   );
 
@@ -139,21 +123,20 @@ export const MobileBottomNav = memo(function MobileBottomNav({
 
     if (starred.length > 0) return starred.slice(0, BOTTOM_NAV_SLOTS);
 
-    const preferred = defaultBottomNavHrefs({ isCashier, isWaiter, isCook });
+    const preferred = defaultBottomNavHrefs({ isCashier });
     return preferred
       .map((href) => visibleMenuItems.find((i) => i.href === href))
       .filter((item): item is NonNullable<typeof item> => Boolean(item))
       .map(toNavItem)
       .slice(0, BOTTOM_NAV_SLOTS);
-  }, [visibleMenuItems, favorites, isCashier, isWaiter, isCook, lockedStable]);
+  }, [visibleMenuItems, favorites, isCashier, lockedStable]);
 
   // Prefetch de tabs + perfil para navegación instantánea en la PWA.
   useEffect(() => {
     const hrefs = new Set([
       ...navItems.map((i) => i.href),
       "/profile",
-      ...(isCashier || isWaiter ? ["/pos/terminal"] : []),
-      ...(isCook ? ["/kds"] : []),
+      ...(isCashier ? ["/payments"] : []),
     ]);
     hrefs.forEach((href) => {
       try {
@@ -162,7 +145,7 @@ export const MobileBottomNav = memo(function MobileBottomNav({
         /* prefetch best-effort */
       }
     });
-  }, [navItems, router, isCashier, isWaiter, isCook]);
+  }, [navItems, router, isCashier]);
 
   const items: (NavItem & { onClick?: () => void; keyId: string })[] = [
     ...navItems.map((item) => ({ ...item, keyId: item.href })),

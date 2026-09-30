@@ -7,11 +7,7 @@ import { cn } from "@/lib/utils";
 import {
   useSessionStore,
   useIsCashier,
-  useIsWaiter,
-  useIsCook,
   useCashierAllowedPaths,
-  useWaiterAllowedPaths,
-  useCookAllowedPaths,
   useBranchModulesState,
   useIsSuperAdmin,
 } from "@/lib/store/session";
@@ -27,7 +23,6 @@ import { MobileMenuSheet } from "@/components/mobile-menu-sheet";
 import { RealtimeProvider } from "@/components/realtime/realtime-provider";
 import { Toaster } from "@/components/ui/toaster";
 import { SupportLauncher } from "@/components/support/support-launcher";
-import { ProductIdentity } from "@/components/product-identity";
 import { ForbiddenListener } from "@/components/forbidden-listener";
 import { HeroPlexus } from "@/components/landing/hero-plexus";
 import { enabledModuleSet, firstEnabledAllowedPath } from "@/lib/modules";
@@ -76,12 +71,8 @@ export default function AppLayout({ children }: { children: ReactNode }) {
   const user = useSessionStore((s) => s.user);
   const currentBranchId = useSessionStore((s) => s.currentBranchId);
   const isCashier = useIsCashier();
-  const isWaiter = useIsWaiter();
-  const isCook = useIsCook();
   const isSuperAdmin = useIsSuperAdmin();
   const cashierAllowedPaths = useCashierAllowedPaths();
-  const waiterAllowedPaths = useWaiterAllowedPaths();
-  const cookAllowedPaths = useCookAllowedPaths();
   const sessionModules = useBranchModulesState();
   const enabledModules = useMemo(
     () => enabledModuleSet(sessionModules),
@@ -222,20 +213,6 @@ export default function AppLayout({ children }: { children: ReactNode }) {
       return;
     }
 
-    if (isWaiter && !isAllowed(pathname, waiterAllowedPaths)) {
-      const target =
-        firstEnabledAllowedPath(waiterAllowedPaths, enabledModules) ?? "/profile";
-      router.replace(target);
-      return;
-    }
-
-    if (isCook && !isAllowed(pathname, cookAllowedPaths)) {
-      const target =
-        firstEnabledAllowedPath(cookAllowedPaths, enabledModules) ?? "/profile";
-      router.replace(target);
-      return;
-    }
-
     // Superadmin: solo administra organizaciones/sucursales, no opera.
     // Si intenta acceder a una ruta operativa, redirigir a /organization.
     if (
@@ -243,29 +220,6 @@ export default function AppLayout({ children }: { children: ReactNode }) {
       !isAllowed(pathname, [...SUPERADMIN_ALLOWED_PATHS])
     ) {
       router.replace("/organization");
-      return;
-    }
-
-    // Cajero/mesero no necesitan ver el hub de estaciones; entran directo al terminal.
-    if ((isCashier || isWaiter) && pathname === "/pos") {
-      // Si por algún motivo el módulo POS quedó deshabilitado, los mandamos
-      // a otra ruta operativa permitida antes que dejarlos en un hub que
-      // no pueden usar.
-      if (!enabledModules.has("pos")) {
-        const fallback =
-          (isCashier
-            ? firstEnabledAllowedPath(cashierAllowedPaths, enabledModules)
-            : firstEnabledAllowedPath(waiterAllowedPaths, enabledModules)) ?? "/profile";
-        router.replace(fallback);
-        return;
-      }
-      router.replace("/pos/terminal");
-      return;
-    }
-
-    // Cocinero: si production/KDS está apagado, fuera del hub; si no, se queda en /kds.
-    if (isCook && pathname.startsWith("/kds") && !enabledModules.has("production")) {
-      router.replace("/profile");
       return;
     }
 
@@ -282,12 +236,8 @@ export default function AppLayout({ children }: { children: ReactNode }) {
     pathname,
     router,
     isCashier,
-    isWaiter,
-    isCook,
     isSuperAdmin,
     cashierAllowedPaths,
-    waiterAllowedPaths,
-    cookAllowedPaths,
     isRouteModuleEnabled,
     enabledModules,
     branches,
@@ -315,7 +265,6 @@ export default function AppLayout({ children }: { children: ReactNode }) {
 
   return (
     <RealtimeProvider>
-      <ProductIdentity />
       <ForbiddenListener />
       <div className="relative flex min-h-full">
         {/* Misma muralla de datos en todos los módulos (Ayuda incluida).

@@ -9,13 +9,9 @@ export function isPathAllowed(href: string, allowedPaths: string[]): boolean {
 
 export interface NavRoleFilter {
   isCashier: boolean;
-  isWaiter: boolean;
-  isCook: boolean;
   /** Permiso de gestión comercial (OWNER/ADMIN_LOCAL/MANAGER/superuser). Sin él se oculta todo el grupo CRM. */
   canManageCrm: boolean;
   cashierAllowedPaths: string[];
-  waiterAllowedPaths: string[];
-  cookAllowedPaths: string[];
 }
 
 /** Rutas del ecosistema CRM: requieren canManageCrm además del rol operativo. */
@@ -29,12 +25,6 @@ function isCrmPath(href: string): boolean {
 export function isNavHrefAllowed(href: string, role: NavRoleFilter): boolean {
   if (!role.canManageCrm && isCrmPath(href)) return false;
   if (role.isCashier) return isPathAllowed(href, role.cashierAllowedPaths);
-  if (role.isWaiter) {
-    // Mesero: el hub /pos redirige al terminal; se deja visible en menú.
-    if (href === "/pos") return true;
-    return isPathAllowed(href, role.waiterAllowedPaths);
-  }
-  if (role.isCook) return isPathAllowed(href, role.cookAllowedPaths);
   return true;
 }
 
@@ -52,19 +42,9 @@ export const BOTTOM_NAV_SLOTS = 4;
  * Orden preferido de tabs por rol cuando el usuario aún no pinneó favoritos.
  * Se intersecta después con el menú visible/permitido.
  */
-export function defaultBottomNavHrefs(role: {
-  isCashier: boolean;
-  isWaiter: boolean;
-  isCook: boolean;
-}): string[] {
+export function defaultBottomNavHrefs(role: { isCashier: boolean }): string[] {
   if (role.isCashier) {
-    return ["/pos", "/cash-register", "/sales", "/profile"];
+    return ["/payments", "/cash-register", "/customers", "/profile"];
   }
-  if (role.isWaiter) {
-    return ["/tables", "/pos", "/help", "/profile"];
-  }
-  if (role.isCook) {
-    return ["/kds", "/profile"];
-  }
-  return ["/dashboard", "/sales", "/pos", "/cash-register", "/tables", "/customers"];
+  return ["/dashboard", "/payments", "/cash-register", "/customers", "/profile"];
 }

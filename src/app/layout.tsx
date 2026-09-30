@@ -97,7 +97,11 @@ if(theme.algorithm==="dark"){root.classList.add("dark");}
 else if(theme.algorithm==="light"){root.classList.remove("dark");}
 }catch(e){}})();`;
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html
       lang="es"

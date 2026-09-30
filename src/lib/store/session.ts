@@ -562,37 +562,12 @@ const CASHIER_ALLOWED_PATHS = [
   "/support",
 ];
 
-const WAITER_ALLOWED_PATHS = [
-  "/pos",
-  "/pos/terminal",
-  "/tables",
-  "/tables/map",
-  "/profile",
-  "/help",
-  "/support",
-];
+
 
 /** App de cocina: KDS + perfil (como el cajero con POS). */
-const COOK_ALLOWED_PATHS = [
-  "/kds",
-  "/kds/terminal",
-  "/kds/monitor",
-  "/profile",
-  "/help",
-  "/support",
-];
+
 
 /** Rutas a las que un cajero puede navegar libremente. */
 export function useCashierAllowedPaths(): string[] {
   return useMemo(() => CASHIER_ALLOWED_PATHS, []);
-}
-
-/** Rutas a las que un mesero puede navegar libremente. */
-export function useWaiterAllowedPaths(): string[] {
-  return useMemo(() => WAITER_ALLOWED_PATHS, []);
-}
-
-/** Rutas a las que un cocinero puede navegar libremente. */
-export function useCookAllowedPaths(): string[] {
-  return useMemo(() => COOK_ALLOWED_PATHS, []);
 }

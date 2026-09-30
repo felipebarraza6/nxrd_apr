@@ -59,15 +59,14 @@ export const HELP_GUIDE_GROUPS: {
   description: string;
 }[] = [
   { id: "inicio", label: "Inicio", description: "Acceso, roles y panorama general" },
-  { id: "vender", label: "Vender", description: "POS, caja, ventas y cotizaciones" },
-  { id: "local", label: "Local", description: "Mesas, planta virtual y cocina KDS" },
-  { id: "crm", label: "CRM", description: "Clientes y promociones" },
-  { id: "catalogo", label: "Catálogo", description: "Productos, menús públicos e inventario" },
+  { id: "vender", label: "Cobros", description: "Cargos de agua, caja y cobros" },
+    { id: "crm", label: "Socios", description: "Socios, conexiones y seguimientos" },
+  { id: "catalogo", label: "Operación", description: "Materiales, bodegas e inventario" },
   { id: "dinero", label: "Dinero", description: "Pagos, finanzas, proveedores y bancos" },
-  { id: "informes", label: "Informes", description: "Ventas, flujo de caja y nutrición" },
+  { id: "informes", label: "Informes", description: "Cobros, flujo de caja y CRM" },
   { id: "ajustes", label: "Ajustes", description: "Organización, usuarios, sucursales y módulos" },
   { id: "ayuda", label: "Ayuda", description: "Suscripción, soporte y documentación" },
-  { id: "integraciones", label: "Integraciones", description: "Alcance de la API que la app usa en el local" },
+  { id: "integraciones", label: "Integraciones", description: "Alcance de la API que la app usa en el APR" },
 ];
 
 export const HELP_GUIDES: HelpGuide[] = [
@@ -165,55 +164,6 @@ export const HELP_GUIDES: HelpGuide[] = [
 
   // ── Vender ──────────────────────────────────────────────────────────────
   {
-    slug: "pos",
-    title: "Punto de venta (POS)",
-    summary: "Terminal de venta, cuentas abiertas y cobros.",
-    group: "vender",
-    module: "pos",
-    audience: ["ops", "admin"],
-    icon: "HandCoins",
-    href: "/pos",
-    sections: [
-      {
-        heading: "Antes de vender",
-        body: [
-          "Abre la estación de caja ligada al punto de venta.",
-          "Confirma que POS y Caja estén activos en Módulos.",
-        ],
-      },
-      {
-        heading: "Flujo de cobro",
-        body: [
-          "Crea o retoma una cuenta, agrega productos, combos y opciones (tamaño, extras).",
-          "Revisa el total, aplica cupón o descuento si Promociones está activo.",
-          "Cobra: el pago queda en la caja abierta de esa estación.",
-        ],
-        tips: [
-          "En el teléfono usa el POS a pantalla completa.",
-          "Si no ves un producto, confirma que esté marcado En venta y que el módulo de catálogo esté activo.",
-        ],
-        example: {
-          kicker: "POS · Mesa 7",
-          title: "Cuenta abierta",
-          badge: "Por cobrar",
-          items: [
-            "Completo italiano × 2 · $9.000",
-            "Bebida 350 ml · $1.200",
-            "Cupón 10% · −$1.020",
-          ],
-          total: "$9.180",
-        },
-      },
-      {
-        heading: "Si algo no cuadra",
-        body: [
-          "Sin caja abierta no se puede cobrar: ábrela en Caja.",
-          "Una cuenta de mesa se cierra al pagar; vuelve a Mesas si necesitas reabrir el salón.",
-        ],
-      },
-    ],
-  },
-  {
     slug: "caja",
     title: "Caja",
     summary: "Apertura, movimientos, arqueo y cierre de estación.",
@@ -287,110 +237,8 @@ export const HELP_GUIDES: HelpGuide[] = [
       },
     ],
   },
-  {
-    slug: "cotizaciones",
-    title: "Cotizaciones",
-    summary: "Presupuestos convertibles a orden de venta.",
-    group: "vender",
-    module: "sales",
-    audience: ["ops", "admin"],
-    icon: "FileText",
-    href: "/quotations",
-    sections: [
-      {
-        heading: "Flujo",
-        body: [
-          "Crea la cotización con cliente y líneas.",
-          "Cuando el cliente acepta, conviértela a orden (venta).",
-        ],
-        tips: ["Si no ves el PDF, pide al administrador que revise el módulo de documentos."],
-      },
-    ],
-  },
 
   // ── Local ───────────────────────────────────────────────────────────────
-  {
-    slug: "mesas",
-    title: "Mesas",
-    summary: "Estado del salón y cuentas por mesa.",
-    group: "local",
-    module: "tables",
-    audience: ["ops"],
-    icon: "Table",
-    href: "/tables",
-    sections: [
-      {
-        heading: "Operación",
-        body: [
-          "Cada mesa muestra si está libre, ocupada o en espera de pago.",
-          "Abre o une la cuenta de la mesa con el POS. El cobro cierra la mesa.",
-        ],
-        tips: ["En hora punta usa la planta virtual para ver el salón de un vistazo."],
-        example: {
-          kicker: "Salón",
-          title: "Mesa 7",
-          badge: "Ocupada",
-          rows: [
-            { label: "Personas", value: "4" },
-            { label: "Cuenta", value: "$9.180" },
-            { label: "Tiempo", value: "28 min" },
-          ],
-        },
-      },
-    ],
-  },
-  {
-    slug: "planta-virtual",
-    title: "Planta virtual",
-    summary: "Mapa del salón para asignar y mover mesas.",
-    group: "local",
-    module: "tables",
-    audience: ["ops", "admin"],
-    icon: "Cuboid",
-    href: "/tables/map",
-    sections: [
-      {
-        heading: "Uso",
-        body: [
-          "La vista Virtual muestra la planta. Arrastra o selecciona mesas según el layout configurado.",
-          "Pantalla completa disponible para uso en hostess o tablet de salón.",
-        ],
-      },
-    ],
-  },
-  {
-    slug: "kds",
-    title: "KDS — cocina",
-    summary: "Pantallas de cocina, estaciones y estados de comanda.",
-    group: "local",
-    module: "production",
-    audience: ["ops"],
-    icon: "Monitor",
-    href: "/kds",
-    sections: [
-      {
-        heading: "Estaciones",
-        body: [
-          "Cada estación (plancha, barra, postres) recibe solo sus tickets.",
-          "Avanza el plato: recibido → en preparación → listo → entregado.",
-        ],
-        tips: ["Si un ticket no aparece, revisa que el producto tenga estación de cocina asignada."],
-        example: {
-          kicker: "Plancha",
-          title: "Mesa 7 · #1842",
-          badge: "En preparación",
-          items: ["Completo italiano × 2", "Sin mayo · extra palta"],
-        },
-      },
-      {
-        heading: "Monitor",
-        body: [
-          "El monitor resume lo listo y lo pendiente para el salón o la expedición.",
-          "Úsalo en una pantalla fija; no sustituye el trabajo en la estación de cocina.",
-        ],
-      },
-    ],
-  },
 
   // ── CRM ─────────────────────────────────────────────────────────────────
   {
@@ -528,70 +376,8 @@ export const HELP_GUIDES: HelpGuide[] = [
       },
     ],
   },
-  {
-    slug: "promociones",
-    title: "Promociones y descuentos",
-    summary: "Cupones, % y reglas aplicables en POS.",
-    group: "crm",
-    module: "promotions",
-    audience: ["admin", "ops"],
-    icon: "Percent",
-    href: "/promotions/discounts",
-    sections: [
-      {
-        heading: "Configurar",
-        body: [
-          "Define descuentos por porcentaje, monto o cupón.",
-          "Vigencia, sucursal y restricciones de productos según el contrato del backend.",
-        ],
-      },
-      {
-        heading: "Aplicar en POS",
-        body: [
-          "En el cobro, el cajero puede aplicar cupón o descuento de línea/cuenta.",
-        ],
-      },
-    ],
-  },
 
   // ── Catálogo ────────────────────────────────────────────────────────────
-  {
-    slug: "productos",
-    title: "Productos",
-    summary: "Catálogo vendible: precios, tipos y disponibilidad.",
-    group: "catalogo",
-    module: "product_catalog",
-    audience: ["admin"],
-    icon: "Package",
-    href: "/products",
-    sections: [
-      {
-        heading: "Tipos",
-        body: [
-          "Venta directa, receta, servicio u otros tipos que tenga tu sucursal.",
-          "Marca En venta para que el producto salga en el POS y en las cartas públicas.",
-        ],
-        example: {
-          kicker: "Catálogo",
-          title: "Completo italiano",
-          badge: "En venta",
-          rows: [
-            { label: "Tipo", value: "Venta directa" },
-            { label: "Precio", value: "$4.500" },
-            { label: "Categoría", value: "Sandwiches" },
-          ],
-        },
-      },
-      {
-        heading: "Precios y stock",
-        body: [
-          "Define precio de venta (y mayorista si aplica) y un mínimo para reponer.",
-          "Asocia bodegas y, si compras a un proveedor, déjalo en la ficha.",
-        ],
-        tips: ["Un producto sin stock en recinto puede venderse igual si no controlas inventario; actívalo si quieres cortar venta al llegar a cero."],
-      },
-    ],
-  },
   {
     slug: "combos-y-modificadores",
     title: "Combos y modificadores",
@@ -631,45 +417,6 @@ export const HELP_GUIDES: HelpGuide[] = [
           "Crea categorías y asigna productos.",
           "El orden y visibilidad impactan cartas digitales y el selector del POS.",
         ],
-      },
-    ],
-  },
-  {
-    slug: "etiquetado-nutricional",
-    title: "Etiquetado nutricional",
-    summary: "Tablas nutricionales y PDF de cumplimiento.",
-    group: "catalogo",
-    module: "nutrition",
-    audience: ["admin"],
-    icon: "Apple",
-    href: "/products/nutrition",
-    sections: [
-      {
-        heading: "Studio",
-        body: [
-          "Selecciona producto compuesto o insumo y revisa el cálculo nutricional.",
-          "Genera vista previa / PDF desde el cliente cuando el backend no entrega PDF nativo.",
-        ],
-      },
-    ],
-  },
-  {
-    slug: "menus-y-vitrinas",
-    title: "Menús y vitrinas",
-    summary: "Cartas digitales, QR, totems y pedidos públicos.",
-    group: "catalogo",
-    module: "public_catalog",
-    audience: ["admin", "ops"],
-    icon: "Store",
-    href: "/products/menus",
-    sections: [
-      {
-        heading: "Publicar",
-        body: [
-          "Configura menú/vitrina, branding y modo (solo lectura, WhatsApp, pago).",
-          "Comparte URL o QR. El logo cae al tema de sucursal si no hay branding propio.",
-        ],
-        tips: ["Ingredientes en carta pública pueden requerir campos del backend."],
       },
     ],
   },
@@ -920,25 +667,6 @@ export const HELP_GUIDES: HelpGuide[] = [
         body: [
           "Ingresos y Gastos detallan categorías.",
           "Dinero une pagos, orígenes, ingresos y egresos del período.",
-        ],
-      },
-    ],
-  },
-  {
-    slug: "informe-nutricional",
-    title: "Informe nutricional",
-    summary: "Compuestos, insumos y cálculo nutricional.",
-    group: "informes",
-    module: "nutrition",
-    audience: ["admin"],
-    icon: "Apple",
-    href: "/reports/nutrition",
-    sections: [
-      {
-        heading: "Uso",
-        body: [
-          "Analiza productos compuestos e insumos.",
-          "Complementa el studio de etiquetado en Catálogo.",
         ],
       },
     ],
@@ -1212,46 +940,6 @@ export const HELP_GUIDES: HelpGuide[] = [
           "Finanzas, bancos, facturación y promociones: caja, movimientos, documentos y cupones.",
           "Sucursales y usuarios: locales, tema visual y equipo (sobre todo lecturas).",
         ],
-      },
-    ],
-  },
-  {
-    slug: "api-ventas-pos",
-    title: "API: ventas y salón",
-    summary: "Lo que la app hace al vender: pedido, cobro, mesa y cocina.",
-    group: "integraciones",
-    module: "sales",
-    audience: ["dev"],
-    icon: "Code2",
-    href: "/help/api",
-    sections: [
-      {
-        heading: "Qué puedes hacer",
-        body: [
-          "Crear un pedido, agregar líneas (producto, combo, opciones), consultar el historial.",
-          "Registrar un cobro. El dinero entra a la caja abierta de esa estación, igual que en el POS.",
-          "Leer mesas (libre, ocupada, por pagar) y tickets de cocina (recibido, en preparación, listo).",
-          "Crear o convertir cotizaciones, como en la pantalla de Cotizaciones.",
-        ],
-        example: {
-          kicker: "Tu canal · mismo pedido que el POS",
-          title: "Mesa 7",
-          badge: "Pagada",
-          items: ["Completo italiano × 2 · $9.000", "Bebida 350 ml · $1.200"],
-          total: "$10.200",
-        },
-        limits: [
-          "Sin caja abierta el cobro falla: ábrela en la app o replica el flujo de Caja en Finanzas.",
-          "No inventes estados de pedido que la app no muestra. Sigue los del detalle de Ventas.",
-        ],
-      },
-      {
-        heading: "En la consola",
-        body: [
-          "Área Ventas. Filtra Crear para altas y Leer para consultas.",
-          "Copia el JSON del detalle; cambia sucursal, mesa, producto e importes por datos reales.",
-        ],
-        tips: ["Promociones y cupones se aplican como en el POS: área Promociones, si el módulo está activo."],
       },
     ],
   },

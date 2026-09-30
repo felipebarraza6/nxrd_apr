@@ -23,11 +23,7 @@ import {
   useCurrentBranch,
   useCanSwitchBranch,
   useIsCashier,
-  useIsWaiter,
-  useIsCook,
   useCashierAllowedPaths,
-  useWaiterAllowedPaths,
-  useCookAllowedPaths,
   useCanManageCustomers,
 } from "@/lib/store/session";
 import { BranchSwitcherModal } from "@/components/branch-switcher-modal";
@@ -60,11 +56,7 @@ export function MobileMenuSheet({ open, onClose }: MobileMenuSheetProps) {
   const menuGroups = useFrigMenu();
   const { favorites, toggleFavorite, isFavorite } = useNavFavorites();
   const isCashier = useIsCashier();
-  const isWaiter = useIsWaiter();
-  const isCook = useIsCook();
   const cashierAllowedPaths = useCashierAllowedPaths();
-  const waiterAllowedPaths = useWaiterAllowedPaths();
-  const cookAllowedPaths = useCookAllowedPaths();
   const canManageCrm = useCanManageCustomers();
   const [editingQuickAccess, setEditingQuickAccess] = useState(false);
   const [branchPickerOpen, setBranchPickerOpen] = useState(false);
@@ -72,21 +64,13 @@ export function MobileMenuSheet({ open, onClose }: MobileMenuSheetProps) {
   const roleFilter: NavRoleFilter = useMemo(
     () => ({
       isCashier,
-      isWaiter,
-      isCook,
       canManageCrm,
       cashierAllowedPaths,
-      waiterAllowedPaths,
-      cookAllowedPaths,
     }),
     [
       isCashier,
-      isWaiter,
-      isCook,
       canManageCrm,
       cashierAllowedPaths,
-      waiterAllowedPaths,
-      cookAllowedPaths,
     ],
   );
 

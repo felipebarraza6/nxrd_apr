@@ -38,8 +38,6 @@ import { fetchPaymentMethods, createPayment, type YggdraPaymentMethod } from "@/
 import { getCashRegisters, type CashRegister } from "@/lib/api/cash-register";
 import { fetchTaxTypes, type TaxType } from "@/lib/api/tax-types";
 import { searchCustomers, createCustomer } from "@/lib/api/customers";
-import { occupyTable, fetchTables } from "@/lib/api/tables";
-import { CashierTableTiles } from "@/components/tables/cashier-table-tiles";
 import { useCurrentBranch, useCanViewTables, useIsModuleEnabledFromConfig } from "@/lib/store/session";
 import { usePosConfig } from "@/lib/store/pos-config";
 import { useToast } from "@/lib/store/toast";
@@ -294,13 +292,6 @@ export default function QuickSaleModal({
     setTaxDefaultsApplied(true);
     setSelectedTaxIds((taxTypes as TaxType[]).filter((t) => t.is_default).map((t) => t.id));
   }
-
-  const { data: tablesPage } = useQuery({
-    queryKey: ["tables", "quick-sale"],
-    queryFn: () => fetchTables({ is_active: true, page_size: 200 }),
-    enabled: open && showTables,
-    staleTime: 60_000,
-  });
 
   const { data: productResults = [], isLoading: searchingProducts } = useQuery({
     queryKey: ["products", "for-sale", "quick-sale", debouncedProductQuery, branch?.branch_id],
@@ -610,15 +601,6 @@ export default function QuickSaleModal({
           observation: finalObservation,
         });
         orderId = order.id;
-
-        if (orderType === "ORDER" && table) {
-          try {
-            await occupyTable(table, { action: "occupy", order_id: order.id });
-            queryClient.invalidateQueries({ queryKey: ["tables"] });
-          } catch {
-            // La mesa pudo quedar ocupada por otro proceso; no bloquea la venta.
-          }
-        }
       }
 
       if (chargeNow) {
@@ -1037,13 +1019,6 @@ export default function QuickSaleModal({
 
             {showTables && (
               <div className="flex min-w-0 flex-col gap-1.5">
-                <p className="text-xs font-medium text-muted-foreground">Mesa</p>
-                <CashierTableTiles
-                  tables={tablesPage?.results ?? []}
-                  selectedId={tableId || null}
-                  hideUnavailable
-                  onSelect={(t) => setTableId(t ? String(t.id) : "")}
-                />
               </div>
             )}
 

@@ -3,7 +3,7 @@
 import { Children, useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { m, AnimatePresence } from "framer-motion";
 import {
   LayoutDashboard,
@@ -22,12 +22,7 @@ import {
   useSessionStore,
   useCurrentBranch,
   useIsCashier,
-  useIsWaiter,
-  useIsCook,
-  useIsModuleEnabledFromConfig,
   useCashierAllowedPaths,
-  useWaiterAllowedPaths,
-  useCookAllowedPaths,
 } from "@/lib/store/session";
 import { useIsSuperAdmin } from "@/lib/store/session";
 import { useCanManageCustomers } from "@/lib/store/session";
@@ -39,7 +34,6 @@ import { useSidebarStore } from "@/lib/store/sidebar";
 import { filterNavItemsByRole, type NavRoleFilter } from "@/lib/nav-access";
 import { logout } from "@/lib/api/auth";
 import { logoutLocal } from "@/lib/logout-local";
-import { fetchKitchenTickets } from "@/lib/api/kitchen";
 import { BrandLogo } from "@/components/brand-logo";
 import { useProductBrand } from "@/lib/product-name";
 import { BranchSwitcher } from "@/components/branch-switcher";
@@ -90,39 +84,26 @@ export function AppSidebar({ onNavigate, forceExpanded, defaultOpenGroups }: App
   const hasHydrated = useSessionStore((s) => s.hasHydrated);
   const user = useSessionStore((s) => s.user);
   const _theme = useSessionStore((s) => s.theme);
-  const branch = useCurrentBranch();
   const menuGroups = useFrigMenu();
   const isCashier = useIsCashier();
-  const isWaiter = useIsWaiter();
-  const isCook = useIsCook();
   const isSuperAdmin = useIsSuperAdmin();
   const { locked: subscriptionLocked } = useSubscriptionLock();
   const { name: appName, logo: brandLogo } = useProductBrand();
   const { favorites, toggleFavorite, isFavorite } = useNavFavorites();
 
   const cashierAllowedPaths = useCashierAllowedPaths();
-  const waiterAllowedPaths = useWaiterAllowedPaths();
-  const cookAllowedPaths = useCookAllowedPaths();
   const canManageCrm = useCanManageCustomers();
 
   const roleFilter: NavRoleFilter = useMemo(
     () => ({
       isCashier,
-      isWaiter,
-      isCook,
       canManageCrm,
       cashierAllowedPaths,
-      waiterAllowedPaths,
-      cookAllowedPaths,
     }),
     [
       isCashier,
-      isWaiter,
-      isCook,
       canManageCrm,
       cashierAllowedPaths,
-      waiterAllowedPaths,
-      cookAllowedPaths,
     ],
   );
 
@@ -166,21 +147,7 @@ export function AppSidebar({ onNavigate, forceExpanded, defaultOpenGroups }: App
       .filter((group) => group.items.length > 0);
   }, [menuGroups, roleFilter, subscriptionLocked]);
 
-  const isProductionEnabled = useIsModuleEnabledFromConfig("production");
-  const frontendConfigBranchId = useSessionStore((s) => s.frontendConfigBranchId);
-  const modulesReady = !!branch?.id && String(branch.id) === frontendConfigBranchId;
 
-  const { data: kitchenTickets = [] } = useQuery({
-    queryKey: ["kitchen-tickets", "READY"],
-    queryFn: () => fetchKitchenTickets("READY"),
-    refetchInterval: 15_000,
-    enabled: !!branch && isProductionEnabled && modulesReady,
-  });
-
-  const badges = useMemo(() => {
-    const readyCount = kitchenTickets.length;
-    return { readyCount };
-  }, [kitchenTickets]);
 
   const handleLogout = useCallback(async () => {
     try {
@@ -226,10 +193,6 @@ export function AppSidebar({ onNavigate, forceExpanded, defaultOpenGroups }: App
     [visibleMenuGroups],
   );
 
-  function getBadgeValue(badge?: string) {
-    if (badge === "kitchenReady") return badges.readyCount > 0 ? badges.readyCount : undefined;
-    return undefined;
-  }
 
   function getActiveHref(items: { href: string }[], path: string): string | null {
     const normalized = path.replace(/\/$/, "") || "/";
@@ -416,16 +379,11 @@ export function AppSidebar({ onNavigate, forceExpanded, defaultOpenGroups }: App
                 ?.items.map((item) => (
                   <NavItem
                     key={item.href}
-                    href={
-                      (isCashier || isWaiter) && item.href === "/pos"
-                        ? ("/pos/terminal" as string)
-                        : item.href
-                    }
+                    href={item.href}
                     label={item.label}
                     icon={item.icon}
                     active={activeHref === item.href}
                     expanded={effectivelyExpanded}
-                    badge={getBadgeValue(item.badge)}
                     onToggleFavorite={() => toggleFavorite(item.href)}
                     favorited={isFavorite(item.href)}
                     onClick={onNavigate}
@@ -457,11 +415,7 @@ export function AppSidebar({ onNavigate, forceExpanded, defaultOpenGroups }: App
                       icon={item.icon}
                       active={groupActiveHref === item.href}
                       expanded={effectivelyExpanded}
-                      badge={getBadgeValue(
-                        "badge" in item
-                          ? (item as { badge?: "kitchenReady" }).badge
-                          : undefined,
-                      )}
+                      badge={undefined}
                       onToggleFavorite={() => toggleFavorite(item.href)}
                       favorited={isFavorite(item.href)}
                       onClick={onNavigate}
