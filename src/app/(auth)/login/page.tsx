@@ -59,7 +59,7 @@ function DimensionExit({
 }) {
   return (
     <motion.div
-      className="fixed inset-0 z-[60] flex items-center justify-center bg-[#0a0a0a]"
+      className="fixed inset-0 z-[60] flex items-center justify-center bg-[#061624]"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.25 }}
@@ -69,7 +69,7 @@ function DimensionExit({
         className="absolute inset-x-0 bottom-0 h-2/3"
         style={{
           background:
-            "radial-gradient(120% 90% at 50% 115%, rgba(240,162,106,0.5) 0%, rgba(240,162,106,0.14) 45%, transparent 70%)",
+            "radial-gradient(120% 90% at 50% 115%, rgba(56,189,248,0.5) 0%, rgba(56,189,248,0.14) 45%, transparent 70%)",
         }}
       />
       <div className="relative flex flex-col items-center gap-8">
@@ -90,16 +90,25 @@ function DimensionExit({
                   src="/brand/cauce-symbol.svg"
                   alt=""
                   className="h-16 w-auto"
-                  style={{ filter: "drop-shadow(0 0 16px rgba(238,158,112,0.5))" }}
+                  style={{ filter: "drop-shadow(0 0 16px rgba(56,189,248,0.5))" }}
                 />
               </>
             )}
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="/brand/frig-wordmark.png"
-              alt="Frig"
-              className="frig-dimension-loop relative h-16 w-auto sm:h-24"
+              src="/brand/cauce-wordmark-light.svg"
+              alt="Cauce"
+              className="relative h-16 w-auto sm:h-24"
             />
+            <div className="mt-2 flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.25em] text-sky-700">
+              un producto de
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/brand/smartapr-logo.jpg"
+                alt="Smart APR SpA"
+                className="h-8 w-auto rounded-md border border-sky-200 bg-white object-contain p-0.5 shadow-sm"
+              />
+            </div>
           </>
         )}
         {/* Línea de energía: feedback de carga sin texto */}
@@ -383,7 +392,7 @@ export default function LoginPage() {
           className="absolute inset-x-0 bottom-0 h-1/2"
           style={{
             background:
-              "radial-gradient(120% 90% at 50% 115%, rgba(240,162,106,0.16), transparent 70%)",
+              "radial-gradient(120% 90% at 50% 115%, rgba(56,189,248,0.16), transparent 70%)",
           }}
         />
         <div
@@ -399,7 +408,7 @@ export default function LoginPage() {
         </div>
       </div>
       <section
-        style={isFrigIdentity ? { "--input": "#27272a", "--border": "#27272a", "--muted": "#1c1c1f", "--muted-foreground": "#a1a1aa", "--accent": "#1c1c1f", "--background": "#0a0a0a", "--card": "#141414" } as React.CSSProperties : undefined}
+        style={isFrigIdentity ? { "--input": "#1d3a55", "--border": "#1d3a55", "--muted": "#10293f", "--muted-foreground": "#7fb3d5", "--accent": "#10293f", "--background": "#061624", "--card": "#0b2239" } as React.CSSProperties : undefined}
         className={cn(
           "relative flex min-h-dvh flex-1 flex-col items-center justify-center px-4 py-10",
           darkSection ? "dark text-white" : "text-foreground",
@@ -444,6 +453,25 @@ export default function LoginPage() {
                 {brandTheme.tagline && (
                   <p className="mt-1 text-sm text-muted-foreground">{brandTheme.tagline}</p>
                 )}
+              </div>
+            </div>
+          ) : !brandTheme ? (
+            /* Identidad Cauce by Smart APR presidiendo el formulario */
+            <div className="mb-8 flex flex-col items-center gap-3 text-center">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/brand/cauce-wordmark-light.svg"
+                alt="Cauce"
+                className="h-20 w-auto sm:h-24"
+              />
+              <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.25em] text-sky-300/90">
+                un producto de
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/brand/smartapr-logo.jpg"
+                  alt="Smart APR SpA"
+                  className="h-8 w-auto rounded-md border border-sky-200/40 bg-white object-contain p-0.5 shadow-sm"
+                />
               </div>
             </div>
           ) : null}
@@ -667,7 +695,7 @@ export default function LoginPage() {
             transition={{ duration: 0.7, ease: "easeOut" }}
             style={{
               background:
-                "radial-gradient(120% 120% at 50% 100%, rgba(240,162,106,0.4), transparent 60%)",
+                "radial-gradient(120% 120% at 50% 100%, rgba(56,189,248,0.4), transparent 60%)",
             }}
           />
         )}

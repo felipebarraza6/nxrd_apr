@@ -7,18 +7,18 @@ import type { CSSProperties } from "react";
  * desde el primary del tenant (lo que el usuario eligió es lo que ve).
  */
 export const FRIG_IDENTITY_STYLE = {
-  "--brand-primary": "#0369a1",
-  "--color-primary": "#0369a1",
-  "--primary": "#0369a1",
-  "--ring": "#0369a1",
-  "--input": "#27272a",
-  "--border": "#27272a",
-  "--background": "#f8fafc",
-  "--card": "#ffffff",
-  "--muted": "#f1f5f9",
+  "--brand-primary": "#38bdf8",
+  "--color-primary": "#38bdf8",
+  "--primary": "#38bdf8",
+  "--ring": "#38bdf8",
+  "--input": "#1d3a55",
+  "--border": "#1d3a55",
+  "--background": "#061624",
+  "--card": "#0b2239",
+  "--muted": "#10293f",
   "--muted-foreground": "#a1a1aa",
-  "--accent": "#f1f5f9",
-  "--secondary": "#f1f5f9",
+  "--accent": "#10293f",
+  "--secondary": "#10293f",
 } as CSSProperties;
 
 /** Repo público de Frig — atribución sutil en logins de tenants. */
