@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { StandaloneRedirect } from "@/components/standalone-redirect";
 import { HeroPlexus } from "@/components/landing/hero-plexus";
+import { LandingCtas } from "@/components/landing/landing-ctas";
 
 export const metadata: Metadata = {
   title: "Cauce by Smart APR — Gestión de APR: socios, medidores y cobros",
@@ -135,12 +136,7 @@ export default function HomePage() {
             </p>
 
             <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
-              <Link
-                href="/login"
-                className="rounded-xl bg-sky-400 px-6 py-3 text-sm font-semibold text-sky-950 shadow-lg shadow-sky-400/30 transition-colors hover:bg-sky-300"
-              >
-                Entrar al sistema
-              </Link>
+              <LandingCtas />
               <a
                 href="#planes"
                 className="rounded-xl border border-sky-300/40 px-6 py-3 text-sm font-semibold text-sky-100 transition-colors hover:bg-sky-400/10"
@@ -284,17 +280,15 @@ export default function HomePage() {
               tu comité, te entregamos toda la base de datos en Excel y te vas
               sin pagar nada.
             </p>
-            <Link
-              href="/login"
-              className="mt-8 inline-block rounded-xl bg-sky-400 px-8 py-3.5 text-sm font-semibold text-sky-950 shadow-lg shadow-sky-400/30 transition-colors hover:bg-sky-300"
-            >
-              Empezar ahora
-            </Link>            <a
+            <a
               href="mailto:contacto@smartapr.cl?subject=Solicitud%20de%20Plan%20Piloto"
-              className="mt-8 inline-block rounded-xl border border-sky-300/40 px-8 py-3.5 text-sm font-semibold text-sky-100 transition-colors hover:bg-sky-400/10"
+              className="mt-8 inline-block rounded-xl bg-sky-400 px-8 py-3.5 text-sm font-semibold text-sky-950 shadow-lg shadow-sky-400/30 transition-colors hover:bg-sky-300"
             >
               Solicitar Plan Piloto
             </a>
+            <p className="mt-4 text-sm text-sky-200/80">
+              📞 +56 9 9093 2133 · contacto@smartapr.cl
+            </p>
           </div>
         </section>
 
