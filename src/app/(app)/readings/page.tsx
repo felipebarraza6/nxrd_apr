@@ -1,8 +1,10 @@
 "use client";
 
 import { useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
+  Gauge,
   AlertCircle,
   CheckCircle2,
   Download,
@@ -33,6 +35,7 @@ function currentPeriod(): string {
 }
 
 export default function ReadingsPage() {
+  const router = useRouter();
   const toast = useToast();
   const queryClient = useQueryClient();
   const [period, setPeriod] = useState(currentPeriod());
@@ -101,6 +104,14 @@ export default function ReadingsPage() {
         subtitle={`Período ${period}: captura por medidor y carga masiva desde planilla.`}
         actions={
           <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              className="h-9"
+              onClick={() => router.push('/readings/pos?period=' + period)}
+            >
+              <Gauge className="h-4 w-4" />
+              Modo casa por casa
+            </Button>
             <Button
               variant="outline"
               className="h-9"

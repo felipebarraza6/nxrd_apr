@@ -239,6 +239,7 @@ export const FRIG_MENU_DEF: FrigMenuGroup[] = [
     items: [
       { href: "/meters", label: "Medidores", icon: "Gauge", module: null, description: "Puntos de medición por socio y sector" },
       { href: "/readings", label: "Lecturas", icon: "NotebookPen", module: null, description: "Toma por ruta y carga masiva del período" },
+      { href: "/readings/pos", label: "POS de lectura", icon: "Gauge", module: null, description: "Casa por casa: captura rápida medidor a medidor" },
       { href: "/tariffs", label: "Tarifarios", icon: "ScrollText", module: null, description: "Cargo fijo y tramos por m³" },
       { href: "/billing", label: "Cobros de agua", icon: "Receipt", module: null, description: "Corridas del período y boletas SII" },
     ],

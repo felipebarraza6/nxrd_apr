@@ -3,7 +3,7 @@ import Link from "next/link";
 import { StandaloneRedirect } from "@/components/standalone-redirect";
 
 export const metadata: Metadata = {
-  title: "Cauce — Gestión de APR: socios, medidores y cobros de agua",
+  title: "Cauce by Smart APR — Gestión de APR: socios, medidores y cobros",
   description:
     "Sistema para Agua Potable Rural: socios, puntos de medición, lecturas, tarifarios por tramo, cobros con boleta electrónica SII, caja de oficina e informes.",
 };
@@ -83,7 +83,7 @@ export default function HomePage() {
           </div>
 
           <p className="mt-16 text-xs text-sky-100/40">
-            Cauce (nxrd_apr) — producto en construcción para comités y cooperativas de
+            Cauce — un producto de Smart APR SpA para comités y cooperativas de
             agua potable rural
           </p>
         </div>

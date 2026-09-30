@@ -641,7 +641,7 @@ export default function LoginPage() {
             </div>
           ) : (
             <p className={cn("mt-8 text-center text-xs text-muted-foreground")}>
-              Gestión comercial y gastronómica por FRIG
+              Cauce — un producto de Smart APR SpA
             </p>
           )}
           </motion.div>

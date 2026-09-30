@@ -1,6 +1,6 @@
 {
-  "name": "Cauce — Gestión de APR",
-  "short_name": "nxrd_apr",
+  "name": "Cauce by Smart APR — Gestión de APR",
+  "short_name": "Cauce",
   "description": "Socios, medidores, lecturas y cobros de agua para APR.",
   "start_url": "/login",
   "scope": "/",
