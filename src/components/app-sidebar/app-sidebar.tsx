@@ -20,7 +20,6 @@ import {
 import { cn } from "@/lib/utils";
 import {
   useSessionStore,
-  useCurrentBranch,
   useIsCashier,
   useCashierAllowedPaths,
 } from "@/lib/store/session";
