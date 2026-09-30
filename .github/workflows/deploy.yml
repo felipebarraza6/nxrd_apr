@@ -1,30 +1,25 @@
-# Deploy automático de FRIG web a los tres hostings por FTP:
-#   - frig.yggdra.cl                (producción)
-#   - intranet.macanuobowl.cl       (intranet Macanuo Bowl)
-#   - mani.agenciapatagoniachile.com (intranet Agencia Patagonia / Mani)
+# Deploy automático de nxrd_apr a cauce.smartapr.cl por FTP.
 #
 # Requisitos en GitHub → Settings → Secrets and variables → Actions:
 #   Secrets:
-#     FTP_PASSWORD          contraseña FTP de frig_cd@yggdra.cl
-#     FTP_TARGET_DIR        carpeta destino yggdra ("/")
-#     MACANUO_FTP_PASSWORD  contraseña FTP de cd@macanuobowl.cl
-#     MACANUO_FTP_TARGET_DIR carpeta destino macanuo ("/")
-#     MANI_FTP_PASSWORD     contraseña FTP de agenciapatagonia
-#     MANI_FTP_TARGET_DIR   carpeta destino mani ("mani.agenciapatagoniachile.com/")
+#     CAUCE_FTP_PASSWORD    contraseña FTP del usuario cd de cauce.smartapr.cl
+#   Variables:
+#     CAUCE_FTP_SERVER      servidor FTP (ej: ftp.smartapr.cl)
+#     CAUCE_FTP_USERNAME    usuario FTP (ej: cd@cauce.smartapr.cl)
+#     CAUCE_FTP_TARGET_DIR  carpeta destino (ej: "/")
 #
-# Nota: el frontend se compila a HTML estático (next.config.ts usa output:"export").
-# Las rutas dinámicas se sirven mediante .htaccess generado por scripts/post-export.mjs.
+# El frontend se compila a HTML estático (next.config.ts output:"export") y
+# scripts/post-export.mjs genera el .htaccess para las rutas dinámicas.
 
-name: Deploy FRIG web a FTP
+name: Deploy nxrd_apr a cauce.smartapr.cl
 
 on:
   push:
     branches: [production]
   workflow_dispatch:
 
-# Un deploy a la vez: dos pushes seguidos a production no deben pisarse por FTP.
 concurrency:
-  group: deploy-production
+  group: deploy-cauce
   cancel-in-progress: false
 
 jobs:
@@ -32,8 +27,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       NEXT_TELEMETRY_DISABLED: "1"
-      # Se inyecta en build time: NEXT_PUBLIC_* se sustituye en el bundle.
-      # El mismo build sirve para ambos servidores (misma API).
+      # Inyectado en build time: NEXT_PUBLIC_* se sustituye en el bundle.
       NEXT_PUBLIC_YGGDRA_API_BASE: "https://api.yggdra.cl/api"
       # Identificador visible de la versión en la app (Perfil → Aplicación).
       NEXT_PUBLIC_APP_BUILD: "${{ github.run_number }}"
@@ -53,8 +47,6 @@ jobs:
       - name: Lint
         run: npm run lint
 
-      # Genera .next/types (LayoutProps, rutas tipadas) sin build completo;
-      # localmente lo genera next dev, en CI hay que pedirlo explícito.
       - name: Generar tipos de rutas
         run: npx next typegen
 
@@ -67,37 +59,14 @@ jobs:
       - name: Generar .htaccess para rutas dinámicas
         run: node scripts/post-export.mjs
 
-      - name: Subir a frig.yggdra.cl por FTP
+      - name: Subir a cauce.smartapr.cl por FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
-          server: ftp.yggdra.cl
+          server: ${{ vars.CAUCE_FTP_SERVER }}
           port: 21
-          username: frig_cd@yggdra.cl
-          password: ${{ secrets.FTP_PASSWORD }}
+          username: ${{ vars.CAUCE_FTP_USERNAME }}
+          password: ${{ secrets.CAUCE_FTP_PASSWORD }}
           local-dir: out/
-          server-dir: ${{ secrets.FTP_TARGET_DIR }}
-          # Sin dangerous-clean-slate: la raíz del hosting contiene cgi-bin/
-          # y .well-known/ (renovación SSL) que no deben borrarse.
-
-      - name: Subir a intranet.macanuobowl.cl por FTP
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-        with:
-          server: ftp.macanuobowl.cl
-          port: 21
-          username: cd@macanuobowl.cl
-          password: ${{ secrets.MACANUO_FTP_PASSWORD }}
-          local-dir: out/
-          server-dir: ${{ secrets.MACANUO_FTP_TARGET_DIR }}
-          # Sin dangerous-clean-slate por el mismo motivo (.well-known de SSL).
-
-      - name: Subir a mani.agenciapatagoniachile.com por FTP
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-        with:
-          server: ftp.agenciapatagoniachile.com
-          port: 21
-          username: agenciapatagonia
-          password: ${{ secrets.MANI_FTP_PASSWORD }}
-          local-dir: out/
-          server-dir: ${{ secrets.MANI_FTP_TARGET_DIR }}
-          # Sin dangerous-clean-slate: .well-known de SSL y datos de clientes
-          # del hosting compartido (otros addon domains) no deben borrarse.
+          server-dir: ${{ vars.CAUCE_FTP_TARGET_DIR }}
+          # Sin dangerous-clean-slate: la raíz del hosting contiene .well-known/
+          # (renovación SSL) que no debe borrarse.
