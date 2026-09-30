@@ -32,7 +32,6 @@ export default function TariffsPage() {
   const tariffs = [...(tariffsQuery.data ?? [])].sort((a, b) =>
     b.effective_from.localeCompare(a.effective_from),
   );
-  const active = tariffs[0]; // la más reciente es la vigente
 
   return (
     <PageShell>
@@ -203,7 +202,7 @@ function TariffModal({
         <h2 className="text-base font-semibold">Nuevo tarifario</h2>
         <p className="mt-1 text-xs text-muted-foreground">
           Los tramos son acumulativos: cada precio aplica solo a los m³ que caen
-          en su rango. Deja "Hasta" vacío para el tramo final.
+          en su rango. Deja &quot;Hasta&quot; vacío para el tramo final.
         </p>
 
         <form
