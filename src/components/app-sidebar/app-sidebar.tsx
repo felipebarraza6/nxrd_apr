@@ -33,7 +33,6 @@ import { useSidebarStore } from "@/lib/store/sidebar";
 import { filterNavItemsByRole, type NavRoleFilter } from "@/lib/nav-access";
 import { logout } from "@/lib/api/auth";
 import { logoutLocal } from "@/lib/logout-local";
-import { BrandLogo } from "@/components/brand-logo";
 import { useProductBrand } from "@/lib/product-name";
 import { BranchSwitcher } from "@/components/branch-switcher";
 import { CommandPalette, type CommandPaletteItem } from "@/components/command-palette/command-palette";
@@ -83,11 +82,11 @@ export function AppSidebar({ onNavigate, forceExpanded, defaultOpenGroups }: App
   const hasHydrated = useSessionStore((s) => s.hasHydrated);
   const user = useSessionStore((s) => s.user);
   const _theme = useSessionStore((s) => s.theme);
-  const menuGroups = useFrigMenu();
+  const appName = "Cauce";
+const menuGroups = useFrigMenu();
   const isCashier = useIsCashier();
   const isSuperAdmin = useIsSuperAdmin();
   const { locked: subscriptionLocked } = useSubscriptionLock();
-  const { name: appName, logo: brandLogo } = useProductBrand();
   const { favorites, toggleFavorite, isFavorite } = useNavFavorites();
 
   const cashierAllowedPaths = useCashierAllowedPaths();
@@ -234,7 +233,7 @@ export function AppSidebar({ onNavigate, forceExpanded, defaultOpenGroups }: App
       }
     }
     if (bestGroup) setOpenGroup(bestGroup.title);
-  }, [pathname, visibleMenuGroups]);
+  }, [pathname, visibleMenuGroups]);
 
   useEffect(() => {
     function handleShortcut(e: KeyboardEvent) {
@@ -274,11 +273,11 @@ export function AppSidebar({ onNavigate, forceExpanded, defaultOpenGroups }: App
           <HeroPlexus className="h-full w-full" />
         </div>
         <div className="relative z-10 flex shrink-0 items-center gap-2 px-3 py-2">
-          <BrandLogo
-            src={brandLogo}
-            alt={appName}
-            name={appName}
-            containerClassName="h-9 w-9 shrink-0"
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/brand/cauce-symbol-white.svg"
+            alt="Cauce"
+            className="h-9 w-9 shrink-0"
           />
           <AnimatePresence>
             {effectivelyExpanded && (

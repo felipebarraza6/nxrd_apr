@@ -328,7 +328,7 @@ export function CheckoutModal({
 
           <ModalFooter className="flex flex-col sm:flex-row items-center justify-between gap-2">
             <p className="text-[11px] text-muted-foreground order-2 sm:order-1 text-center sm:text-left flex items-center gap-1">
-              <ShieldCheck className="h-3.5 w-3.5 text-[#c67d52]" />
+              <ShieldCheck className="h-3.5 w-3.5 text-[#0369a1]" />
               <span>Pasarela de pago cifrada y segura</span>
             </p>
             <div className="flex items-center gap-2 order-1 sm:order-2 w-full sm:w-auto">
@@ -339,7 +339,7 @@ export function CheckoutModal({
                 type="submit"
                 disabled={state === "processing"}
                 isLoading={state === "processing"}
-                className="flex-1 sm:flex-initial bg-[#c67d52] text-white hover:bg-[#d68c5f]"
+                className="flex-1 sm:flex-initial bg-[#0369a1] text-white hover:bg-[#075985]"
               >
                 <CreditCard className="mr-2 h-4 w-4" />
                 Ir al Pago Seguro

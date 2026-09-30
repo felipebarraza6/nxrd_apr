@@ -387,7 +387,7 @@ function readableForegroundFor(hex: string): string {
  */
 export function applyThemeConfig(theme: BranchThemeConfig | null): void {
   const root = document.documentElement;
-  const primary = theme?.primary_color ?? "#c67d52";
+  const primary = theme?.primary_color ?? "#0369a1";
   const secondary = theme?.secondary_color ?? "#f2e8cf";
 
   // Colores base

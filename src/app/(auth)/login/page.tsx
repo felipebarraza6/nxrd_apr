@@ -105,7 +105,7 @@ function DimensionExit({
         {/* Línea de energía: feedback de carga sin texto */}
         <div className="h-0.5 w-40 overflow-hidden rounded-full bg-white/10">
           <motion.div
-            className="h-full w-1/3 rounded-full bg-[#c67d52]"
+            className="h-full w-1/3 rounded-full bg-[#0369a1]"
             animate={{ x: ["-100%", "300%"] }}
             transition={{ duration: 1.1, repeat: Infinity, ease: "easeInOut" }}
           />
