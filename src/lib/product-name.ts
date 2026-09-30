@@ -1,7 +1,9 @@
 import { useCurrentBranch, useSessionStore } from "@/lib/store/session";
 import { mediaUrl } from "@/lib/api/client";
 
-export const FRIG_SYMBOL = "/brand/frig-symbol.png";
+export const FRIG_SYMBOL = "/brand/cauce-symbol.svg";
+export const CAUCE_WORDMARK = "/brand/cauce-wordmark.svg";
+export const PRODUCT_NAME = "Cauce";
 
 /** Localhost / IP: el producto es FRIG (desarrollo y demos locales). */
 export function isLocalFrigHost(): boolean {
@@ -32,7 +34,7 @@ export function productDisplayName(opts: {
   if (br) return br;
   const org = opts.organizationName?.trim();
   if (org) return org;
-  return "App";
+  return PRODUCT_NAME;
 }
 
 export function useProductBrand(): {
@@ -45,7 +47,7 @@ export function useProductBrand(): {
   const branch = useCurrentBranch();
 
   if (isLocalFrigHost()) {
-    return { name: "FRIG", logo: FRIG_SYMBOL, isFrig: true };
+    return { name: PRODUCT_NAME, logo: FRIG_SYMBOL, isFrig: false };
   }
 
   const name = productDisplayName({

@@ -31,7 +31,6 @@ export interface SubscriptionLockState {
 export function useSubscriptionLock(): SubscriptionLockState {
   const isSuperAdmin = useIsSuperAdmin();
   const role = useCurrentBranchRole();
-  const currentBranchId = useSessionStore((s) => s.currentBranchId);
   const sessionBranch = useCurrentBranch();
 
   const canManageSubscription = isSuperAdmin || role === "OWNER";

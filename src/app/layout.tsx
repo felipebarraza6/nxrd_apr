@@ -32,10 +32,10 @@ export const metadata: Metadata = {
   title: "FRIG — Punto de venta gastronómico",
   description: "POS, comandas y cocina para restaurantes.",
   manifest: "/manifest.webmanifest",
-  applicationName: "FRIG",
+  applicationName: "Cauce",
   appleWebApp: {
     capable: true,
-    title: "FRIG",
+    title: "Cauce",
     statusBarStyle: "default",
   },
   formatDetection: { telephone: false },

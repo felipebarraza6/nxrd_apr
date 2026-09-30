@@ -31,7 +31,7 @@ export default function ForgotPasswordPage() {
       // Favicon del tenant; sin favicon propio usa su logo del header.
       setTenantFavicon(theme.favicon, theme.logo);
     })();
-    const name = "FRIG";
+    const name = "Cauce";
     document.title = `${name} — Recuperar contraseña`;
     return () => {
       cancelled = true;

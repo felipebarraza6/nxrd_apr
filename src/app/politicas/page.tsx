@@ -111,7 +111,7 @@ export default function PoliticasPage() {
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/brand/frig-symbol.png" alt="Frig" className="h-5 w-5" />
             </span>
-            <span className="text-base font-semibold tracking-[0.2em] text-white">FRIG</span>
+            <span className="text-base font-semibold tracking-[0.2em] text-white">CAUCE</span>
           </Link>
           <Link
             href="/"

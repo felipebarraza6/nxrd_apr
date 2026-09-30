@@ -2,17 +2,10 @@ import type { RoleDefinition } from "@/lib/types";
 
 export const ROLE_LABELS: Record<string, string> = {
   OWNER: "Propietario",
-  ADMIN_LOCAL: "Administrador local",
-  MANAGER: "Gerente",
+  ADMIN_LOCAL: "Administrador",
   EMPLOYEE: "Empleado",
   EMPLEADO: "Empleado",
-  CAJERO: "Cajero",
-  WAITER: "Mesero",
-  MESERO: "Mesero",
-  REPARTIDOR: "Repartidor",
-  COURIER: "Repartidor",
-  COCINERO: "Cocinero",
-  COOK: "Cocinero",
+  MEDIDOR: "Medidor",
 };
 
 export function getRoleLabel(code?: string | null): string | undefined {
@@ -23,17 +16,17 @@ export function getRoleLabel(code?: string | null): string | undefined {
 }
 
 /**
- * Roles del producto FRIG. Los roles operativos dependen de un módulo:
- * solo se ofrecen cuando ese módulo está activo en la sucursal. Los roles
- * base (propietario, administrador local, empleado) van siempre.
- * Evita ofrecer roles de otras apps del backend (Yggdra/mapps).
+ * Roles del producto Cauce (APR): exactamente 3, asignables por el admin.
+ * - ADMIN_LOCAL: administración completa del APR.
+ * - EMPLOYEE: operación general sin administración.
+ * - MEDIDOR: tomador de lecturas casa por casa (POS de lectura).
+ * El propietario de la sucursal existe a nivel backend (OWNER) y siempre
+ * tiene acceso total; no es asignable desde la app.
  */
-const FRIG_ROLE_CATALOG: { codes: string[]; label: string; module: string | null }[] = [
-  { codes: ["OWNER"], label: "Propietario", module: null },
-  { codes: ["ADMIN_LOCAL"], label: "Administrador local", module: null },
-  { codes: ["MANAGER"], label: "Gerente comercial", module: null },
+const CAUCE_ROLE_CATALOG: { codes: string[]; label: string; module: string | null }[] = [
+  { codes: ["ADMIN_LOCAL"], label: "Administrador", module: null },
   { codes: ["EMPLOYEE", "EMPLEADO"], label: "Empleado", module: null },
-  { codes: ["CAJERO"], label: "Cajero de oficina", module: "cash_register" },
+  { codes: ["MEDIDOR"], label: "Medidor", module: null },
 ];
 
 export interface FrigRoleOption {
@@ -43,17 +36,15 @@ export interface FrigRoleOption {
 }
 
 /**
- * Cruza el catálogo FRIG con las RoleDefinition reales de la sucursal
- * (se necesita su id para invitar/cambiar rol) y con los módulos activos.
+ * Cruza el catálogo Cauce con las RoleDefinition reales de la sucursal
+ * (se necesita su id para invitar/cambiar rol).
  */
 export function frigRoleOptions(
   roles: RoleDefinition[],
-  enabledModules: string[],
+  _enabledModules: string[],
 ): FrigRoleOption[] {
-  const enabled = new Set(enabledModules);
   const options: FrigRoleOption[] = [];
-  for (const entry of FRIG_ROLE_CATALOG) {
-    if (entry.module && !enabled.has(entry.module)) continue;
+  for (const entry of CAUCE_ROLE_CATALOG) {
     const def = roles.find(
       (d) => d.code && entry.codes.includes(d.code.toUpperCase()),
     );

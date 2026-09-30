@@ -87,7 +87,7 @@ function DimensionExit({
               <>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  src="/brand/frig-symbol.png"
+                  src="/brand/cauce-symbol.svg"
                   alt=""
                   className="h-16 w-auto"
                   style={{ filter: "drop-shadow(0 0 16px rgba(238,158,112,0.5))" }}
@@ -197,7 +197,7 @@ export default function LoginPage() {
         setTenantFavicon(theme.favicon, theme.logo);
       }
       // Título del documento con la marca resuelta (tenant o Frig).
-      const name = isFrigBranding ? "FRIG" : theme?.app_name ?? "FRIG";
+      const name = isFrigBranding ? "Cauce" : theme?.app_name ?? "Cauce";
       document.title = `${name} — Iniciar sesión`;
     })();
     return () => {
@@ -633,7 +633,7 @@ export default function LoginPage() {
               </p>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src="/brand/frig-symbol.png"
+                src="/brand/cauce-symbol.svg"
                 alt=""
                 aria-hidden
                 className="h-4 w-auto opacity-60"

@@ -3,7 +3,7 @@
  * corridas de cobro (backend apps/water).
  */
 
-import { apiFetch, apiFile } from "./client";
+import { apiFetch } from "./client";
 
 // ── Tipos ─────────────────────────────────────────────────────────────────────
 

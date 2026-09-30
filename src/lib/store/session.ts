@@ -368,9 +368,14 @@ export function useIsAdminLocal(): boolean {
   return useCurrentBranchRole() === "ADMIN_LOCAL";
 }
 
+/** True si el rol activo es MEDIDOR (tomador de lecturas). */
+export function useIsMedidor(): boolean {
+  return useCurrentBranchRole() === "MEDIDOR";
+}
+
 /** True si el rol activo es CAJERO. */
 export function useIsCashier(): boolean {
-  return useCurrentBranchRole() === "CAJERO";
+  return ["CAJERO", "MEDIDOR", "EMPLOYEE", "EMPLEADO"].includes(useCurrentBranchRole() ?? "");
 }
 
 /** True si el usuario puede ver el histórico completo de cajas (administradores). */
@@ -552,20 +557,35 @@ export function useCanCancelOrder(orderOwnerId?: string | number): boolean {
   return canCancelOrder(user, currentRole, orderOwnerId);
 }
 
-const CASHIER_ALLOWED_PATHS = [
-  "/pos",
-  "/pos/terminal",
-  "/cash-register",
-  "/sales",
+const MEDIDOR_ALLOWED_PATHS = [
+  "/readings",
+  "/readings/pos",
+  "/customers",
   "/profile",
   "/help",
   "/support",
 ];
 
+const OPERATIONAL_ALLOWED_PATHS = [
+  "/readings",
+  "/readings/pos",
+  "/payments",
+  "/profile",
+  "/help",
+  "/support",
+];
+
+const CASHIER_ALLOWED_PATHS = OPERATIONAL_ALLOWED_PATHS;
+
 
 
 /** App de cocina: KDS + perfil (como el cajero con POS). */
 
+
+/** Rutas a las que un medidor puede navegar libremente. */
+export function useMedidorAllowedPaths(): string[] {
+  return useMemo(() => MEDIDOR_ALLOWED_PATHS, []);
+}
 
 /** Rutas a las que un cajero puede navegar libremente. */
 export function useCashierAllowedPaths(): string[] {

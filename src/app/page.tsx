@@ -15,19 +15,29 @@ const FEATURES = [
       "Ficha completa por socio con su punto de medición: número de medidor, sector, histórico de consumo y deuda.",
   },
   {
-    title: "Lecturas y tarifarios",
+    title: "POS de lectura casa por casa",
     description:
-      "Captura de lecturas por ruta o carga masiva desde planilla. Tarifarios con cargo fijo y tramos por m³, con vigencias.",
+      "El lector recorre la ruta y toma la lectura medidor a medidor, como un POS: rápido, con consumo calculado al instante.",
+  },
+  {
+    title: "Tarifarios por tramo",
+    description:
+      "Cargo fijo mensual + tramos por m³ con vigencias. El sistema calcula el cargo de cada socio automáticamente.",
   },
   {
     title: "Cobros con boleta electrónica",
     description:
-      "Corrida de cobro por período: genera los cargos de cada socio, los cobra en oficina o por transferencia y emite boletas al SII.",
+      "Corrida de cobro del período: genera los cargos, cobra en oficina o por transferencia y emite boletas al SII.",
   },
   {
-    title: "Dinero y caja",
+    title: "Caja e informes",
     description:
-      "Caja de oficina con arqueo, ingresos y egresos del comité, conciliaciones bancarias e informes listos para la asamblea.",
+      "Arqueo de caja, ingresos y egresos del comité, conciliaciones bancarias e informes listos para la asamblea.",
+  },
+  {
+    title: "Materiales y compras",
+    description:
+      "Medidores de repuesto, cloro y cañerías: inventario por bodega y órdenes de compra a proveedores.",
   },
 ];
 
@@ -35,32 +45,45 @@ export default function HomePage() {
   return (
     <>
       <StandaloneRedirect />
-      <main className="min-h-full bg-gradient-to-b from-sky-950 via-sky-900 to-cyan-950 text-sky-50">
-        <div className="mx-auto flex min-h-screen max-w-5xl flex-col items-center justify-center px-6 py-16 text-center">
-          <p className="rounded-full border border-sky-400/30 bg-sky-400/10 px-4 py-1 text-xs font-semibold uppercase tracking-widest text-sky-300">
-            nxrd_apr
-          </p>
-          <h1 className="mt-6 max-w-3xl text-4xl font-bold leading-tight sm:text-5xl">
-            El sistema del agua potable rural:{" "}
-            <span className="text-sky-300">socios, medidores y cobros</span> en un
-            solo lugar
-          </h1>
-          <p className="mt-6 max-w-2xl text-lg text-sky-100/80">
-            Gestiona tu APR completa: lecturas de medidores, tarifarios por
-            tramo, cobros mensuales con boleta electrónica SII, caja de oficina
-            e informes para la asamblea.
+      <main className="min-h-full bg-gradient-to-b from-white via-sky-50 to-sky-100 text-slate-900">
+        <div className="mx-auto flex min-h-screen max-w-6xl flex-col items-center justify-center px-6 py-16 text-center">
+          {/* Marca */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/brand/cauce-wordmark.svg"
+            alt="Cauce"
+            className="h-20 w-auto"
+          />
+          <p className="mt-4 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.25em] text-sky-700">
+            un producto de
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/brand/smartapr-logo.jpg"
+              alt="Smart APR SpA"
+              className="h-10 w-auto rounded-lg border border-sky-200 bg-white object-contain p-1 shadow-sm"
+            />
+            Smart APR SpA
           </p>
 
-          <div className="mt-10 grid w-full gap-4 text-left sm:grid-cols-2">
+          <h1 className="mt-8 max-w-3xl text-4xl font-bold leading-tight sm:text-5xl">
+            El sistema del agua potable rural:{" "}
+            <span className="text-sky-700">socios, medidores y cobros</span> en un
+            solo lugar
+          </h1>
+          <p className="mt-6 max-w-2xl text-lg text-slate-600">
+            Gestiona tu APR completa: lecturas de medidores casa por casa,
+            tarifarios por tramo, cobros mensuales con boleta electrónica SII,
+            caja de oficina e informes para la asamblea.
+          </p>
+
+          <div className="mt-10 grid w-full gap-4 text-left sm:grid-cols-2 lg:grid-cols-3">
             {FEATURES.map((f) => (
               <div
                 key={f.title}
-                className="rounded-2xl border border-sky-400/20 bg-sky-950/60 p-6"
+                className="rounded-2xl border border-sky-100 bg-white p-6 shadow-sm"
               >
-                <h2 className="text-base font-semibold text-sky-200">
-                  {f.title}
-                </h2>
-                <p className="mt-2 text-sm leading-relaxed text-sky-100/70">
+                <h2 className="text-base font-semibold text-sky-800">{f.title}</h2>
+                <p className="mt-2 text-sm leading-relaxed text-slate-600">
                   {f.description}
                 </p>
               </div>
@@ -70,21 +93,20 @@ export default function HomePage() {
           <div className="mt-12 flex flex-wrap items-center justify-center gap-3">
             <Link
               href="/login"
-              className="rounded-xl bg-sky-400 px-6 py-3 text-sm font-semibold text-sky-950 transition-colors hover:bg-sky-300"
+              className="rounded-xl bg-sky-700 px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-sky-800"
             >
               Entrar al sistema
             </Link>
             <Link
               href="/help"
-              className="rounded-xl border border-sky-400/40 px-6 py-3 text-sm font-semibold text-sky-100 transition-colors hover:bg-sky-400/10"
+              className="rounded-xl border border-sky-300 px-6 py-3 text-sm font-semibold text-sky-800 transition-colors hover:bg-sky-100"
             >
               Documentación
             </Link>
           </div>
 
-          <p className="mt-16 text-xs text-sky-100/40">
-            Cauce — un producto de Smart APR SpA para comités y cooperativas de
-            agua potable rural
+          <p className="mt-16 text-xs text-slate-400">
+            Cauce — un producto de Smart APR SpA · cauce.smartapr.cl
           </p>
         </div>
       </main>

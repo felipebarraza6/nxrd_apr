@@ -9,10 +9,10 @@
  * recompilar. Los tokens shadcn mapean a los de marca.
  */
 :root {
-  --brand-primary: #c67d52;
+  --brand-primary: #0369a1;
   --brand-secondary: #f2e8cf;
   --brand-surface: #f8f7f3;
-  --brand-foreground: #1b1e19;
+  --brand-foreground: #0f2440;
   --brand-radius: 0.75rem;
   --brand-motion: 1;
   --brand-compact: 0;
@@ -49,17 +49,17 @@
 
 :root,
 .light {
-  --background: #f8f7f3;
+  --background: #f6fafd;
   --foreground: var(--brand-foreground);
   /* Neutros sin tinte: el tono de marca lo aporta --brand-primary. */
-  --muted: hsl(30 6% 93%);
-  --muted-foreground: hsl(30 5% 38%);
+  --muted: hsl(204 33% 94%);
+  --muted-foreground: hsl(206 15% 38%);
   --accent: var(--muted);
   --accent-foreground: var(--brand-foreground);
   --primary-foreground: #ffffff;
   --secondary-foreground: var(--brand-foreground);
-  --border: hsl(30 6% 88%);
-  --input: hsl(30 6% 85%);
+  --border: hsl(204 25% 87%);
+  --input: hsl(204 25% 85%);
   --card: #ffffff;
   --card-foreground: var(--brand-foreground);
   --danger: #dc2626;
