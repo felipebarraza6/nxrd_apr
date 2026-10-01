@@ -3,6 +3,8 @@
 /**
  * Cargos de agua (órdenes generadas por corridas de cobro).
  * Vertical APR: listado, cobro y anulación — sin POS/mesas/KDS de Frig.
+ *
+ * Búsqueda versátil (CAJERO): nombre, dirección, medidor o RUT.
  */
 
 import { useMemo, useState } from "react";
@@ -14,13 +16,11 @@ import {
   Eye,
   FileDown,
   Receipt,
-  Search,
   Wallet,
   X,
 } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
 import { PageBody, PageShell } from "@/components/page-shell";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { StatCard } from "@/components/ui/stat-card";
 import { Badge } from "@/components/ui/badge";
@@ -28,11 +28,17 @@ import { Select } from "@/components/ui/select";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
+  PosClientSearchInput,
+  PosSearchMatchBadge,
+} from "@/components/pos/pos-client-search";
+import {
   fetchOrders,
   cancelOrder,
   generateOrdersExcel,
   type OrdersFilter,
 } from "@/lib/api/orders";
+import { fetchCustomers } from "@/lib/api/customers";
+import { fetchMeters } from "@/lib/api/water";
 import { formatCLP, cn, paymentStatusLabel } from "@/lib/utils";
 import {
   useSessionStore,
@@ -40,7 +46,13 @@ import {
   canCancelOrder,
 } from "@/lib/store/session";
 import { useDownloadFile, exportFilename } from "@/lib/hooks/useDownloadFile";
+import { useDebouncedValue } from "@/lib/hooks/useDebouncedValue";
 import { useToast } from "@/lib/store/toast";
+import {
+  matchPosSearch,
+  normalizeSearchText,
+  type PosSearchMatch,
+} from "@/lib/pos-client-search";
 import type { YggdraSchemas } from "@/lib/api/types";
 
 const OrderPayModal = dynamic(
@@ -48,9 +60,17 @@ const OrderPayModal = dynamic(
   { ssr: false },
 );
 
+type OrderClient = {
+  id?: number;
+  name?: string | null;
+  dni?: string | null;
+  phone_number?: string | null;
+};
+
 type Order = YggdraSchemas["Order"] & {
   order_number?: string | null;
   products?: Array<{ id: string; product_name?: string | null; quantity?: number }>;
+  client?: OrderClient | null;
 };
 
 const PAYMENT_OPTIONS = [
@@ -72,15 +92,18 @@ export default function ChargesPage() {
   const [paymentStatus, setPaymentStatus] = useState("");
   const [selected, setSelected] = useState<Order | null>(null);
   const [payOrder, setPayOrder] = useState<Order | null>(null);
+  const debouncedSearch = useDebouncedValue(search, 250);
+  const hasSearch = Boolean(normalizeSearchText(debouncedSearch));
 
   const filter: OrdersFilter = useMemo(
     () => ({
-      search: search.trim() || undefined,
+      // Backend search cubre texto de orden/cliente; address/medidor se complementan client-side.
+      search: hasSearch ? debouncedSearch.trim() : undefined,
       payment_status: paymentStatus || undefined,
-      page_size: 100,
+      page_size: 200,
       ordering: "-created",
     }),
-    [search, paymentStatus],
+    [debouncedSearch, hasSearch, paymentStatus],
   );
 
   const ordersQuery = useQuery({
@@ -88,12 +111,143 @@ export default function ChargesPage() {
     queryFn: () => fetchOrders(filter),
   });
 
-  const orders = (ordersQuery.data?.results ?? []) as Order[];
-  const pending = orders.filter((o) => o.payment_status !== "PAID" && o.status !== "CANCELLED");
+  const clientsQuery = useQuery({
+    queryKey: ["customers", "pos-enrich"],
+    queryFn: () => fetchCustomers({ status: "active", page_size: 1000 }),
+    staleTime: 5 * 60_000,
+  });
+
+  const metersQuery = useQuery({
+    queryKey: ["water", "meters", "charges-search"],
+    queryFn: () => fetchMeters(),
+    staleTime: 5 * 60_000,
+  });
+
+  const clientById = useMemo(() => {
+    const map = new Map<
+      string,
+      { address?: string | null; dni?: string | null; name?: string | null }
+    >();
+    for (const c of clientsQuery.data?.results ?? []) {
+      map.set(String(c.id), {
+        address: c.address ?? null,
+        dni: c.dni ?? null,
+        name: c.name ?? null,
+      });
+    }
+    return map;
+  }, [clientsQuery.data]);
+
+  /** clientId → medidores (para buscar cargo por número de medidor). */
+  const metersByClient = useMemo(() => {
+    const map = new Map<string, string[]>();
+    for (const m of metersQuery.data ?? []) {
+      if (m.client == null) continue;
+      const key = String(m.client);
+      const list = map.get(key) ?? [];
+      list.push(m.number);
+      map.set(key, list);
+    }
+    return map;
+  }, [metersQuery.data]);
+
+  // Socios que coinciden por dirección/RUT/medidor (campos que Order.search no cubre).
+  const extraClientIds = useMemo(() => {
+    if (!hasSearch) return [] as string[];
+    const ids = new Set<string>();
+    for (const [id, c] of clientById) {
+      const meters = metersByClient.get(id) ?? [];
+      if (
+        matchPosSearch(
+          {
+            name: c.name,
+            address: c.address,
+            rut: c.dni,
+            meterNumber: meters.join(" "),
+          },
+          debouncedSearch,
+        )
+      ) {
+        ids.add(id);
+      }
+    }
+    for (const m of metersQuery.data ?? []) {
+      if (
+        m.client != null &&
+        matchPosSearch({ meterNumber: m.number, name: m.client_name }, debouncedSearch)
+      ) {
+        ids.add(String(m.client));
+      }
+    }
+    return Array.from(ids);
+  }, [hasSearch, debouncedSearch, clientById, metersByClient, metersQuery.data]);
+
+  const extraOrdersQuery = useQuery({
+    queryKey: ["water-charges", "by-clients", extraClientIds, paymentStatus],
+    queryFn: () =>
+      fetchOrders({
+        client__in: extraClientIds,
+        payment_status: paymentStatus || undefined,
+        page_size: 200,
+        ordering: "-created",
+      }),
+    enabled: hasSearch && extraClientIds.length > 0,
+  });
+
+  const rawOrders = useMemo(() => {
+    const byId = new Map<string, Order>();
+    for (const o of (ordersQuery.data?.results ?? []) as Order[]) {
+      byId.set(String(o.id), o);
+    }
+    for (const o of (extraOrdersQuery.data?.results ?? []) as Order[]) {
+      byId.set(String(o.id), o);
+    }
+    return Array.from(byId.values());
+  }, [ordersQuery.data, extraOrdersQuery.data]);
+
+  const ordersWithMatch = useMemo(() => {
+    if (!hasSearch) {
+      return rawOrders.map((order) => ({
+        order,
+        match: null as PosSearchMatch | null,
+      }));
+    }
+    const out: Array<{ order: Order; match: PosSearchMatch | null }> = [];
+    for (const order of rawOrders) {
+      const client =
+        order.client && typeof order.client === "object" ? order.client : null;
+      const clientId = client?.id != null ? String(client.id) : null;
+      const enrich = clientId ? clientById.get(clientId) : undefined;
+      const meterNumbers = clientId ? (metersByClient.get(clientId) ?? []) : [];
+      const searchable = {
+        name: client?.name ?? enrich?.name ?? null,
+        address: enrich?.address ?? null,
+        rut: client?.dni ?? enrich?.dni ?? null,
+        meterNumber: meterNumbers.join(" "),
+        orderNumber: order.order_number ?? null,
+      };
+      const match = matchPosSearch(searchable, debouncedSearch);
+      if (match) out.push({ order, match });
+    }
+    // Si el backend ya filtró pero el complemento client-side no encontró
+    // match (p. ej. solo order_number), conservar filas del API sin badge.
+    if (out.length === 0 && rawOrders.length > 0) {
+      return rawOrders.map((order) => ({ order, match: null }));
+    }
+    return out;
+  }, [rawOrders, hasSearch, debouncedSearch, clientById, metersByClient]);
+
+  const orders = ordersWithMatch.map((r) => r.order);
+  const pending = orders.filter(
+    (o) => o.payment_status !== "PAID" && o.status !== "CANCELLED",
+  );
   const paidTotal = orders
     .filter((o) => o.payment_status === "PAID")
     .reduce((s, o) => s + Number(o.total_amount || 0), 0);
-  const pendingTotal = pending.reduce((s, o) => s + Number(o.total_amount || 0), 0);
+  const pendingTotal = pending.reduce(
+    (s, o) => s + Number(o.total_amount || 0),
+    0,
+  );
 
   const cancelMutation = useMutation({
     mutationFn: (id: string) => cancelOrder(id),
@@ -165,17 +319,9 @@ export default function ChargesPage() {
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          <div className="relative min-w-[12rem] flex-1">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              className="h-9 pl-9"
-              placeholder="Buscar socio, número…"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-          </div>
+          <PosClientSearchInput value={search} onChange={setSearch} />
           <Select
-            className="h-9 w-44"
+            className="h-10 w-44 md:h-9"
             value={paymentStatus}
             onChange={(e) => setPaymentStatus(e.target.value)}
           >
@@ -187,20 +333,30 @@ export default function ChargesPage() {
           </Select>
         </div>
 
-        {ordersQuery.isLoading ? (
+        {ordersQuery.isLoading || (hasSearch && extraOrdersQuery.isLoading) ? (
           <Skeleton className="h-48 rounded-2xl" />
         ) : orders.length === 0 ? (
           <EmptyState
             icon={Receipt}
-            title="Sin cargos"
-            description="Genera una corrida en Cobros de agua para crear los cargos del período."
+            title={hasSearch ? "Sin resultados" : "Sin cargos"}
+            description={
+              hasSearch
+                ? "Probá con nombre, dirección, RUT o número de medidor."
+                : "Genera una corrida en Cobros de agua para crear los cargos del período."
+            }
             action={
-              <Link
-                href="/billing"
-                className="inline-flex h-9 items-center justify-center rounded-md bg-azul px-4 text-sm font-medium text-white hover:bg-azul-deep"
-              >
-                Ir a cobros de agua
-              </Link>
+              hasSearch ? (
+                <Button variant="outline" onClick={() => setSearch("")}>
+                  Limpiar búsqueda
+                </Button>
+              ) : (
+                <Link
+                  href="/billing"
+                  className="inline-flex h-9 items-center justify-center rounded-md bg-azul px-4 text-sm font-medium text-white hover:bg-azul-deep"
+                >
+                  Ir a cobros de agua
+                </Link>
+              )
             }
           />
         ) : (
@@ -216,14 +372,19 @@ export default function ChargesPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-border/60">
-                {orders.map((order) => {
+                {ordersWithMatch.map(({ order, match }) => {
                   const canCancel = canCancelOrder(
                     user,
                     role,
                     (order as { processed_by?: string | number }).processed_by,
                   );
                   const unpaid =
-                    order.payment_status !== "PAID" && order.status !== "CANCELLED";
+                    order.payment_status !== "PAID" &&
+                    order.status !== "CANCELLED";
+                  const clientName =
+                    order.client && typeof order.client === "object"
+                      ? (order.client.name ?? "—")
+                      : "—";
                   return (
                     <tr key={order.id} className="hover:bg-muted/20">
                       <td className="px-3 py-2.5">
@@ -237,9 +398,10 @@ export default function ChargesPage() {
                         </p>
                       </td>
                       <td className="px-3 py-2.5">
-                        {order.client && typeof order.client === "object"
-                          ? (order.client as { name?: string }).name ?? "—"
-                          : "—"}
+                        <p className="font-medium">{clientName}</p>
+                        {match ? (
+                          <PosSearchMatchBadge match={match} className="mt-1" />
+                        ) : null}
                       </td>
                       <td className="px-3 py-2.5 text-right font-semibold tabular-nums">
                         {formatCLP(Number(order.total_amount || 0))}
@@ -250,7 +412,8 @@ export default function ChargesPage() {
                             "text-[10px]",
                             order.payment_status === "PAID" &&
                               "bg-emerald-500/10 text-emerald-700",
-                            order.status === "CANCELLED" && "bg-muted text-muted-foreground",
+                            order.status === "CANCELLED" &&
+                              "bg-muted text-muted-foreground",
                           )}
                         >
                           {order.status === "CANCELLED"
@@ -344,12 +507,13 @@ export default function ChargesPage() {
                 ))}
               </ul>
             )}
-            {selected.payment_status !== "PAID" && selected.status !== "CANCELLED" && (
-              <Button className="mt-4 w-full" onClick={() => setPayOrder(selected)}>
-                <Wallet className="h-4 w-4" />
-                Cobrar
-              </Button>
-            )}
+            {selected.payment_status !== "PAID" &&
+              selected.status !== "CANCELLED" && (
+                <Button className="mt-4 w-full" onClick={() => setPayOrder(selected)}>
+                  <Wallet className="h-4 w-4" />
+                  Cobrar
+                </Button>
+              )}
           </div>
         </div>
       )}

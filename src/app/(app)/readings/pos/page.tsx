@@ -6,6 +6,8 @@
  * Como el POS de ventas pero para el medidor: elegís la ruta, y avanza
  * medidor a medidor con teclado (Enter = registrar y seguir). Al terminar
  * la ruta muestra el resumen y deja ir directo a facturar el período.
+ *
+ * Búsqueda versátil: nombre, dirección, medidor o RUT (backend + client-side).
  */
 
 import { useMemo, useRef, useState } from "react";
@@ -26,8 +28,20 @@ import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/ui/empty-state";
+import {
+  PosClientSearchInput,
+  PosSearchMatchBadge,
+} from "@/components/pos/pos-client-search";
 import { useToast } from "@/lib/store/toast";
-import { createReading, fetchMeters, fetchReadings } from "@/lib/api/water";
+import { useDebouncedValue } from "@/lib/hooks/useDebouncedValue";
+import { createReading, fetchMeters, fetchReadings, type WaterMeter } from "@/lib/api/water";
+import { fetchCustomers } from "@/lib/api/customers";
+import {
+  filterByPosSearch,
+  matchPosSearch,
+  normalizeSearchText,
+  type PosSearchMatch,
+} from "@/lib/pos-client-search";
 
 function currentPeriod(): string {
   const d = new Date();
@@ -40,6 +54,8 @@ function periodFromQuery(): string {
   return q && /^\d{4}-\d{2}$/.test(q) ? q : currentPeriod();
 }
 
+type ClientBrief = { address?: string | null; dni?: string | null; name?: string | null };
+
 export default function ReadingPosPage() {
   const toast = useToast();
   const queryClient = useQueryClient();
@@ -50,17 +66,43 @@ export default function ReadingPosPage() {
   const [value, setValue] = useState("");
   const [skipped, setSkipped] = useState<Set<string>>(new Set());
   const [done, setDone] = useState(false);
+  const [search, setSearch] = useState("");
+  const [pinnedId, setPinnedId] = useState<string | null>(null);
+  const debouncedSearch = useDebouncedValue(search, 250);
+  const hasSearch = Boolean(normalizeSearchText(debouncedSearch));
 
   const metersQuery = useQuery({
-    queryKey: ["water", "meters", "pos"],
-    queryFn: () => fetchMeters(),
-    staleTime: 60_000,
+    queryKey: ["water", "meters", "pos", hasSearch ? debouncedSearch : ""],
+    queryFn: () =>
+      fetchMeters(
+        hasSearch ? { search: debouncedSearch.trim() } : undefined,
+      ),
+    staleTime: 30_000,
+    placeholderData: keepPreviousData,
   });
   const readingsQuery = useQuery({
     queryKey: ["water", "readings", period],
     queryFn: () => fetchReadings({ period }),
     placeholderData: keepPreviousData,
   });
+  // Clientes para dirección/RUT (el MeterViewSet no busca address ni dni).
+  const clientsQuery = useQuery({
+    queryKey: ["customers", "pos-enrich"],
+    queryFn: () => fetchCustomers({ status: "active", page_size: 1000 }),
+    staleTime: 5 * 60_000,
+  });
+
+  const clientById = useMemo(() => {
+    const map = new Map<string, ClientBrief>();
+    for (const c of clientsQuery.data?.results ?? []) {
+      map.set(String(c.id), {
+        address: c.address ?? null,
+        dni: c.dni ?? null,
+        name: c.name ?? null,
+      });
+    }
+    return map;
+  }, [clientsQuery.data]);
 
   const meters = useMemo(() => metersQuery.data ?? [], [metersQuery.data]);
   const readings = useMemo(() => readingsQuery.data ?? [], [readingsQuery.data]);
@@ -78,21 +120,54 @@ export default function ReadingPosPage() {
     [meters],
   );
 
-  const routeMeters = useMemo(
-    () =>
-      meters.filter(
-        (m) =>
-          m.status === "ACTIVE" &&
-          m.client &&
-          (!sector || m.sector === sector),
-      ),
-    [meters, sector],
-  );
+  const toSearchable = (m: WaterMeter) => {
+    const client = m.client != null ? clientById.get(String(m.client)) : undefined;
+    return {
+      name: m.client_name ?? client?.name ?? null,
+      address: client?.address ?? null,
+      meterNumber: m.number,
+      rut: client?.dni ?? null,
+      sector: m.sector || null,
+    };
+  };
+
+  const routeMeters = useMemo(() => {
+    const base = meters.filter(
+      (m) =>
+        m.status === "ACTIVE" &&
+        m.client &&
+        (!sector || m.sector === sector),
+    );
+    if (!hasSearch) return base;
+    // Complemento client-side (dirección/RUT) + refuerzo de lo que ya vino del BE.
+    return filterByPosSearch(base, debouncedSearch, toSearchable).map((h) => h.item);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- toSearchable closes over clientById
+  }, [meters, sector, hasSearch, debouncedSearch, clientById]);
+
+  const matchById = useMemo(() => {
+    const map = new Map<string, PosSearchMatch>();
+    if (!hasSearch) return map;
+    for (const m of routeMeters) {
+      const match = matchPosSearch(toSearchable(m), debouncedSearch);
+      if (match) map.set(m.id, match);
+    }
+    return map;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [routeMeters, hasSearch, debouncedSearch, clientById]);
 
   const pending = routeMeters.filter(
     (m) => !readingByMeter.has(m.id) && !skipped.has(m.id),
   );
-  const current = pending[0] ?? null;
+
+  const orderedPending = useMemo(() => {
+    if (!pinnedId) return pending;
+    const pinned = pending.find((m) => m.id === pinnedId);
+    if (!pinned) return pending;
+    return [pinned, ...pending.filter((m) => m.id !== pinnedId)];
+  }, [pending, pinnedId]);
+
+  const current = orderedPending[0] ?? null;
+  const currentMatch = current ? matchById.get(current.id) : undefined;
   const completed = routeMeters.length - pending.length;
   const totalConsumed = routeMeters.reduce(
     (sum, m) => sum + Number(readingByMeter.get(m.id)?.consumed_m3 ?? 0),
@@ -106,10 +181,11 @@ export default function ReadingPosPage() {
         period,
         current_reading: vars.value,
       }),
-    onSuccess: () => {
+    onSuccess: (_data, vars) => {
       queryClient.invalidateQueries({ queryKey: ["water", "readings"] });
       queryClient.invalidateQueries({ queryKey: ["water", "meters"] });
       setValue("");
+      if (pinnedId === vars.meterId) setPinnedId(null);
       inputRef.current?.focus();
     },
     onError: (err) =>
@@ -138,6 +214,15 @@ export default function ReadingPosPage() {
       />
 
       <PageBody className="gap-4">
+        <PosClientSearchInput
+          value={search}
+          onChange={(v) => {
+            setSearch(v);
+            setPinnedId(null);
+            setDone(false);
+          }}
+        />
+
         {/* Selector de ruta */}
         {sectors.length > 0 && (
           <div className="flex flex-wrap items-center gap-2">
@@ -185,15 +270,29 @@ export default function ReadingPosPage() {
         ) : routeMeters.length === 0 ? (
           <EmptyState
             icon={Gauge}
-            title="No hay medidores activos con socio en esta ruta"
-            description="Asigná socios a los medidores en Puntos de medición para poder leerlos."
+            title={
+              hasSearch
+                ? "Sin resultados para esa búsqueda"
+                : "No hay medidores activos con socio en esta ruta"
+            }
+            description={
+              hasSearch
+                ? "Probá con nombre, dirección, RUT o número de medidor."
+                : "Asigná socios a los medidores en Puntos de medición para poder leerlos."
+            }
             action={
-              <Link
-                href="/meters"
-                className="inline-flex h-9 items-center justify-center rounded-md bg-azul px-4 text-sm font-medium text-white hover:bg-azul-deep"
-              >
-                Ir a medidores
-              </Link>
+              hasSearch ? (
+                <Button variant="outline" onClick={() => setSearch("")}>
+                  Limpiar búsqueda
+                </Button>
+              ) : (
+                <Link
+                  href="/meters"
+                  className="inline-flex h-9 items-center justify-center rounded-md bg-azul px-4 text-sm font-medium text-white hover:bg-azul-deep"
+                >
+                  Ir a medidores
+                </Link>
+              )
             }
           />
         ) : done || !current ? (
@@ -210,6 +309,7 @@ export default function ReadingPosPage() {
                 onClick={() => {
                   setSkipped(new Set());
                   setDone(false);
+                  setPinnedId(null);
                 }}
               >
                 Repasar saltadas
@@ -227,7 +327,7 @@ export default function ReadingPosPage() {
           /* ── Medidor actual ── */
           <div className="mx-auto w-full max-w-xl">
             <div className="rounded-2xl border-2 border-primary/30 bg-card p-6 shadow-sm">
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between gap-2">
                 <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
                   {current.number}
                 </span>
@@ -237,14 +337,28 @@ export default function ReadingPosPage() {
               </div>
 
               <div className="mt-4 flex items-center gap-2">
-                <User className="h-5 w-5 text-muted-foreground" />
+                <User className="h-5 w-5 shrink-0 text-muted-foreground" />
                 <p className="text-2xl font-bold leading-tight">
                   {current.client_name ?? "Sin socio"}
                 </p>
               </div>
+              {currentMatch ? (
+                <div className="mt-2">
+                  <PosSearchMatchBadge match={currentMatch} />
+                </div>
+              ) : null}
               {current.sector && (
                 <p className="mt-1 text-sm text-muted-foreground">Sector: {current.sector}</p>
               )}
+              {(() => {
+                const addr =
+                  current.client != null
+                    ? clientById.get(String(current.client))?.address
+                    : null;
+                return addr ? (
+                  <p className="mt-0.5 text-sm text-muted-foreground">{addr}</p>
+                ) : null;
+              })()}
 
               <div className="mt-5 grid grid-cols-2 gap-3 text-center">
                 <div className="rounded-xl bg-muted/50 p-3">
@@ -316,6 +430,7 @@ export default function ReadingPosPage() {
                     onClick={() => {
                       setSkipped((prev) => new Set(prev).add(current.id));
                       setValue("");
+                      if (pinnedId === current.id) setPinnedId(null);
                     }}
                   >
                     <SkipForward className="h-4 w-4" />
@@ -324,22 +439,40 @@ export default function ReadingPosPage() {
               </form>
             </div>
 
-            {/* Cola de la ruta */}
-            {pending.length > 1 && (
-              <div className="mt-4 flex flex-wrap gap-1.5">
-                {pending.slice(1, 8).map((m) => (
-                  <span
-                    key={m.id}
-                    className="rounded-full border border-border bg-muted/40 px-2.5 py-1 text-[11px] text-muted-foreground"
-                  >
-                    {m.number} · {m.client_name}
-                  </span>
-                ))}
-                {pending.length > 8 && (
-                  <span className="rounded-full px-2.5 py-1 text-[11px] text-muted-foreground">
-                    +{pending.length - 8} más
-                  </span>
-                )}
+            {/* Cola / resultados de búsqueda */}
+            {orderedPending.length > 1 && (
+              <div className="mt-4 flex flex-col gap-1.5">
+                <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                  {hasSearch ? "Otros resultados" : "Siguientes en la ruta"}
+                </p>
+                <div className="flex flex-wrap gap-1.5">
+                  {orderedPending.slice(1, hasSearch ? 12 : 8).map((m) => (
+                    <button
+                      key={m.id}
+                      type="button"
+                      onClick={() => {
+                        setPinnedId(m.id);
+                        setValue("");
+                        setDone(false);
+                      }}
+                      className="max-w-full rounded-full border border-border bg-muted/40 px-2.5 py-1.5 text-left text-[11px] text-muted-foreground transition-colors hover:border-azul/40 hover:bg-azul/5 hover:text-foreground"
+                    >
+                      <span className="font-semibold text-foreground">{m.number}</span>
+                      {" · "}
+                      {m.client_name}
+                      {matchById.get(m.id) ? (
+                        <span className="mt-0.5 block">
+                          <PosSearchMatchBadge match={matchById.get(m.id)} />
+                        </span>
+                      ) : null}
+                    </button>
+                  ))}
+                  {orderedPending.length > (hasSearch ? 12 : 8) && (
+                    <span className="rounded-full px-2.5 py-1 text-[11px] text-muted-foreground">
+                      +{orderedPending.length - (hasSearch ? 12 : 8)} más
+                    </span>
+                  )}
+                </div>
               </div>
             )}
           </div>
