@@ -17,6 +17,7 @@ import {
   createMeter,
   fetchMeters,
   updateMeter,
+  type MeterWritePayload,
   type WaterMeter,
 } from "@/lib/api/water";
 
@@ -53,7 +54,7 @@ export default function MetersPage() {
   const activeCount = meters.filter((m) => m.status === "ACTIVE").length;
 
   const save = useMutation({
-    mutationFn: (payload: Partial<WaterMeter>) =>
+    mutationFn: (payload: MeterWritePayload) =>
       editing ? updateMeter(editing.id, payload) : createMeter(payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["water", "meters"] });
@@ -253,7 +254,7 @@ function MeterModal({
   clients: Array<{ value: string; label: string }>;
   saving: boolean;
   onClose: () => void;
-  onSave: (payload: Partial<WaterMeter>) => void;
+  onSave: (payload: MeterWritePayload) => void;
 }) {
   const [number, setNumber] = useState(editing?.number ?? "");
   const [clientId, setClientId] = useState<string>(editing?.client ? String(editing.client) : "");

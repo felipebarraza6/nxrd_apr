@@ -100,6 +100,8 @@ let schemaDriftNotified = false;
 
 function maybeNotifySchemaDrift(res: Response): void {
   if (typeof window === "undefined" || schemaDriftNotified) return;
+  // Header exacto: X-Yggdra-Schema-Sha. Cross-origin solo es legible si el
+  // backend lo lista en Access-Control-Expose-Headers (follow-up backend).
   const remote =
     res.headers.get("X-Yggdra-Schema-Sha") ||
     res.headers.get("x-yggdra-schema-sha");

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Plus, ScrollText, Trash2 } from "lucide-react";
+import { Plus, ScrollText } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
 import { PageBody, PageShell } from "@/components/page-shell";
 import { Button } from "@/components/ui/button";
@@ -38,7 +38,7 @@ export default function TariffsPage() {
       <PageHeader
         title="Tarifarios"
         icon={<ScrollText className="h-5 w-5" />}
-        subtitle="Cargo fijo mensual + tramos por m³. El más reciente según su vigencia es el que aplica."
+        subtitle="Cargo fijo mensual + tramos por m³ (solo lectura). El más reciente según su vigencia es el que aplica."
         actions={
           <Button className="h-9" onClick={() => setOpen(true)}>
             <Plus className="h-4 w-4" />
@@ -54,7 +54,7 @@ export default function TariffsPage() {
           <EmptyState
             icon={ScrollText}
             title="Sin tarifarios"
-            description="Crea el tarifario del APR: cargo fijo mensual y tramos por consumo en m³."
+            description="Crea el tarifario del APR (nombre, cargo fijo y vigencia). Los tramos por m³ hoy solo se configuran en backend."
             action={
               <Button size="sm" onClick={() => setOpen(true)}>
                 Crear tarifario
@@ -92,12 +92,12 @@ export default function TariffsPage() {
                   </p>
                 </div>
 
-                {tariff.blocks.length > 0 && (
+                {(tariff.blocks?.length ?? 0) > 0 ? (
                   <div className="mt-3 overflow-hidden rounded-xl border border-border">
                     <table className="w-full text-left text-xs">
                       <thead className="bg-muted/40 text-muted-foreground">
                         <tr>
-                          <th className="px-3 py-2 font-medium">Tramo</th>
+                          <th className="px-3 py-2 font-medium">Tramo (solo lectura)</th>
                           <th className="px-3 py-2 text-right font-medium">Precio por m³</th>
                         </tr>
                       </thead>
@@ -115,18 +115,25 @@ export default function TariffsPage() {
                       </tbody>
                     </table>
                   </div>
+                ) : (
+                  <p className="mt-3 text-[11px] text-muted-foreground">
+                    Sin tramos configurados. Los bloques son de solo lectura en la API;
+                    hay que cargarlos desde el backend.
+                  </p>
                 )}
 
-                <p className="mt-2 text-[11px] text-muted-foreground">
-                  Ejemplo: 15 m³ ={" "}
-                  <span className="font-semibold">
-                    {formatCLP(Number(tariff.fixed_charge) + calcExample(tariff, 15))}
-                  </span>{" "}
-                  · 25 m³ ={" "}
-                  <span className="font-semibold">
-                    {formatCLP(Number(tariff.fixed_charge) + calcExample(tariff, 25))}
-                  </span>
-                </p>
+                {(tariff.blocks?.length ?? 0) > 0 && (
+                  <p className="mt-2 text-[11px] text-muted-foreground">
+                    Ejemplo: 15 m³ ={" "}
+                    <span className="font-semibold">
+                      {formatCLP(Number(tariff.fixed_charge) + calcExample(tariff, 15))}
+                    </span>{" "}
+                    · 25 m³ ={" "}
+                    <span className="font-semibold">
+                      {formatCLP(Number(tariff.fixed_charge) + calcExample(tariff, 25))}
+                    </span>
+                  </p>
+                )}
               </div>
             ))}
           </div>
@@ -154,7 +161,7 @@ export default function TariffsPage() {
 function calcExample(tariff: WaterTariff, consumption: number): number {
   let total = 0;
   let remaining = consumption;
-  const blocks = [...tariff.blocks].sort(
+  const blocks = [...(tariff.blocks ?? [])].sort(
     (a, b) => Number(a.from_m3) - Number(b.from_m3),
   );
   for (const block of blocks) {
@@ -184,10 +191,6 @@ function TariffModal({
     const d = new Date();
     return d.toISOString().slice(0, 10);
   });
-  const [blocks, setBlocks] = useState<Array<{ from: string; to: string; price: string }>>([
-    { from: "0", to: "10", price: "300" },
-    { from: "10", to: "", price: "450" },
-  ]);
   const [saving, setSaving] = useState(false);
 
   return (
@@ -200,8 +203,8 @@ function TariffModal({
       <div className="max-h-[90vh] w-full overflow-y-auto rounded-t-2xl border border-border bg-background p-4 shadow-xl sm:max-w-lg sm:rounded-2xl sm:p-6">
         <h2 className="text-base font-semibold">Nuevo tarifario</h2>
         <p className="mt-1 text-xs text-muted-foreground">
-          Los tramos son acumulativos: cada precio aplica solo a los m³ que caen
-          en su rango. Deja &quot;Hasta&quot; vacío para el tramo final.
+          Nombre, cargo fijo y vigencia. Los tramos por m³ son de solo lectura en
+          la API actual; se muestran si el backend los tiene cargados.
         </p>
 
         <form
@@ -214,13 +217,6 @@ function TariffModal({
                 name: name.trim(),
                 fixed_charge: Number(fixed) || 0,
                 effective_from: effective,
-                blocks: blocks
-                  .filter((b) => b.price !== "")
-                  .map((b) => ({
-                    from_m3: Number(b.from) || 0,
-                    to_m3: b.to === "" ? null : Number(b.to),
-                    price_per_m3: Number(b.price),
-                  })),
               });
             } finally {
               setSaving(false);
@@ -241,73 +237,6 @@ function TariffModal({
               <label className="text-xs font-medium text-muted-foreground">Vigente desde</label>
               <Input type="date" value={effective} onChange={(e) => setEffective(e.target.value)} required />
             </div>
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <label className="text-xs font-medium text-muted-foreground">Tramos por m³</label>
-            {blocks.map((block, i) => (
-              <div key={i} className="flex items-center gap-2">
-                <Input
-                  type="number"
-                  value={block.from}
-                  onChange={(e) =>
-                    setBlocks((prev) =>
-                      prev.map((b, j) => (j === i ? { ...b, from: e.target.value } : b)),
-                    )
-                  }
-                  placeholder="Desde"
-                  className="h-8 text-xs"
-                />
-                <Input
-                  type="number"
-                  value={block.to}
-                  onChange={(e) =>
-                    setBlocks((prev) =>
-                      prev.map((b, j) => (j === i ? { ...b, to: e.target.value } : b)),
-                    )
-                  }
-                  placeholder="Hasta (vacío = ∞)"
-                  className="h-8 flex-1 text-xs"
-                />
-                <Input
-                  type="number"
-                  value={block.price}
-                  onChange={(e) =>
-                    setBlocks((prev) =>
-                      prev.map((b, j) => (j === i ? { ...b, price: e.target.value } : b)),
-                    )
-                  }
-                  placeholder="$/m³"
-                  className="h-8 w-24 text-xs"
-                  required
-                />
-                {blocks.length > 1 && (
-                  <button
-                    type="button"
-                    onClick={() => setBlocks((prev) => prev.filter((_, j) => j !== i))}
-                    className="text-muted-foreground hover:text-destructive"
-                    title="Quitar tramo"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
-                )}
-              </div>
-            ))}
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              className="self-start"
-              onClick={() =>
-                setBlocks((prev) => [
-                  ...prev,
-                  { from: String(prev[prev.length - 1]?.to ?? "0"), to: "", price: "" },
-                ])
-              }
-            >
-              <Plus className="h-3.5 w-3.5" />
-              Agregar tramo
-            </Button>
           </div>
 
           <div className="mt-2 flex justify-end gap-2 border-t border-border pt-3">
