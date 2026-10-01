@@ -10,7 +10,7 @@
  * Gaps de backend a follow-up:
  * - Tariff.blocks es READ-ONLY; no hay endpoint tariff-blocks → la UI no
  *   puede crear/editar tramos vía API.
- * - ViewSets water usan module_name="customers" (no water_management).
+ * - ViewSets water usan module_name="water_management" (yggdra_infra#39).
  * - Header X-Yggdra-Schema-Sha requiere CORS Access-Control-Expose-Headers
  *   para leerse cross-origin.
  */

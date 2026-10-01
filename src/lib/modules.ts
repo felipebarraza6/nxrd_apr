@@ -4,19 +4,17 @@ import type { ModuleName, SubmoduleConfig } from "@/lib/api/branch-modules";
  * Mapeo de rutas de Cauce al módulo de Yggdra que las controla.
  * `null` = ruta libre de módulo. No listadas → permitidas por defecto.
  *
- * Water gated con `customers`: ViewSets de apps/water en production usan
- * module_name="customers" (no water_management). water_management sigue en
- * el catálogo/composite del backend como gap a alinear.
+ * Water gated con `water_management` (ViewSets alineados en yggdra_infra#39).
  */
 export const ROUTE_MODULE_MAP: Record<string, ModuleName | null> = {
   "/dashboard": "dashboard",
   "/sales": "sales",
   "/reports": null,
-  "/meters": "customers",
-  "/readings": "customers",
-  "/readings/pos": "customers",
-  "/tariffs": "customers",
-  "/billing": "customers",
+  "/meters": "water_management",
+  "/readings": "water_management",
+  "/readings/pos": "water_management",
+  "/tariffs": "water_management",
+  "/billing": "water_management",
   "/reports/sales": null,
   "/reports/money": null,
   "/reports/revenues": null,
@@ -229,12 +227,11 @@ export const FRIG_MENU_DEF: FrigMenuGroup[] = [
     title: "Agua",
     icon: "Droplets",
     items: [
-      // module=customers: alinea gating UI con ViewSets water del backend (production).
-      { href: "/meters", label: "Medidores", icon: "Gauge", module: "customers", description: "Puntos de medición por socio y sector" },
-      { href: "/readings", label: "Lecturas", icon: "NotebookPen", module: "customers", description: "Toma por ruta y carga masiva del período" },
-      { href: "/readings/pos", label: "POS de lectura", icon: "Gauge", module: "customers", description: "Casa por casa: captura rápida medidor a medidor" },
-      { href: "/tariffs", label: "Tarifarios", icon: "ScrollText", module: "customers", description: "Cargo fijo y tramos por m³ (tramos RO en API)" },
-      { href: "/billing", label: "Cobros de agua", icon: "Receipt", module: "customers", description: "Corridas del período y boletas SII" },
+      { href: "/meters", label: "Medidores", icon: "Gauge", module: "water_management", description: "Puntos de medición por socio y sector" },
+      { href: "/readings", label: "Lecturas", icon: "NotebookPen", module: "water_management", description: "Toma por ruta y carga masiva del período" },
+      { href: "/readings/pos", label: "POS de lectura", icon: "Gauge", module: "water_management", description: "Casa por casa: captura rápida medidor a medidor" },
+      { href: "/tariffs", label: "Tarifarios", icon: "ScrollText", module: "water_management", description: "Cargo fijo y tramos por m³ (tramos RO en API)" },
+      { href: "/billing", label: "Cobros de agua", icon: "Receipt", module: "water_management", description: "Corridas del período y boletas SII" },
     ],
   },
   {

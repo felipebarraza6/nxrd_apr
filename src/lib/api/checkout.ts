@@ -1,5 +1,11 @@
 import { apiFetch } from "./client";
 import type { LoginCompleteResponse } from "@/lib/types";
+import {
+  buildCauceCheckoutBody,
+  CAUCE_GROUP,
+  type BillingStatusPayload,
+  type SignupFormValues,
+} from "@/lib/cauce-checkout";
 
 export interface CheckoutRequest {
   plan_id: string;
@@ -7,24 +13,36 @@ export interface CheckoutRequest {
   contact_name: string;
   email: string;
   website?: string;
+  /** Solo cauce-checkout (trial): ver CAUCE_CHECKOUT_TYPE. */
+  checkout_type?: string;
 }
 
 export interface CheckoutResponse {
   checkout_id: string;
-  payment_url: string;
+  payment_url: string | null;
   status: string;
+  login_slug?: string | null;
+  is_trial?: boolean;
+  trial_ends_at?: string | null;
+  days_remaining?: number | null;
 }
 
 export interface CheckoutStatus {
   status: string;
-  payment_url?: string;
+  payment_url?: string | null;
+  login_slug?: string | null;
+  is_trial?: boolean;
+  trial_ends_at?: string | null;
+  days_remaining?: number | null;
 }
 
-export function checkoutPath(group = "frig"): string {
+export type BillingStatus = BillingStatusPayload;
+
+export function checkoutPath(group: string = CAUCE_GROUP): string {
   return `/public/${group}-checkout/`;
 }
 
-export function fetchCheckout(p: CheckoutRequest, group = "frig", signal?: AbortSignal) {
+export function fetchCheckout(p: CheckoutRequest, group: string = CAUCE_GROUP, signal?: AbortSignal) {
   return apiFetch<CheckoutResponse>(checkoutPath(group), {
     method: "POST",
     body: p,
@@ -34,10 +52,35 @@ export function fetchCheckout(p: CheckoutRequest, group = "frig", signal?: Abort
   });
 }
 
-export function fetchCheckoutStatus(id: string, group = "frig") {
+/**
+ * Self-signup APR con trial: POST /api/public/cauce-checkout/
+ * body incluye checkout_type aislado en CAUCE_CHECKOUT_TYPE.
+ */
+export function createCauceCheckout(values: SignupFormValues, signal?: AbortSignal) {
+  return apiFetch<CheckoutResponse>(checkoutPath(CAUCE_GROUP), {
+    method: "POST",
+    body: buildCauceCheckoutBody(values),
+    auth: "none",
+    branch: "none",
+    signal,
+  });
+}
+
+export function fetchCheckoutStatus(id: string, group: string = CAUCE_GROUP) {
   return apiFetch<CheckoutStatus>(`${checkoutPath(group)}${id}/`, {
     auth: "none",
     branch: "none",
+  });
+}
+
+/**
+ * GET /api/plan-checkout/billing-status/ — estado de trial/suscripción.
+ * Requiere auth + header X-Branch-ID (branch: auto).
+ */
+export function fetchBillingStatus() {
+  return apiFetch<BillingStatus>("/plan-checkout/billing-status/", {
+    auth: "required",
+    branch: "auto",
   });
 }
 
@@ -90,7 +133,7 @@ export interface PlanGroupPublic {
   plans: GroupPlanPublic[];
 }
 
-export function fetchPlans(group = "frig") {
+export function fetchPlans(group: string = CAUCE_GROUP) {
   return apiFetch<PlanGroupPublic>(`/public/${group}-plans/`, {
     auth: "none",
     branch: "none",

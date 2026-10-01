@@ -25,6 +25,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { SupportLauncher } from "@/components/support/support-launcher";
 import { ForbiddenListener } from "@/components/forbidden-listener";
 import { HeroPlexus } from "@/components/landing/hero-plexus";
+import { TrialBanner } from "@/components/trial-banner";
 import { enabledModuleSet, firstEnabledAllowedPath } from "@/lib/modules";
 import { SUPERADMIN_ALLOWED_PATHS as SUPERADMIN_MENU_PATHS } from "@/lib/hooks/useFrigMenu";
 import { useToastStore } from "@/lib/store/toast";
@@ -300,6 +301,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
             ],
           )}
         >
+          {showChrome ? <TrialBanner /> : null}
           {blockPageContent ? (
             <div className="flex flex-1 items-center justify-center bg-background">
               <div className="h-6 w-6 animate-spin rounded-full border-2 border-muted border-t-primary" />

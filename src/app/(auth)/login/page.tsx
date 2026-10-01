@@ -613,6 +613,15 @@ export default function LoginPage() {
                   ¿Olvidaste tu contraseña? Recupérala aquí
                 </button>
               </div>
+              <p className="mt-4 text-center text-xs text-muted-foreground">
+                ¿Nueva APR?{" "}
+                <a
+                  href="/signup"
+                  className="font-medium text-sky-300 underline-offset-4 hover:underline"
+                >
+                  Empieza 30 días gratis
+                </a>
+              </p>
             </form>
           )}
 

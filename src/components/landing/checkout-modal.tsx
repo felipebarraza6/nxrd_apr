@@ -156,9 +156,15 @@ export function CheckoutModal({
         return;
       }
 
-      setPaymentUrl(res.payment_url);
-      setState("polling");
-      window.open(res.payment_url, "_blank", "noopener,noreferrer");
+      if (res.payment_url) {
+        setPaymentUrl(res.payment_url);
+        setState("polling");
+        window.open(res.payment_url, "_blank", "noopener,noreferrer");
+        return;
+      }
+
+      setError("No recibimos el enlace de pago. Intenta de nuevo.");
+      setState("form");
       return;
     } catch (e) {
       if (
