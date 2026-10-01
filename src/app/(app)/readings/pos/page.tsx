@@ -26,7 +26,6 @@ import { Select } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/ui/empty-state";
 import { useToast } from "@/lib/store/toast";
-import { cn } from "@/lib/utils";
 import { createReading, fetchMeters, fetchReadings } from "@/lib/api/water";
 
 function currentPeriod(): string {
@@ -56,8 +55,8 @@ export default function ReadingPosPage() {
     placeholderData: keepPreviousData,
   });
 
-  const meters = metersQuery.data ?? [];
-  const readings = readingsQuery.data ?? [];
+  const meters = useMemo(() => metersQuery.data ?? [], [metersQuery.data]);
+  const readings = useMemo(() => readingsQuery.data ?? [], [readingsQuery.data]);
   const readingByMeter = useMemo(() => {
     const map = new Map<string, (typeof readings)[number]>();
     for (const r of readings) map.set(r.meter, r);

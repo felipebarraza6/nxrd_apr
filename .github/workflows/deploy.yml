@@ -53,6 +53,9 @@ jobs:
       - name: Type-check
         run: npm run type-check
 
+      - name: Tests
+        run: npm test
+
       - name: Build estático
         run: npm run build
 

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { STORAGE } from "@/lib/storage-keys";
 import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -109,7 +110,7 @@ function statusBadgeClass(status?: string | null) {
   }
 }
 
-// Persiste un filtro de string en localStorage (patrón frig.<modulo>.<filtro>)
+// Persiste un filtro de string en localStorage (patrón cauce.<modulo>.<filtro>)
 function usePersistedState(key: string, initialValue: string, allowed?: string[]): [string, (v: string) => void] {
   const [value, setValue] = useState<string>(() => {
     if (typeof window === "undefined") return initialValue;
@@ -333,11 +334,11 @@ function buildPendingEntities(
 export default function PaymentsPage() {
   const toast = useToast();
   // Filtros persistidos en localStorage para que sobrevivan recargas/navegación
-  const [direction, setDirection] = usePersistedState("frig.payments.direction", "EXPENSE", ["", "INCOME", "EXPENSE"]);
-  const [source, setSource] = usePersistedState("frig.payments.source", "", ["", "ORDER", "EXPENSE", "PURCHASE_ORDER", "REVENUE", "REFUND", "OTHER"]);
-  const [dateFrom, setDateFrom] = usePersistedState("frig.payments.dateFrom", "");
-  const [dateTo, setDateTo] = usePersistedState("frig.payments.dateTo", "");
-  const [search, setSearch] = usePersistedState("frig.payments.search", "");
+  const [direction, setDirection] = usePersistedState("cauce.payments.direction", "EXPENSE", ["", "INCOME", "EXPENSE"]);
+  const [source, setSource] = usePersistedState("cauce.payments.source", "", ["", "ORDER", "EXPENSE", "PURCHASE_ORDER", "REVENUE", "REFUND", "OTHER"]);
+  const [dateFrom, setDateFrom] = usePersistedState("cauce.payments.dateFrom", "");
+  const [dateTo, setDateTo] = usePersistedState("cauce.payments.dateTo", "");
+  const [search, setSearch] = usePersistedState("cauce.payments.search", "");
   // Búsqueda con debounce: se envía al backend (N° orden, referencia, método)
   // después de 400 ms sin teclear, para no disparar un request por tecla.
   const [debouncedSearch, setDebouncedSearch] = useState(search);
@@ -349,16 +350,16 @@ export default function PaymentsPage() {
   const [pageUrl, setPageUrl] = useState<{ next?: string | null; previous?: string | null }>({});
   // Vista de la página: pendientes (por procesar) o transacciones (histórico).
   // Por defecto se abre en "Pendientes" — es la acción principal del módulo.
-  // La clave cambió (frig.payments.tab) para que el nuevo default aplique a
+  // La clave cambió (cauce.payments.tab) para que el nuevo default aplique a
   // usuarios que ya tenían "transacciones" persistido en la clave anterior.
-  const [view, setView] = usePersistedState("frig.payments.tab", "pendientes", ["pendientes", "transacciones"]);
+  const [view, setView] = usePersistedState("cauce.payments.tab", "pendientes", ["pendientes", "transacciones"]);
   // Filtros de la vista "Pendientes". Se aplican en cliente sobre la lista
   // unificada: las entidades vienen de 4 endpoints distintos que no comparten
   // parámetros de filtro.
-  const [pendingSearch, setPendingSearch] = usePersistedState("frig.payments.pendingSearch", "");
-  const [pendingDirection, setPendingDirection] = usePersistedState("frig.payments.pendingDirection", "", ["", "INCOME", "EXPENSE"]);
-  const [pendingDateFrom, setPendingDateFrom] = usePersistedState("frig.payments.pendingDateFrom", "");
-  const [pendingDateTo, setPendingDateTo] = usePersistedState("frig.payments.pendingDateTo", "");
+  const [pendingSearch, setPendingSearch] = usePersistedState("cauce.payments.pendingSearch", "");
+  const [pendingDirection, setPendingDirection] = usePersistedState("cauce.payments.pendingDirection", "", ["", "INCOME", "EXPENSE"]);
+  const [pendingDateFrom, setPendingDateFrom] = usePersistedState("cauce.payments.pendingDateFrom", "");
+  const [pendingDateTo, setPendingDateTo] = usePersistedState("cauce.payments.pendingDateTo", "");
   // Offset aproximado de la página actual para calcular el correlativo visible
   const [offset, setOffset] = useState(0);
 
@@ -479,7 +480,7 @@ export default function PaymentsPage() {
   });
 
   // Símbolo de la moneda configurada en Finanzas → Configuración (para el campo Monto).
-  const branchId = typeof window !== "undefined" ? Number(window.localStorage.getItem("frig.branch_id")) : NaN;
+  const branchId = typeof window !== "undefined" ? Number(window.localStorage.getItem(STORAGE.branchId)) : NaN;
   const { data: financeConfig } = useQuery({
     queryKey: ["branch-finance-config", branchId],
     queryFn: () => fetchBranchFinanceConfigByBranch(branchId),

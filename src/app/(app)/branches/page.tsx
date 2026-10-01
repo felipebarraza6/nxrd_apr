@@ -91,15 +91,13 @@ const MODULE_SHORT_LABELS: Record<string, string> = {
   ingredients: "Ingredientes",
 };
 
-/** Roles por código, con el módulo que los habilita (null = siempre). */
+/** Roles Cauce APR por código (null = siempre asignable). */
 export const FRIG_ROLE_CATALOG: { code: string; label: string; module: string | null }[] = [
   { code: "OWNER", label: "Propietario", module: null },
-  { code: "ADMIN_LOCAL", label: "Administrador local", module: null },
+  { code: "ADMIN_LOCAL", label: "Administrador", module: null },
+  { code: "MANAGER", label: "Gerente", module: null },
   { code: "EMPLOYEE", label: "Empleado", module: null },
-  { code: "CAJERO", label: "Cajero", module: "pos" },
-  { code: "WAITER", label: "Mesero", module: "tables" },
-  { code: "COCINERO", label: "Cocinero", module: "production" },
-  { code: "REPARTIDOR", label: "Repartidor", module: "deliveries" },
+  { code: "MEDIDOR", label: "Medidor", module: null },
 ];
 
 /** Cantidad de usuarios por rol de la sucursal, ordenada de mayor a menor. */

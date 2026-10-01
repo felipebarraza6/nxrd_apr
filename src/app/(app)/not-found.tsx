@@ -15,7 +15,7 @@ export default function AppNotFound() {
         La página que buscas no existe o no tienes acceso.
       </p>
       <div className="mt-6 flex gap-3">
-        <Link href="/pos" className={buttonVariants()}>
+        <Link href="/dashboard" className={buttonVariants()}>
           <Home className="mr-2 h-4 w-4" />
           Volver al inicio
         </Link>

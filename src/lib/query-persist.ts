@@ -84,7 +84,7 @@ export function createQueryPersister(storageKey: string) {
 export function queryPersistStorageKey(userId?: string | number | null, branchId?: string | null): string {
   const u = userId != null && String(userId) !== "" ? String(userId) : "anon";
   const b = branchId != null && String(branchId) !== "" ? String(branchId) : "nobranch";
-  return `frig.rq.${u}.${b}`;
+  return `cauce.rq.${u}.${b}`;
 }
 
 export const QUERY_PERSIST_MAX_AGE = 24 * 60 * 60 * 1000; // 24h

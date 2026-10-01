@@ -66,7 +66,7 @@ export const POS_CONFIG_MODULE_REQUIREMENTS: Record<keyof PosConfig, ModuleName 
 const POS_STATIONS_KEY = "pos_stations";
 
 /** Key localStorage legacy (configuración local previa a la persistencia en DB). */
-const LEGACY_STORAGE_KEY = "frig.pos-config";
+const LEGACY_STORAGE_KEY = "cauce.pos-config";
 
 type PosStationsMap = Record<string, PosConfig>;
 

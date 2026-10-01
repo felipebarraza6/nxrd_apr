@@ -21,7 +21,7 @@ export const useSidebarStore = create<SidebarState>()(
       setHovering: (v) => set({ hovering: v }),
     }),
     {
-      name: "frig.sidebar",
+      name: "cauce.sidebar",
       partialize: (state) => ({ expanded: state.expanded }),
     },
   ),

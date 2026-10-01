@@ -81,7 +81,8 @@ function FilterChip({
 }
 
 async function exportWarehouseProductsToExcel(warehouseName: string, warehouseId: number) {
-  const XLSX = await import("xlsx");
+  const { generateExcelBlob } = await import("@/lib/export-excel");
+  const { downloadBlob } = await import("@/lib/utils");
   const allResults: WarehouseProduct[] = [];
   let next: string | null | undefined;
   let first = true;
@@ -95,26 +96,40 @@ async function exportWarehouseProductsToExcel(warehouseName: string, warehouseId
     first = false;
   }
 
-  const rows = allResults.map((wp) => ({
-    Producto: wp.product_name,
-    Código: wp.product_code,
-    Categoría: wp.product_category,
-    Unidad: wp.product_measurement_unit,
-    Ubicación: wp.location_in_warehouse ?? "",
-    Cantidad: wp.current_quantity,
-    Mínima: wp.minimum_quantity ?? "",
-    Máxima: wp.maximum_quantity ?? "",
-    Reorden: wp.reorder_point ?? "",
-    "Costo unitario": numValue(wp.product_cost),
-    "Costo total": numValue(wp.total_value),
-    Estado: stockStatusLabel(wp.stock_status ?? ""),
-  }));
-
-  const ws = XLSX.utils.json_to_sheet(rows);
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, "Productos");
+  const headers = [
+    "Producto",
+    "Código",
+    "Categoría",
+    "Unidad",
+    "Ubicación",
+    "Cantidad",
+    "Mínima",
+    "Máxima",
+    "Reorden",
+    "Costo unitario",
+    "Costo total",
+    "Estado",
+  ];
+  const rows = allResults.map((wp) => [
+    wp.product_name,
+    wp.product_code,
+    wp.product_category,
+    wp.product_measurement_unit,
+    wp.location_in_warehouse ?? "",
+    wp.current_quantity,
+    wp.minimum_quantity ?? "",
+    wp.maximum_quantity ?? "",
+    wp.reorder_point ?? "",
+    numValue(wp.product_cost),
+    numValue(wp.total_value),
+    stockStatusLabel(wp.stock_status ?? ""),
+  ]);
+  const blob = await generateExcelBlob("Productos", headers, rows);
   const date = new Date().toLocaleDateString("en-CA");
-  XLSX.writeFile(wb, `bodega-${warehouseName.toLowerCase().replace(/\s+/g, "-")}_${date}.xlsx`);
+  downloadBlob(
+    blob,
+    `bodega-${warehouseName.toLowerCase().replace(/\s+/g, "-")}_${date}.xlsx`,
+  );
 }
 
 export default function WarehouseDetailPage() {

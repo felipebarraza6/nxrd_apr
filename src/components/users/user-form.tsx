@@ -8,7 +8,7 @@ import { isValidRUT } from "@/lib/validation";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { AnimatedOverlay } from "@/components/ui/animated-overlay";
-import { useSessionStore, useCurrentBranch, useIsModuleEnabledFromConfig } from "@/lib/store/session";
+import { useSessionStore, useCurrentBranch } from "@/lib/store/session";
 import { branchName } from "@/lib/types";
 import { ROLE_LABELS } from "@/lib/roles";
 import { createAndAssignUser, updateUser, changeAssignmentRole } from "@/lib/api/users";
@@ -20,18 +20,14 @@ interface UserFormProps {
   onSuccess: () => void;
 }
 
-// Catálogo FRIG con el módulo que habilita cada rol operativo (null = siempre
-// disponible). MANAGER se mantiene por compatibilidad con asignaciones ya
-// existentes, aunque no forme parte del catálogo público FRIG.
-const ALL_ROLES: { code: string; label: string; module: string | null }[] = [
-  { code: "OWNER", label: ROLE_LABELS.OWNER, module: null },
-  { code: "ADMIN_LOCAL", label: ROLE_LABELS.ADMIN_LOCAL, module: null },
-  { code: "MANAGER", label: ROLE_LABELS.MANAGER, module: null },
-  { code: "EMPLOYEE", label: ROLE_LABELS.EMPLOYEE, module: null },
-  { code: "CAJERO", label: ROLE_LABELS.CAJERO, module: "pos" },
-  { code: "WAITER", label: ROLE_LABELS.WAITER, module: "tables" },
-  { code: "COCINERO", label: ROLE_LABELS.COCINERO, module: "production" },
-  { code: "REPARTIDOR", label: ROLE_LABELS.REPARTIDOR, module: "deliveries" },
+// Catálogo Cauce APR: roles asignables. OWNER/MANAGER solo para edición
+// de asignaciones existentes o superadmin.
+const ALL_ROLES: { code: string; label: string }[] = [
+  { code: "OWNER", label: ROLE_LABELS.OWNER ?? "Propietario" },
+  { code: "ADMIN_LOCAL", label: ROLE_LABELS.ADMIN_LOCAL },
+  { code: "MANAGER", label: "Gerente" },
+  { code: "EMPLOYEE", label: ROLE_LABELS.EMPLOYEE },
+  { code: "MEDIDOR", label: ROLE_LABELS.MEDIDOR },
 ];
 
 export function UserForm({ user, onClose, onSuccess }: UserFormProps) {
@@ -40,10 +36,6 @@ export function UserForm({ user, onClose, onSuccess }: UserFormProps) {
   const currentBranch = useCurrentBranch();
   const isSuperAdmin = Boolean(currentUser?.is_superuser || currentUser?.type_user === "ADM");
   const isEditing = Boolean(user);
-  const isPosModuleEnabled = useIsModuleEnabledFromConfig("pos");
-  const isTablesModuleEnabled = useIsModuleEnabledFromConfig("tables");
-  const isProductionModuleEnabled = useIsModuleEnabledFromConfig("production");
-  const isDeliveriesModuleEnabled = useIsModuleEnabledFromConfig("deliveries");
 
   const manageableBranches = useMemo<Branch[]>(() => {
     if (isSuperAdmin) return branches;
@@ -59,36 +51,21 @@ export function UserForm({ user, onClose, onSuccess }: UserFormProps) {
   const currentAssignment = user?.branch_access;
 
   const availableRoles = useMemo(() => {
-    const moduleEnabledMap: Record<string, boolean> = {
-      pos: isPosModuleEnabled,
-      tables: isTablesModuleEnabled,
-      production: isProductionModuleEnabled,
-      deliveries: isDeliveriesModuleEnabled,
-    };
-    let roles = ALL_ROLES.filter((r) => !r.module || moduleEnabledMap[r.module]);
+    let roles = [...ALL_ROLES];
     if (!isSuperAdmin) {
       roles = roles.filter((r) => r.code !== "OWNER");
     }
-    // Al editar, el rol actual se mantiene aunque su módulo esté apagado: si
-    // no, el select caería a otro rol y se cambiaría silenciosamente al guardar.
+    // Al editar, el rol actual se mantiene aunque ya no esté en el catálogo.
     if (
       isEditing &&
       currentAssignment?.role_code &&
       !roles.some((r) => r.code === currentAssignment.role_code)
     ) {
       const code = currentAssignment.role_code;
-      roles = [...roles, { code, label: ROLE_LABELS[code] ?? code, module: null }];
+      roles = [...roles, { code, label: ROLE_LABELS[code] ?? code }];
     }
     return roles;
-  }, [
-    isSuperAdmin,
-    isEditing,
-    currentAssignment,
-    isPosModuleEnabled,
-    isTablesModuleEnabled,
-    isProductionModuleEnabled,
-    isDeliveriesModuleEnabled,
-  ]);
+  }, [isSuperAdmin, isEditing, currentAssignment]);
 
   // Solo un owner multi-sucursal (o superadmin) puede crear/editar usuarios
   // multi-sucursal; el check no se muestra a otros roles.

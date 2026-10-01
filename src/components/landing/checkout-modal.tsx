@@ -58,7 +58,7 @@ export function CheckoutModal({
   onClose,
 }: CheckoutModalProps) {
   const { checkoutGroup } = useApp();
-  const storageKey = `frig.checkout_id.${checkoutGroup}`;
+  const storageKey = `cauce.checkout_id.${checkoutGroup}`;
   const [state, setState] = useState<CheckoutState>(() => {
     if (typeof window === "undefined") return "form";
     const params = new URLSearchParams(window.location.search);

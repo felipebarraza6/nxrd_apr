@@ -13,13 +13,11 @@ import {
   AlertTriangle,
   Clock,
   Wallet,
-  Truck,
   Target,
   FlaskConical,
   ArrowRight,
   UserPlus,
   ShoppingBag,
-  Droplets,
   type LucideIcon,
   LayoutDashboard,
 } from "lucide-react";
@@ -499,7 +497,7 @@ export default function DashboardPage() {
             icon={FlaskConical}
             sub="según recetas vendidas"
             tone="muted"
-            href="/reports/nutrition"
+            href="/reports/sales"
 
             onClick={() =>
               setDrawer({
@@ -518,7 +516,7 @@ export default function DashboardPage() {
                     ],
                   actions: (
                     <Link
-                      href="/reports/nutrition"
+                      href="/reports/sales"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-primary/90"

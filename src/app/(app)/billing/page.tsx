@@ -13,10 +13,12 @@ import { AnimatedOverlay } from "@/components/ui/animated-overlay";
 import { EmptyState } from "@/components/ui/empty-state";
 import { useToast } from "@/lib/store/toast";
 import { formatCLP } from "@/lib/utils";
+import { Select } from "@/components/ui/select";
 import {
   createBillingRun,
   emitBillingRunDtes,
   fetchBillingRuns,
+  fetchTariffs,
   type BillingRunRow,
   type DteEmitResult,
 } from "@/lib/api/water";
@@ -30,6 +32,8 @@ export default function BillingPage() {
   const toast = useToast();
   const queryClient = useQueryClient();
   const [period, setPeriod] = useState(currentPeriod());
+  /** UUID de tarifario opcional (BillingRunCreateSerializer.tariff); vacío = vigente. */
+  const [tariffId, setTariffId] = useState("");
   const [dteResult, setDteResult] = useState<{
     run: BillingRunRow;
     result: DteEmitResult;
@@ -40,10 +44,22 @@ export default function BillingPage() {
     queryFn: fetchBillingRuns,
   });
 
+  const tariffsQuery = useQuery({
+    queryKey: ["water", "tariffs"],
+    queryFn: fetchTariffs,
+  });
+
+  const tariffs = [...(tariffsQuery.data ?? [])].sort((a, b) =>
+    b.effective_from.localeCompare(a.effective_from),
+  );
   const runs = runsQuery.data ?? [];
 
   const generateMutation = useMutation({
-    mutationFn: () => createBillingRun(period),
+    mutationFn: () =>
+      createBillingRun({
+        period,
+        ...(tariffId ? { tariff: tariffId } : {}),
+      }),
     onSuccess: (run) => {
       queryClient.invalidateQueries({ queryKey: ["water", "billing-runs"] });
       toast.success(
@@ -96,12 +112,32 @@ export default function BillingPage() {
               className="h-9 w-44"
             />
           </div>
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-medium text-muted-foreground">
+              Tarifario (opcional)
+            </label>
+            <Select
+              value={tariffId}
+              onChange={(e) => setTariffId(e.target.value)}
+              className="h-9 w-56"
+            >
+              <option value="">Vigente automático</option>
+              {tariffs.map((t) => (
+                <option key={t.id} value={t.id}>
+                  {t.name} · desde {t.effective_from}
+                </option>
+              ))}
+            </Select>
+          </div>
           <Button
             className="h-9"
             disabled={generateMutation.isPending}
             isLoading={generateMutation.isPending}
             onClick={() => {
-              const msg = `¿Generar los cargos de ${period}? Se crea un cargo por medidor con lectura y socio asignado, según el tarifario vigente.`;
+              const tariffLabel = tariffId
+                ? tariffs.find((t) => t.id === tariffId)?.name ?? "seleccionado"
+                : "vigente";
+              const msg = `¿Generar los cargos de ${period} con tarifario ${tariffLabel}? Se crea un cargo por medidor con lectura y socio asignado.`;
               if (window.confirm(msg)) {
                 generateMutation.mutate();
               }

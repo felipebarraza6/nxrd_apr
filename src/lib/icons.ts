@@ -1,9 +1,5 @@
 import type { LucideIcon } from "lucide-react";
 import {
-  Droplets,
-  Gauge,
-  NotebookPen,
-  ScrollText,
   LayoutDashboard,
   Receipt,
   Banknote,

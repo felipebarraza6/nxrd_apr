@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Sparkles, Monitor, Banknote, Table, LocateFixed, ChefHat, Boxes,
+  Sparkles, Monitor, Banknote, Boxes,
   FileText, X, Shield, Zap, Download,
 } from "lucide-react";
 import { useCurrentBranch, useIsOwner, useIsSuperAdmin, useSessionStore } from "@/lib/store/session";

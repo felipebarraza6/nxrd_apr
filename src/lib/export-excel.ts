@@ -1,40 +1,52 @@
 /**
- * Genera un archivo .xlsx en el cliente con encabezado estilado con el color
- * de marca (fondo primario, texto blanco en negrita) y anchos de columna
- * aproximados. Devuelve un Blob listo para descargar.
- *
- * `xlsx-js-style` se importa dinámicamente para mantenerla fuera del bundle
- * inicial. El patrón de estilos replica al de `generateOrdersExcel`.
+ * Genera un archivo .xlsx en el cliente con encabezado estilado (color de marca).
+ * Usa ExcelJS (mantenido) en lugar de SheetJS/xlsx.
  */
+import ExcelJS from "exceljs";
+
+function normalizeArgb(color: string, fallback = "FF2F6B3C"): string {
+  const hex = color.replace("#", "").trim().toUpperCase();
+  if (/^[0-9A-F]{3}$/.test(hex)) {
+    const expanded = hex
+      .split("")
+      .map((c) => c + c)
+      .join("");
+    return `FF${expanded}`;
+  }
+  if (/^[0-9A-F]{6}$/.test(hex)) return `FF${hex}`;
+  if (/^[0-9A-F]{8}$/.test(hex)) return hex;
+  return fallback;
+}
+
 export async function generateExcelBlob(
   sheetName: string,
   headers: string[],
   rows: (string | number)[][],
   primaryColor = "#2f6b3c",
 ): Promise<Blob> {
-  const XLSX = await import("xlsx-js-style");
+  const wb = new ExcelJS.Workbook();
+  const ws = wb.addWorksheet(sheetName.slice(0, 31) || "Datos");
 
-  const wb = XLSX.utils.book_new();
-  const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]);
+  const headerRow = ws.addRow(headers);
+  const argb = normalizeArgb(primaryColor);
+  headerRow.eachCell((cell) => {
+    cell.fill = {
+      type: "pattern",
+      pattern: "solid",
+      fgColor: { argb },
+    };
+    cell.font = { bold: true, color: { argb: "FFFFFFFF" } };
+  });
 
-  const hex = primaryColor.replace("#", "").trim().toUpperCase();
-  const fill = {
-    patternType: "solid",
-    fgColor: { rgb: /^([0-9A-F]{6}|[0-9A-F]{8})$/.test(hex) ? hex : "FF2F6B3C" },
-  };
-  const font = { bold: true, color: { rgb: "FFFFFF" } };
-  for (let c = 0; c < headers.length; c++) {
-    const cellRef = XLSX.utils.encode_cell({ r: 0, c });
-    if (!ws[cellRef]) {
-      ws[cellRef] = { t: "s", v: headers[c] };
-    }
-    ws[cellRef].s = { fill, font };
+  for (const row of rows) {
+    ws.addRow(row);
   }
 
-  ws["!cols"] = headers.map((key) => ({ wch: Math.max(key.length, 12) }));
+  headers.forEach((key, i) => {
+    ws.getColumn(i + 1).width = Math.max(key.length, 12);
+  });
 
-  XLSX.utils.book_append_sheet(wb, ws, sheetName);
-  const buffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+  const buffer = await wb.xlsx.writeBuffer();
   return new Blob([buffer], {
     type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
   });

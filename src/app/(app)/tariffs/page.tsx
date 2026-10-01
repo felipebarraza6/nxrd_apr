@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Plus, ScrollText, Trash2 } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
 import { PageBody, PageShell } from "@/components/page-shell";
@@ -178,7 +178,6 @@ function TariffModal({
   onClose: () => void;
   onSave: (payload: Parameters<typeof createTariff>[0]) => Promise<void>;
 }) {
-  const toast = useToast();
   const [name, setName] = useState("");
   const [fixed, setFixed] = useState("2000");
   const [effective, setEffective] = useState(() => {

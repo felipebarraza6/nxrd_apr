@@ -33,7 +33,6 @@ import { useSidebarStore } from "@/lib/store/sidebar";
 import { filterNavItemsByRole, type NavRoleFilter } from "@/lib/nav-access";
 import { logout } from "@/lib/api/auth";
 import { logoutLocal } from "@/lib/logout-local";
-import { useProductBrand } from "@/lib/product-name";
 import { BranchSwitcher } from "@/components/branch-switcher";
 import { CommandPalette, type CommandPaletteItem } from "@/components/command-palette/command-palette";
 

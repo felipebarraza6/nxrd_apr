@@ -45,9 +45,8 @@ import {
   type RevenueCategoryRequest,
 } from "@/lib/api/revenues";
 import { fetchOrder, type PaymentInstallment } from "@/lib/api/orders";
-import { fetchTables } from "@/lib/api/tables";
 import type { YggdraSchemas } from "@/lib/api/types";
-import { useCurrentBranch, useIsModuleEnabledFromConfig } from "@/lib/store/session";
+import { useCurrentBranch } from "@/lib/store/session";
 import {
   formatCLP,
   revenueCategoryTypeLabel,
@@ -302,7 +301,7 @@ function startOfMonth(date: Date): Date {
 }
 
 /** Filtros que persisten entre visitas al módulo. */
-const REVENUE_FILTERS_KEY = "frig.revenues.filters";
+const REVENUE_FILTERS_KEY = "cauce.revenues.filters";
 const PAGE_SIZE = 10;
 
 interface PersistedRevenueFilters {
@@ -424,24 +423,7 @@ export default function RevenuesPage() {
     enabled: !!viewingOrderId,
   });
 
-  const tablesEnabled = useIsModuleEnabledFromConfig("tables");
-  const { data: tablesList } = useQuery({
-    queryKey: ["tables", "active"],
-    queryFn: async () => {
-      try {
-        return await fetchTables({ is_active: true, page_size: 200 });
-      } catch {
-        // Si el módulo de mesas no está activo o falla, solo no resolvemos el número de mesa.
-        return { count: 0, results: [] } as Awaited<ReturnType<typeof fetchTables>>;
-      }
-    },
-    enabled: tablesEnabled && !!viewingOrderId,
-    retry: false,
-  });
-  const tableById = useMemo(
-    () => new Map((tablesList?.results ?? []).map((t) => [t.id, t])),
-    [tablesList],
-  );
+  const tableById = useMemo(() => new Map<number, { number?: string }>(), []);
 
   const { data: categories = [] } = useQuery({
     queryKey: ["revenue-categories"],

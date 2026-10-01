@@ -1,4 +1,4 @@
-/* Service worker de FRIG (PWA).
+/* Service worker de Cauce / Smart APR (PWA).
  * Estrategia:
  *  - Assets estáticos de Next (_next/static, íconos, brand): cache-first.
  *  - Navegaciones (HTML): network-first, fallback al cache offline.
@@ -13,14 +13,16 @@ const BUILD =
     self.location &&
     new URL(self.location.href).searchParams.get("v")) ||
   "dev";
-const STATIC_CACHE = "frig-static-" + BUILD;
-const PAGES_CACHE = "frig-pages-" + BUILD;
+const STATIC_CACHE = "cauce-static-" + BUILD;
+const PAGES_CACHE = "cauce-pages-" + BUILD;
 
 const APP_SHELL = [
   "/",
   "/login",
   "/dashboard",
-  "/pos",
+  "/meters",
+  "/readings",
+  "/billing",
   "/sales",
   "/profile",
   "/cash-register",
@@ -79,54 +81,48 @@ self.addEventListener("fetch", (event) => {
 
   const url = new URL(request.url);
 
-  if (
-    STATIC_RE.test(url.pathname) ||
-    url.pathname.startsWith("/icons/") ||
-    url.pathname.startsWith("/brand/")
-  ) {
+  // Nunca cachear llamadas a la API (aunque compartan origen vía proxy).
+  if (url.pathname.startsWith("/api/") || url.hostname.includes("yggdra")) {
+    return;
+  }
+
+  if (STATIC_RE.test(url.pathname) || url.pathname.startsWith("/icons/") || url.pathname.startsWith("/brand/")) {
     event.respondWith(
-      caches.match(request).then(
-        (cached) =>
-          cached ||
-          fetch(request).then((response) => {
-            if (response.ok) {
-              const copy = response.clone();
-              caches.open(STATIC_CACHE).then((cache) => cache.put(request, copy));
-            }
-            return response;
-          })
-      )
+      caches.open(STATIC_CACHE).then(async (cache) => {
+        const cached = await cache.match(request);
+        if (cached) return cached;
+        const res = await fetch(request);
+        if (res.ok) cache.put(request, res.clone());
+        return res;
+      })
     );
     return;
   }
 
   if (request.mode === "navigate" || request.headers.get("accept")?.includes("text/html")) {
     event.respondWith(
-      fetch(request)
-        .then((response) => {
-          if (response.ok) {
-            const copy = response.clone();
-            caches.open(PAGES_CACHE).then((cache) =>
-              cache
-                .put(request, copy)
-                .then(() => cache.keys())
-                .then((keys) => {
-                  if (keys.length > PAGES_CACHE_MAX) {
-                    return Promise.all(
-                      keys.slice(0, keys.length - PAGES_CACHE_MAX).map((k) => cache.delete(k))
-                    );
-                  }
-                })
-            );
+      (async () => {
+        try {
+          const res = await fetch(request);
+          const cache = await caches.open(PAGES_CACHE);
+          if (res.ok) {
+            cache.put(request, res.clone());
+            const keys = await cache.keys();
+            if (keys.length > PAGES_CACHE_MAX) {
+              await cache.delete(keys[0]);
+            }
           }
-          return response;
-        })
-        .catch(() =>
-          caches
-            .match(request)
-            .then((cached) => cached || caches.match("/login") || caches.match("/"))
-        )
+          return res;
+        } catch {
+          const cache = await caches.open(PAGES_CACHE);
+          const cached = await cache.match(request);
+          if (cached) return cached;
+          return (
+            (await cache.match("/")) ||
+            new Response("Offline", { status: 503, statusText: "Offline" })
+          );
+        }
+      })()
     );
-    return;
   }
 });

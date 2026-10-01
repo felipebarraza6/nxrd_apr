@@ -137,7 +137,7 @@ function formatDateCL(value?: string | null): string {
 }
 
 /** Filtros que persisten entre visitas al módulo. */
-const EXPENSE_FILTERS_KEY = "frig.expenses.filters";
+const EXPENSE_FILTERS_KEY = "cauce.expenses.filters";
 const PAGE_SIZE = 10;
 
 interface PersistedExpenseFilters {

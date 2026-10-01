@@ -3,12 +3,12 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
-const PREFIX = "frig.checkout_id.";
+const PREFIX = "cauce.checkout_id.";
 
 /**
  * Flow redirige aquí tras completar (o cancelar) el pago con `?token=…&flowOrder=…`.
  * La página no llama a ninguna API: el checkout-modal ya guardó el checkout_id
- * en sessionStorage (`frig.checkout_id.{group}`) y sigue haciendo polling.
+ * en sessionStorage (`cauce.checkout_id.{group}`) y sigue haciendo polling.
  * Solo devolvemos al usuario a la landing con el checkout_id en la URL para
  * que el modal retome la confirmación y muestre "Revisa tu correo".
  */

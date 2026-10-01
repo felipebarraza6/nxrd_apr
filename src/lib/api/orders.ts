@@ -422,44 +422,13 @@ function formatOrderDate(value?: string | null): string {
 }
 
 /**
- * Normaliza un color HEX a 8 dígitos ARGB (con alfa FF) mayúsculas sin `#`,
- * formato que xlsx-js-style aplica de forma confiable en `fgColor.rgb`.
- * Soporta 3, 6 y 8 dígitos, con o sin alfa, y devuelve un fallback si el
- * formato no es válido.
- */
-function normalizeHexForXlsx(color: string, fallback = "FF2F6B3C"): string {
-  const hex = color.replace("#", "").trim().toUpperCase();
-  // 3 dígitos → 6 dígitos.
-  if (/^[0-9A-F]{3}$/.test(hex)) {
-    const expanded = hex
-      .split("")
-      .map((c) => c + c)
-      .join("");
-    return `FF${expanded}`;
-  }
-  // 6 dígitos: agregar alfa FF.
-  if (/^[0-9A-F]{6}$/.test(hex)) return `FF${hex}`;
-  // 8 dígitos (ARGB): ya está listo.
-  if (/^[0-9A-F]{8}$/.test(hex)) return hex;
-  return fallback;
-}
-
-/**
- * Genera un archivo Excel de órdenes en el navegador, traduciendo estados y
- * tipos al español y aplicando el color primario de la marca en el encabezado.
- * El color debe estar en formato HEX (ej: #2f6b3c).
- *
- * Se usa `aoa_to_sheet` en lugar de `json_to_sheet` para garantizar que las
- * celdas del encabezado existan y acepten estilos de forma confiable.
- *
- * `xlsx-js-style` se importa de forma dinámica para mantenerla fuera del
- * bundle inicial (orders.ts es importado por el terminal POS y cart-panel).
+ * Genera un Excel de cargos/órdenes en el navegador (ExcelJS vía export-excel).
  */
 export async function generateOrdersExcel(
   orders: YggdraOrder[],
   primaryColor = "#2f6b3c",
 ): Promise<Blob> {
-  const XLSX = await import("xlsx-js-style");
+  const { generateExcelBlob } = await import("@/lib/export-excel");
   const headers = [
     "ID",
     "Tipo",
@@ -474,45 +443,33 @@ export async function generateOrdersExcel(
     "Creado",
   ];
 
-  const rows = orders.map((o) => [
-    o.id,
-    orderTypeLabel(o.order_type),
-    orderStatusLabel(o.status),
-    paymentStatusLabel(o.payment_status),
-    formatOrderDate(o.date),
-    o.client?.name ?? "Sin cliente",
-    o.branch?.business_name ?? "—",
-    o.total_amount ? formatCLP(o.total_amount) : "$0",
-    o.total_cost ? formatCLP(o.total_cost) : "$0",
-    o.observation ?? "",
-    formatOrderDate(o.created),
-  ]);
+  const rows = orders.map((o) => {
+    const client =
+      o.client && typeof o.client === "object"
+        ? ((o.client as { name?: string }).name ?? "Sin cliente")
+        : "Sin cliente";
+    const branch =
+      o.branch && typeof o.branch === "object"
+        ? ((o.branch as { business_name?: string; name?: string }).business_name ??
+          (o.branch as { name?: string }).name ??
+          "—")
+        : "—";
+    return [
+      o.id,
+      orderTypeLabel(o.order_type),
+      orderStatusLabel(o.status),
+      paymentStatusLabel(o.payment_status),
+      formatOrderDate(o.date),
+      client,
+      branch,
+      o.total_amount ? formatCLP(o.total_amount) : "$0",
+      o.total_cost ? formatCLP(o.total_cost) : "$0",
+      o.observation ?? "",
+      formatOrderDate(o.created),
+    ];
+  });
 
-  const wb = XLSX.utils.book_new();
-  const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]);
-
-  // Aplicar color de marca al encabezado.
-  const fill = {
-    patternType: "solid",
-    fgColor: { rgb: normalizeHexForXlsx(primaryColor) },
-  };
-  const font = { bold: true, color: { rgb: "FFFFFF" } };
-  for (let c = 0; c < headers.length; c++) {
-    const cellRef = XLSX.utils.encode_cell({ r: 0, c });
-    if (!ws[cellRef]) {
-      ws[cellRef] = { t: "s", v: headers[c] };
-    }
-    ws[cellRef].s = { fill, font };
-  }
-
-  // Auto-ajustar anchos de columna aproximados.
-  ws["!cols"] = headers.map((key) => ({
-    wch: Math.max(key.length, 12),
-  }));
-
-  XLSX.utils.book_append_sheet(wb, ws, "Datos");
-  const buffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
-  return new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+  return generateExcelBlob("Datos", headers, rows, primaryColor);
 }
 
 export { ApiError };

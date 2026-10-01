@@ -30,7 +30,7 @@ import { SUPERADMIN_ALLOWED_PATHS as SUPERADMIN_MENU_PATHS } from "@/lib/hooks/u
 import { useToastStore } from "@/lib/store/toast";
 import { ApiError } from "@/lib/api/client";
 
-const HIDDEN_SIDEBAR_PATHS = ["/pos/terminal", "/kds/terminal", "/kds/monitor", "/tables/map/full"];
+const HIDDEN_SIDEBAR_PATHS = ["/readings/pos"];
 
 /** Tras un 5xx de frontend-config, no martillar el API: reintento mínimo. */
 const FRONTEND_CONFIG_RETRY_MS = 30_000;
@@ -43,7 +43,7 @@ const FRONTEND_CONFIG_RETRY_MS = 30_000;
  * Rutas sin capa cósmica (HeroPlexus): terminales densas donde la animación
  * estorba. Caja sí la mantiene — forma parte de la atmósfera del módulo.
  */
-const NO_COSMOS_PATHS = ["/pos/terminal", "/kds/terminal", "/kds/monitor"];
+const NO_COSMOS_PATHS = ["/readings/pos"];
 
 /**
  * Rutas permitidas para el super admin (menú + rutas neutrales como profile/dashboard).

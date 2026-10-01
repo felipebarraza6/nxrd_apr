@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useSessionStore, normalizeDashboardRoute } from "@/lib/store/session";
+import { useSessionStore } from "@/lib/store/session";
 import { loginComplete, forgotPassword, setInitialPassword } from "@/lib/api/auth";
 import { fetchMagicLogin } from "@/lib/api/checkout";
 import { fetchFrontendConfig } from "@/lib/api/frontend-config";
@@ -20,32 +20,14 @@ import { setToken } from "@/lib/api/session-storage";
 import { pickDefaultBranchId } from "@/lib/branch-session";
 import { cn } from "@/lib/utils";
 import { FRIG_IDENTITY_STYLE, FRIG_REPO_URL, setTenantFavicon } from "@/lib/frig-identity";
+import { getHomeRouteForUser } from "@/lib/home-route";
+import { STORAGE, migrateFrigStorageKeys } from "@/lib/storage-keys";
 import { HeroPlexus } from "@/components/landing/hero-plexus";
 import { BrandLogo } from "@/components/brand-logo";
 import type { LoginCompleteResponse } from "@/lib/types";
-import { Clock, Copy, KeyRound } from "lucide-react";
 
-
-function getHomeRouteForUser(
-  user: {
-    is_superuser?: boolean;
-    type_user?: string;
-    branch_assignments?: { branch_id?: string | number; role_code?: string }[];
-  } | null,
-  dashboard?: string | null,
-): string {
-  const home = normalizeDashboardRoute(dashboard);
-  if (home) return home;
-  if (!user) return "/dashboard";
-  if (user.is_superuser || user.type_user === "ADM") return "/organization";
-  const assignments = user.branch_assignments ?? [];
-  const firstRole = assignments[0]?.role_code?.trim().toUpperCase();
-  if (firstRole === "OWNER") return "/dashboard";
-  if (firstRole === "ADMIN_LOCAL") return "/pos";
-  if (firstRole === "CAJERO") return "/pos/terminal";
-  if (firstRole === "WAITER" || firstRole === "MESERO") return "/pos/terminal";
-  if (firstRole === "COCINERO" || firstRole === "COOK") return "/kds";
-  return "/dashboard";
+if (typeof window !== "undefined") {
+  migrateFrigStorageKeys();
 }
 
 /* Transición de entrada: el logo de la sucursal (o Frig) antes de navegar.
@@ -130,9 +112,10 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(() => {
     if (typeof window === "undefined") return null;
+    migrateFrigStorageKeys();
     // Aviso persistido por client.ts cuando una sesión expira (p. ej. demo).
-    const notice = window.sessionStorage.getItem("frig.auth_notice");
-    if (notice) window.sessionStorage.removeItem("frig.auth_notice");
+    const notice = window.sessionStorage.getItem(STORAGE.authNotice);
+    if (notice) window.sessionStorage.removeItem(STORAGE.authNotice);
     return notice;
   });
   const [loading, setLoading] = useState(false);
@@ -243,9 +226,9 @@ export default function LoginPage() {
       setOwnedOrganizations(res.owned_organizations ?? null);
       // Sesión demo: guardar expiración (1h) para avisos/cuenta regresiva.
       if (res.demo_expires_at) {
-        window.localStorage.setItem("frig.demo_expires_at", res.demo_expires_at);
+        window.localStorage.setItem(STORAGE.demoExpiresAt, res.demo_expires_at);
       } else {
-        window.localStorage.removeItem("frig.demo_expires_at");
+        window.localStorage.removeItem(STORAGE.demoExpiresAt);
       }
       // Activa la sucursal por defecto (o la única) y entra directo: el cambio
       // de sucursal dentro de la app lo hace el switcher del sidebar.
