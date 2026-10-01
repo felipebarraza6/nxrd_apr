@@ -208,7 +208,7 @@ export function Modal({
               transition={{ duration: 0.15, ease: [0.16, 1, 0.3, 1] }}
               onClick={(event) => event.stopPropagation()}
               className={cn(
-                "relative z-10 flex w-full flex-col overflow-hidden rounded-none border border-border bg-background shadow-2xl outline-none sm:rounded-2xl",
+                "relative z-10 flex w-full flex-col overflow-hidden rounded-none border border-tinta/15 bg-white shadow-2xl outline-none sm:rounded-xl",
                 SIZE_CLASS[size],
                 size === "full" ? "h-full" : "h-dvh sm:h-auto sm:max-h-[calc(100vh-2rem)]",
                 className,
@@ -261,7 +261,10 @@ function ModalHeader({ hideCloseButton, children, className }: ModalHeaderProps)
 function ModalTitle({ children }: { children: ReactNode }) {
   const { titleId } = useModalContext("Title");
   return (
-    <h2 id={titleId} className="truncate text-lg font-semibold tracking-tight">
+    <h2
+      id={titleId}
+      className="truncate font-heading text-lg font-semibold tracking-[-0.01em] text-tinta"
+    >
       {children}
     </h2>
   );

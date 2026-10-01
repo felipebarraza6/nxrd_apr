@@ -24,7 +24,7 @@ import { RealtimeProvider } from "@/components/realtime/realtime-provider";
 import { Toaster } from "@/components/ui/toaster";
 import { SupportLauncher } from "@/components/support/support-launcher";
 import { ForbiddenListener } from "@/components/forbidden-listener";
-import { HeroPlexus } from "@/components/landing/hero-plexus";
+import { AuthWaterBackdrop } from "@/components/auth/auth-water-shell";
 import { TrialBanner } from "@/components/trial-banner";
 import { enabledModuleSet, firstEnabledAllowedPath } from "@/lib/modules";
 import { SUPERADMIN_ALLOWED_PATHS as SUPERADMIN_MENU_PATHS } from "@/lib/hooks/useFrigMenu";
@@ -36,15 +36,8 @@ const HIDDEN_SIDEBAR_PATHS = ["/readings/pos"];
 /** Tras un 5xx de frontend-config, no martillar el API: reintento mínimo. */
 const FRONTEND_CONFIG_RETRY_MS = 30_000;
 
-/**
- * Rutas operativas donde la capa cósmica NO se renderiza: en caja la
- * experiencia es densa y la animación en los huecos del layout estorba.
- */
-/**
- * Rutas sin capa cósmica (HeroPlexus): terminales densas donde la animación
- * estorba. Caja sí la mantiene — forma parte de la atmósfera del módulo.
- */
-const NO_COSMOS_PATHS = ["/readings/pos"];
+/** Rutas sin WaterCanvas light: terminales densas donde la animación estorba. */
+const NO_WATER_PATHS = ["/readings/pos"];
 
 /**
  * Rutas permitidas para el super admin (menú + rutas neutrales como profile/dashboard).
@@ -267,15 +260,13 @@ export default function AppLayout({ children }: { children: ReactNode }) {
   return (
     <RealtimeProvider>
       <ForbiddenListener />
-      <div className="relative flex min-h-full">
-        {/* Misma muralla de datos en todos los módulos (Ayuda incluida).
-            z-0 sobre el body, debajo del contenido; main es transparente. */}
-        {showChrome && !NO_COSMOS_PATHS.some((p) => pathname.startsWith(p)) && (
+      <div className="relative flex min-h-full bg-papel">
+        {showChrome && !NO_WATER_PATHS.some((p) => pathname.startsWith(p)) && (
           <div
             aria-hidden
-            className="pointer-events-none fixed inset-0 z-0 hidden opacity-45 md:block"
+            className="pointer-events-none fixed inset-0 z-0 hidden md:block"
           >
-            <HeroPlexus className="h-full w-full" />
+            <AuthWaterBackdrop variant="light" intensity={0.35} />
           </div>
         )}
         {showChrome && (
@@ -291,12 +282,8 @@ export default function AppLayout({ children }: { children: ReactNode }) {
           className={cn(
             "relative z-[1] flex min-h-full min-w-0 flex-1 flex-col overscroll-y-contain bg-transparent",
             showChrome && [
-              // El pin reserva espacio; el hover expande como overlay sin mover el layout.
               sidebarExpanded ? "md:ml-60" : "md:ml-16",
-              // Safe area superior (notch PWA) + espacio para el dock inferior.
               "pt-[env(safe-area-inset-top)] pb-24 md:pt-0 md:pb-0",
-              // Transición para que el contenido acompañe el ancho del sidebar
-              // sin saltos al fijar/soltar el pin.
               "transition-[margin] duration-300 ease-out",
             ],
           )}

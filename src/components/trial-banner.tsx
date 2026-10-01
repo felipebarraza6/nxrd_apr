@@ -30,11 +30,11 @@ export function TrialBanner() {
     return (
       <div
         role="alert"
-        className="fixed inset-0 z-[100] flex items-center justify-center bg-[#061624]/95 px-4"
+        className="fixed inset-0 z-[100] flex items-center justify-center bg-tinta/95 px-4"
       >
-        <div className="w-full max-w-md rounded-2xl border border-amber-500/30 bg-card p-6 text-center shadow-xl">
-          <p className="text-lg font-semibold text-foreground">{state.message}</p>
-          <p className="mt-2 text-sm text-muted-foreground">
+        <div className="w-full max-w-md rounded-2xl border border-azul/40 bg-papel p-6 text-center shadow-xl text-tinta">
+          <p className="font-heading text-lg font-semibold">{state.message}</p>
+          <p className="mt-2 text-sm text-tinta/60">
             Tu acceso de prueba expiró
             {state.planName ? ` (${state.planName})` : ""}. Pronto podrás
             continuar con el cobro mensual vía Flow; mientras tanto contacta a
@@ -42,7 +42,7 @@ export function TrialBanner() {
           </p>
           <a
             href="mailto:contacto@smartapr.cl?subject=Prueba%20Cauce%20terminada"
-            className="mt-5 inline-flex h-10 items-center justify-center rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground"
+            className="mt-5 inline-flex h-10 items-center justify-center rounded-none bg-azul px-4 font-accent text-[12px] font-medium uppercase tracking-[0.18em] text-white hover:bg-azul-deep"
           >
             Contactar soporte
           </a>
@@ -55,7 +55,7 @@ export function TrialBanner() {
     <div
       role="status"
       className={cn(
-        "sticky top-0 z-40 border-b border-sky-500/20 bg-sky-500/10 px-3 py-2 text-center text-xs font-medium text-sky-900 dark:text-sky-100",
+        "sticky top-0 z-40 border-b border-azul/20 bg-azul px-3 py-2 text-center font-accent text-[11px] font-medium uppercase tracking-[0.18em] text-white",
         "pt-[max(0.5rem,env(safe-area-inset-top))]",
       )}
     >

@@ -158,13 +158,18 @@ function numOrNull(v: unknown): number | null {
   return Number.isFinite(n) ? n : null;
 }
 
-/** Extrae rango de arranques desde limits o audience. */
+/** Extrae rango de arranques desde limits o audience legible. */
 export function formatArranquesLabel(
   limits: Record<string, unknown> | undefined,
   audience?: string | null,
 ): string | null {
-  if (audience?.trim()) return audience.trim();
-  if (!limits) return null;
+  if (!limits) {
+    // audience del API puede ser "organization" — no es copy de UI
+    if (audience?.trim() && !/^(organization|branch|client)$/i.test(audience.trim())) {
+      return audience.trim();
+    }
+    return null;
+  }
   const min =
     numOrNull(limits.arranques_min) ??
     numOrNull(limits.min_arranques) ??
@@ -176,9 +181,13 @@ export function formatArranquesLabel(
   if (min != null && max != null) {
     return `${min.toLocaleString("es-CL")} – ${max.toLocaleString("es-CL")} arranques`;
   }
-  if (min != null) return `${min.toLocaleString("es-CL")}+ arranques`;
+  if (min != null && max == null) return `${min.toLocaleString("es-CL")}+ arranques`;
+  if (min == null && max != null) return `Hasta ${max.toLocaleString("es-CL")} arranques`;
   if (typeof limits.arranques === "string" && limits.arranques.trim()) {
     return limits.arranques.trim();
+  }
+  if (audience?.trim() && !/^(organization|branch|client)$/i.test(audience.trim())) {
+    return audience.trim();
   }
   return null;
 }

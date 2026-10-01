@@ -49,6 +49,10 @@ export default function SignupPage() {
   const [loginSlug, setLoginSlug] = useState<string | null>(null);
 
   useEffect(() => {
+    const fromQuery =
+      typeof window !== "undefined"
+        ? new URLSearchParams(window.location.search).get("plan")
+        : null;
     let cancelled = false;
     fetchLandingConfig(CAUCE_GROUP)
       .then((cfg) => {
@@ -56,14 +60,18 @@ export default function SignupPage() {
         setLanding(cfg);
         const list = plansFromLandingConfig(cfg);
         const preferred =
-          list.find((p) => p.plan_id === CAUCE_DEFAULT_PLAN_ID)?.plan_id ??
-          list.find((p) => p.highlighted)?.plan_id ??
-          list[0]?.plan_id ??
+          (fromQuery && list.find((p) => p.plan_id === fromQuery)?.plan_id) ||
+          list.find((p) => p.plan_id === CAUCE_DEFAULT_PLAN_ID)?.plan_id ||
+          list.find((p) => p.highlighted)?.plan_id ||
+          list[0]?.plan_id ||
           CAUCE_DEFAULT_PLAN_ID;
         setValues((s) => ({ ...s, plan_id: preferred }));
       })
       .catch(() => {
-        if (!cancelled) setLanding(null);
+        if (!cancelled) {
+          setLanding(null);
+          if (fromQuery) setValues((s) => ({ ...s, plan_id: fromQuery }));
+        }
       });
     return () => {
       cancelled = true;

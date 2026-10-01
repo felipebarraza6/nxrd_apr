@@ -27,7 +27,6 @@ import { useIsSuperAdmin } from "@/lib/store/session";
 import { useCanManageCustomers } from "@/lib/store/session";
 import { useFrigMenu } from "@/lib/hooks/useFrigMenu";
 import { useSubscriptionLock } from "@/lib/hooks/useSubscriptionLock";
-import { HeroPlexus } from "@/components/landing/hero-plexus";
 import { useNavFavorites } from "@/lib/store/nav-favorites";
 import { useSidebarStore } from "@/lib/store/sidebar";
 import { filterNavItemsByRole, type NavRoleFilter } from "@/lib/nav-access";
@@ -82,7 +81,7 @@ export function AppSidebar({ onNavigate, forceExpanded, defaultOpenGroups }: App
   const user = useSessionStore((s) => s.user);
   const _theme = useSessionStore((s) => s.theme);
   const appName = "Cauce";
-const menuGroups = useFrigMenu();
+  const menuGroups = useFrigMenu();
   const isCashier = useIsCashier();
   const isSuperAdmin = useIsSuperAdmin();
   const { locked: subscriptionLocked } = useSubscriptionLock();
@@ -259,18 +258,17 @@ const menuGroups = useFrigMenu();
       <CommandPalette items={allItems} open={searchOpen} onClose={() => setSearchOpen(false)} />
       <aside
         className={cn(
-          "app-sidebar fixed inset-y-0 left-0 z-30 flex flex-col overflow-hidden text-white transition-[width,box-shadow] duration-300 ease-out",
+          "app-sidebar fixed inset-y-0 left-0 z-30 flex flex-col overflow-hidden bg-tinta text-papel transition-[width,box-shadow] duration-300 ease-out",
           widthClass,
-          isSuperAdmin && "bg-[color:var(--brand-primary)]",
+          isSuperAdmin && "bg-azul-deep",
         )}
         onMouseEnter={() => setHovering(true)}
         onMouseLeave={() => setHovering(false)}
       >
-        {/* Muralla de datos: textura viva sobre el fondo de marca.
-            El contenido del nav pinta encima (relative z-10). */}
-        <div aria-hidden className="pointer-events-none absolute inset-0 opacity-25">
-          <HeroPlexus className="h-full w-full" />
-        </div>
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 bg-gradient-to-b from-azul/20 via-transparent to-transparent opacity-80"
+        />
         <div className="relative z-10 flex shrink-0 items-center gap-2 px-3 py-2">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img

@@ -9,20 +9,21 @@
  * recompilar. Los tokens shadcn mapean a los de marca.
  */
 :root {
-  --brand-primary: #0369a1;
-  --brand-secondary: #f2e8cf;
-  --brand-surface: #f8f7f3;
-  --brand-foreground: #0f2440;
-  --brand-radius: 0.75rem;
+  /* Identidad Cauce / Smart APR (default; tenant puede sobreescribir brand-*) */
+  --brand-primary: #3834ff;
+  --brand-secondary: #f3f3f3;
+  --brand-surface: #f3f3f3;
+  --brand-foreground: #000000;
+  --brand-radius: 0.5rem;
   --brand-motion: 1;
   --brand-compact: 0;
 
-  /* Identidad Smart APR (auth / signup / magic) — smartapr.cl */
   --tinta: #000000;
   --papel: #f3f3f3;
   --azul: #3834ff;
   --azul-deep: #030fc6;
   --linea: rgba(243, 243, 243, 0.14);
+  --linea-oscura: rgba(0, 0, 0, 0.16);
 }
 
 @theme inline {
@@ -68,33 +69,44 @@
     var(--tinta);
 }
 
+.fondo-agua-light {
+  background:
+    radial-gradient(90% 70% at 80% 0%, rgba(56, 52, 255, 0.08), transparent 55%),
+    radial-gradient(80% 60% at 10% 100%, rgba(3, 15, 198, 0.06), transparent 50%),
+    var(--papel);
+}
+
 .puntos {
   background-image: radial-gradient(rgba(243, 243, 243, 0.13) 1px, transparent 1.5px);
   background-size: 28px 28px;
 }
 
+.puntos-oscura {
+  background-image: radial-gradient(rgba(0, 0, 0, 0.12) 1px, transparent 1.5px);
+  background-size: 28px 28px;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .fondo-agua canvas {
-    /* Canvas ya congela el frame; evita animaciones CSS auxiliares. */
+  .fondo-agua canvas,
+  .fondo-agua-light canvas {
     animation: none !important;
   }
 }
 
 :root,
 .light {
-  --background: #f6fafd;
-  --foreground: var(--brand-foreground);
-  /* Neutros sin tinte: el tono de marca lo aporta --brand-primary. */
-  --muted: hsl(204 33% 94%);
-  --muted-foreground: hsl(206 15% 38%);
-  --accent: var(--muted);
-  --accent-foreground: var(--brand-foreground);
+  --background: var(--papel);
+  --foreground: var(--tinta);
+  --muted: #e8e8e8;
+  --muted-foreground: #525252;
+  --accent: #e8e8e8;
+  --accent-foreground: var(--tinta);
   --primary-foreground: #ffffff;
-  --secondary-foreground: var(--brand-foreground);
-  --border: hsl(204 25% 87%);
-  --input: hsl(204 25% 85%);
+  --secondary-foreground: var(--tinta);
+  --border: var(--linea-oscura);
+  --input: #e0e0e0;
   --card: #ffffff;
-  --card-foreground: var(--brand-foreground);
+  --card-foreground: var(--tinta);
   --danger: #dc2626;
   --success: #16a34a;
   --warning: #d97706;
