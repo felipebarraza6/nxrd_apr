@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { useQueryClient } from "@tanstack/react-query";
 import { DemoRolePicker } from "@/components/landing/demo-role-picker";
@@ -17,6 +17,8 @@ import {
 import { useSessionStore } from "@/lib/store/session";
 import { SIGNUP_SECTION_ID } from "@/components/landing/cauce-signup";
 
+const noopSubscribe = () => () => {};
+
 function readDemoExpiresAt(): string | null {
   if (typeof window === "undefined") return null;
   return window.localStorage.getItem(STORAGE.demoExpiresAt);
@@ -31,7 +33,12 @@ export function DemoBanner() {
   const user = useSessionStore((s) => s.user);
   const branches = useSessionStore((s) => s.branches);
   const currentBranchId = useSessionStore((s) => s.currentBranchId);
-  const [expiresAt, setExpiresAt] = useState<string | null>(null);
+  // Lectura cliente-only sin setState en effect (hydration-safe).
+  const expiresAt = useSyncExternalStore(
+    noopSubscribe,
+    readDemoExpiresAt,
+    () => null,
+  );
   const [seconds, setSeconds] = useState(0);
   const [pickerOpen, setPickerOpen] = useState(false);
 
@@ -48,10 +55,6 @@ export function DemoBanner() {
     branchName,
     demoExpiresAt: expiresAt,
   });
-
-  useEffect(() => {
-    setExpiresAt(readDemoExpiresAt());
-  }, [user?.id]);
 
   const expireSession = useCallback(async () => {
     try {
@@ -122,10 +125,11 @@ export function useIsCauceDemo(): boolean {
   const branches = useSessionStore((s) => s.branches);
   const currentBranchId = useSessionStore((s) => s.currentBranchId);
   const branch = branches.find((b) => String(b.branch_id) === String(currentBranchId));
-  const expiresAt =
-    typeof window !== "undefined"
-      ? window.localStorage.getItem(STORAGE.demoExpiresAt)
-      : null;
+  const expiresAt = useSyncExternalStore(
+    noopSubscribe,
+    readDemoExpiresAt,
+    () => null,
+  );
   return isCauceDemoSession({
     email: user?.email,
     loginSlug:

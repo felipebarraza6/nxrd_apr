@@ -47,10 +47,10 @@ export function CauceLanding() {
   useEffect(() => {
     try {
       const notice = window.sessionStorage.getItem(CAUCE_DEMO_NOTICE_KEY);
-      if (notice) {
-        setDemoNotice(notice);
-        window.sessionStorage.removeItem(CAUCE_DEMO_NOTICE_KEY);
-      }
+      if (!notice) return;
+      window.sessionStorage.removeItem(CAUCE_DEMO_NOTICE_KEY);
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- aviso one-shot desde sessionStorage al montar
+      setDemoNotice(notice);
     } catch {
       /* */
     }
