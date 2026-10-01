@@ -6,8 +6,19 @@
 import type { GroupPlanPublic, LandingConfig } from "@/lib/api/checkout";
 import { formatCLP } from "@/lib/utils";
 
-/** Valor de `checkout_type` en el body de cauce-checkout (aislado aquí). */
-export const CAUCE_CHECKOUT_TYPE = "cauce" as const;
+/**
+ * Valor de `checkout_type` en el body de cauce-checkout (aislado aquí).
+ *
+ * El backend (yggdra_infra PlanCheckoutCreateSerializer) solo acepta
+ * `organization` | `branch_client`. El grupo "cauce" va en la URL
+ * (`/public/cauce-checkout/`), NO en checkout_type: enviar "cauce" devolvía
+ * 400 `"cauce" no es una elección válida`. El self-signup de un APR crea una
+ * organización/sucursal nueva → `organization`.
+ */
+export const CAUCE_CHECKOUT_TYPE = "organization" as const;
+
+/** Choices válidas de checkout_type en el backend (contrato). */
+export const BACKEND_CHECKOUT_TYPES = ["organization", "branch_client"] as const;
 
 /** Grupo público / slug de landing-config. */
 export const CAUCE_GROUP = "cauce" as const;
@@ -120,7 +131,15 @@ export function validateSignupForm(values: SignupFormValues): SignupFieldErrors 
   const planId = values.plan_id.trim();
 
   if (!business) errors.business_name = "Indica el nombre de tu APR.";
+  else if (business.length < 2)
+    errors.business_name = "El nombre de la APR debe tener al menos 2 caracteres.";
+  else if (business.length > 100)
+    errors.business_name = "El nombre de la APR admite hasta 100 caracteres.";
   if (!contact) errors.contact_name = "Indica el nombre de contacto.";
+  else if (contact.length < 2)
+    errors.contact_name = "El nombre de contacto debe tener al menos 2 caracteres.";
+  else if (contact.length > 100)
+    errors.contact_name = "El nombre de contacto admite hasta 100 caracteres.";
   if (!email) {
     errors.email = "Indica un correo.";
   } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
@@ -149,6 +168,159 @@ export function buildCauceCheckoutBody(values: SignupFormValues) {
     business_name: normalized.business_name,
     contact_name: normalized.contact_name,
     email: normalized.email,
+  };
+}
+
+const SIGNUP_FIELDS = ["business_name", "contact_name", "email", "plan_id"] as const;
+
+/** Etiquetas en español para campos del backend que no están en el form. */
+const BACKEND_FIELD_LABELS: Record<string, string> = {
+  checkout_type: "Tipo de registro",
+  business_name: "Nombre de la APR",
+  contact_name: "Nombre de contacto",
+  email: "Correo",
+  plan_id: "Plan",
+};
+
+function firstMessage(value: unknown): string {
+  if (typeof value === "string") return value;
+  if (Array.isArray(value)) {
+    for (const v of value) {
+      const m = firstMessage(v);
+      if (m) return m;
+    }
+    return "";
+  }
+  if (value && typeof value === "object") {
+    for (const v of Object.values(value as Record<string, unknown>)) {
+      const m = firstMessage(v);
+      if (m) return m;
+    }
+  }
+  return "";
+}
+
+/** Traduce mensajes DRF genéricos (por si el backend responde en inglés). */
+function toSpanish(field: string, message: string): string {
+  const m = message.trim();
+  if (/this field is required|este campo es requerido/i.test(m)) {
+    switch (field) {
+      case "business_name":
+        return "Indica el nombre de tu APR.";
+      case "contact_name":
+        return "Indica el nombre de contacto.";
+      case "email":
+        return "Indica un correo.";
+      case "plan_id":
+        return "Elige un plan.";
+      default:
+        return "Este campo es obligatorio.";
+    }
+  }
+  if (/valid email|correo electr[oó]nico v[aá]lid[oa]/i.test(m)) {
+    return "Correo inválido. Revisa que esté bien escrito.";
+  }
+  if (/may not be blank|no puede estar en blanco/i.test(m)) {
+    return "Este campo no puede quedar vacío.";
+  }
+  const min = m.match(/at least (\d+) characters/i);
+  if (min) return `Debe tener al menos ${min[1]} caracteres.`;
+  const max = m.match(/no more than (\d+) characters/i);
+  if (max) return `Admite hasta ${max[1]} caracteres.`;
+  if (/is not a valid choice/i.test(m)) return "Opción no válida.";
+  return m;
+}
+
+export type SignupErrorResult = {
+  fieldErrors: SignupFieldErrors;
+  formError: string | null;
+};
+
+/**
+ * Convierte el error del POST cauce-checkout en errores por campo (español)
+ * + un mensaje general para lo que no corresponde a un campo visible.
+ * Acepta `{ status, detail }` (ApiError) o un Error genérico.
+ */
+export function mapSignupApiError(err: unknown): SignupErrorResult {
+  const status =
+    err && typeof err === "object" && "status" in err
+      ? Number((err as { status: unknown }).status)
+      : null;
+  const detail =
+    err && typeof err === "object" && "detail" in err
+      ? (err as { detail: unknown }).detail
+      : null;
+
+  if (status === 429) {
+    return {
+      fieldErrors: {},
+      formError:
+        "Demasiados intentos seguidos. Espera un minuto y vuelve a intentarlo.",
+    };
+  }
+  if (status === 409) {
+    return {
+      fieldErrors: {
+        email: "No pudimos registrar este correo. Si ya creaste tu APR, inicia sesión.",
+      },
+      formError: null,
+    };
+  }
+  if (status === 503) {
+    return {
+      fieldErrors: {},
+      formError:
+        "El registro no está disponible en este momento. Escríbenos a contacto@smartapr.cl.",
+    };
+  }
+  if (status === 408) {
+    return {
+      fieldErrors: {},
+      formError: "El servidor tardó demasiado en responder. Inténtalo de nuevo.",
+    };
+  }
+
+  const fieldErrors: SignupFieldErrors = {};
+  const general: string[] = [];
+  if (detail && typeof detail === "object" && !Array.isArray(detail)) {
+    for (const [field, value] of Object.entries(detail as Record<string, unknown>)) {
+      const msg = firstMessage(value);
+      if (!msg) continue;
+      const es = toSpanish(field, msg);
+      if ((SIGNUP_FIELDS as readonly string[]).includes(field)) {
+        fieldErrors[field as keyof SignupFormValues] = es;
+      } else if (
+        field === "detail" ||
+        field === "non_field_errors" ||
+        field === "error"
+      ) {
+        general.push(es);
+      } else {
+        const label = BACKEND_FIELD_LABELS[field] ?? field;
+        general.push(`${label}: ${es}`);
+      }
+    }
+  } else if (typeof detail === "string" && detail.trim()) {
+    general.push(detail.trim());
+  }
+
+  if (Object.keys(fieldErrors).length === 0 && general.length === 0) {
+    if (status && status >= 500) {
+      general.push("Hubo un problema en el servidor. Inténtalo de nuevo en unos minutos.");
+    } else if (status === 0 || (err instanceof TypeError)) {
+      general.push("No pudimos conectar con el servidor. Revisa tu conexión.");
+    } else {
+      general.push(
+        err instanceof Error && err.message
+          ? err.message
+          : "No se pudo crear la cuenta. Inténtalo de nuevo.",
+      );
+    }
+  }
+
+  return {
+    fieldErrors,
+    formError: general.length ? general.join(" ") : null,
   };
 }
 

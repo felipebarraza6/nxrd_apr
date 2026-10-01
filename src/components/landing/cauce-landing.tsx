@@ -1,18 +1,22 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AuthWaterBackdrop } from "@/components/auth/auth-water-shell";
-import { fetchLandingConfig, type LandingConfig } from "@/lib/api/checkout";
+import {
+  CauceSignupSection,
+  SIGNUP_FIRST_FIELD_ID,
+  SIGNUP_SECTION_ID,
+  useCaucePlans,
+} from "@/components/landing/cauce-signup";
 import { getToken } from "@/lib/api/session-storage";
 import {
   CAUCE_FALLBACK_PLANS,
-  CAUCE_GROUP,
   formatPlanPriceClp,
-  plansFromLandingConfig,
   type SignupPlanOption,
 } from "@/lib/cauce-checkout";
+import { cn } from "@/lib/utils";
 import { getHomeRouteForUser } from "@/lib/home-route";
 import { useSessionStore } from "@/lib/store/session";
 
@@ -24,7 +28,7 @@ export function CauceLanding() {
   const router = useRouter();
   const user = useSessionStore((s) => s.user);
   const hasHydrated = useSessionStore((s) => s.hasHydrated);
-  const [landing, setLanding] = useState<LandingConfig | null>(null);
+  const { landing, plans, planId, setPlanId } = useCaucePlans();
 
   useEffect(() => {
     if (!hasHydrated) return;
@@ -35,21 +39,21 @@ export function CauceLanding() {
     router.replace(home);
   }, [hasHydrated, user, router]);
 
-  useEffect(() => {
-    let cancelled = false;
-    fetchLandingConfig(CAUCE_GROUP)
-      .then((cfg) => {
-        if (!cancelled) setLanding(cfg);
-      })
-      .catch(() => {
-        if (!cancelled) setLanding(null);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  const plans = useMemo(() => plansFromLandingConfig(landing), [landing]);
+  /** Elegir plan en la tabla → registro embebido en esta misma página. */
+  const choosePlan = useCallback(
+    (id: string) => {
+      setPlanId(id);
+      const section = document.getElementById(SIGNUP_SECTION_ID);
+      section?.scrollIntoView({ behavior: "smooth", block: "start" });
+      // Foco tras el scroll (sin volver a desplazar la página).
+      window.setTimeout(() => {
+        document
+          .getElementById(SIGNUP_FIRST_FIELD_ID)
+          ?.focus({ preventScroll: true });
+      }, 450);
+    },
+    [setPlanId],
+  );
   const hero = landing?.group?.hero;
   const features =
     landing?.group?.features?.length
@@ -114,12 +118,12 @@ export function CauceLanding() {
             >
               Ingresar
             </Link>
-            <Link
-              href="/signup"
+            <a
+              href={`#${SIGNUP_SECTION_ID}`}
               className="font-accent bg-azul px-5 py-2.5 text-[11px] font-medium uppercase tracking-[0.22em] text-white transition-colors hover:bg-azul-deep"
             >
               1er mes gratis
-            </Link>
+            </a>
           </div>
         </nav>
 
@@ -147,12 +151,12 @@ export function CauceLanding() {
                 "Gestión hídrica para comités y cooperativas: medidores, lecturas, tarifas y cobros con boleta electrónica SII."}
             </p>
             <div className="flex flex-wrap items-center gap-4">
-              <Link
-                href="/signup"
+              <a
+                href={`#${SIGNUP_SECTION_ID}`}
                 className="font-accent bg-azul px-8 py-4 text-[12px] font-medium uppercase tracking-[0.22em] text-white transition-colors hover:bg-azul-deep"
               >
                 {hero?.cta_label || "Plan Piloto — 30 días gratis"}
-              </Link>
+              </a>
               <a
                 href="#planes"
                 className="font-accent px-2 py-4 text-[12px] uppercase tracking-[0.22em] text-papel/80"
@@ -238,7 +242,12 @@ export function CauceLanding() {
 
           <div className="mt-14">
             {(plans.length ? plans : CAUCE_FALLBACK_PLANS).map((plan) => (
-              <PlanRow key={plan.plan_id} plan={plan} />
+              <PlanRow
+                key={plan.plan_id}
+                plan={plan}
+                selected={plan.plan_id === planId}
+                onSelect={choosePlan}
+              />
             ))}
             <div className="border-t border-tinta/15" />
           </div>
@@ -249,12 +258,13 @@ export function CauceLanding() {
           </p>
 
           <div className="mt-16 flex flex-wrap items-center gap-6">
-            <Link
-              href="/signup"
+            <button
+              type="button"
+              onClick={() => choosePlan(planId)}
               className="font-accent bg-tinta px-10 py-5 text-[12px] font-medium uppercase tracking-[0.22em] text-papel transition-colors hover:bg-azul"
             >
               Comenzar Plan Piloto — 30 días gratis →
-            </Link>
+            </button>
             <Link
               href="/login"
               className="font-accent text-[11px] uppercase tracking-[0.18em] text-tinta/50 hover:text-azul"
@@ -265,12 +275,21 @@ export function CauceLanding() {
         </div>
       </section>
 
+      {/* ── REGISTRO (embebido: elegir plan y crear la APR sin salir) ── */}
+      <CauceSignupSection
+        plans={plans}
+        landing={landing}
+        planId={planId}
+        onPlanChange={setPlanId}
+        sectionLabel="03 — Registro"
+      />
+
       {/* ── FOOTER ── */}
       <footer className="relative overflow-hidden bg-tinta">
         <div className="puntos pointer-events-none absolute inset-0 opacity-40" />
         <div className="relative mx-auto max-w-[1400px] px-5 pb-10 pt-24 md:px-10 md:pt-32">
           <p className="font-accent text-[11px] uppercase tracking-[0.28em] text-papel/50">
-            03 — Contacto
+            04 — Contacto
           </p>
           <h2 className="mt-10 font-heading text-[clamp(2.5rem,10vw,8rem)] font-extrabold leading-[0.9] tracking-[-0.04em]">
             Hablemos<span className="text-azul">.</span>
@@ -295,11 +314,25 @@ export function CauceLanding() {
   );
 }
 
-function PlanRow({ plan }: { plan: SignupPlanOption }) {
+function PlanRow({
+  plan,
+  selected,
+  onSelect,
+}: {
+  plan: SignupPlanOption;
+  selected: boolean;
+  onSelect: (planId: string) => void;
+}) {
   return (
-    <Link
-      href={`/signup?plan=${encodeURIComponent(plan.plan_id)}`}
-      className="group grid grid-cols-2 items-center gap-x-6 gap-y-1 border-t border-tinta/15 py-7 transition-colors duration-300 hover:bg-tinta hover:text-papel md:grid-cols-12 md:px-6 md:py-9"
+    <button
+      type="button"
+      onClick={() => onSelect(plan.plan_id)}
+      aria-pressed={selected}
+      aria-label={`Elegir plan ${plan.display_name} y registrarme`}
+      className={cn(
+        "group grid w-full grid-cols-2 items-center gap-x-6 gap-y-1 border-t border-tinta/15 py-7 text-left transition-colors duration-300 hover:bg-tinta hover:text-papel md:grid-cols-12 md:px-6 md:py-9",
+        selected && "border-l-4 border-l-azul md:pl-5",
+      )}
     >
       <div className="md:col-span-4">
         <h3 className="font-heading text-2xl font-bold tracking-[-0.01em] md:text-3xl">
@@ -320,9 +353,9 @@ function PlanRow({ plan }: { plan: SignupPlanOption }) {
           /mes + IVA
         </span>
       </p>
-      <span className="hidden text-right text-2xl transition-transform duration-300 group-hover:translate-x-2 group-hover:text-azul md:col-span-1 md:block">
-        →
+      <span className="hidden text-right font-accent text-[10px] uppercase tracking-[0.18em] transition-transform duration-300 group-hover:translate-x-1 group-hover:text-[#a5a1ff] md:col-span-1 md:block">
+        {selected ? "Elegido ✓" : "Elegir →"}
       </span>
-    </Link>
+    </button>
   );
 }
