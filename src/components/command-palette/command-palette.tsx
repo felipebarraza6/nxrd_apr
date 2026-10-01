@@ -8,7 +8,7 @@ import { Search, X } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const RECENT_KEY = "frig.cmdk.recent";
+const RECENT_KEY = "cauce.cmdk.recent";
 const MAX_RECENT = 5;
 const MAX_RESULTS = 20;
 

@@ -15,7 +15,6 @@ import { PageHeader } from "@/components/page-header";
 import { PageBody, PageShell } from "@/components/page-shell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Select } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AnimatedOverlay } from "@/components/ui/animated-overlay";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -54,8 +53,11 @@ export default function ReadingsPage() {
     placeholderData: keepPreviousData,
   });
 
-  const readings = readingsQuery.data ?? [];
-  const meters = metersQuery.data ?? [];
+  const readings = useMemo(
+    () => readingsQuery.data ?? [],
+    [readingsQuery.data],
+  );
+  const meters = useMemo(() => metersQuery.data ?? [], [metersQuery.data]);
 
   // Medidores activos del período: con lectura o pendientes
   const readingsByMeter = useMemo(() => {
@@ -374,7 +376,6 @@ function CsvImportForm({
   importing: boolean;
   onImport: (file: File, periodDefault?: string) => void;
 }) {
-  const fileRef = useRef<HTMLInputElement>(null);
   const [file, setFile] = useState<File | null>(null);
   const [periodDefault, setPeriodDefault] = useState(defaultPeriod);
 

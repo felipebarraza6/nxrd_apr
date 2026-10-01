@@ -82,7 +82,7 @@ const QUICK_FILTERS: { id: string; label: string; type?: string; status?: string
   { id: "rejected", label: "Rechazados", status: "REJECTED" },
 ];
 
-const FILTERS_KEY = "frig.tax-documents.filters";
+const FILTERS_KEY = "cauce.tax-documents.filters";
 
 function formatCLP(value: string | number): string {
   const num = typeof value === "string" ? parseFloat(value) : value;

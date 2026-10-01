@@ -1,10 +1,10 @@
 import type { CSSProperties } from "react";
 
 /**
- * Identidad visual Frig para las páginas de autenticación cuando NO hay
- * branding de tenant (localhost, dominios propios de Frig). Con un theme
- * de sucursal activo NO se aplica: la paleta la deriva applyThemeConfig
- * desde el primary del tenant (lo que el usuario eligió es lo que ve).
+ * Identidad visual Cauce para las páginas de autenticación cuando NO hay
+ * branding de tenant (localhost, dominios propios). Con un theme de sucursal
+ * activo NO se aplica: la paleta la deriva applyThemeConfig desde el primary
+ * del tenant (lo que el usuario eligió es lo que ve).
  */
 export const FRIG_IDENTITY_STYLE = {
   "--brand-primary": "#38bdf8",
@@ -21,8 +21,8 @@ export const FRIG_IDENTITY_STYLE = {
   "--secondary": "#10293f",
 } as CSSProperties;
 
-/** Repo público de Frig — atribución sutil en logins de tenants. */
-export const FRIG_REPO_URL = "https://github.com/FelipeBarraza6/frig";
+/** Repo público del producto — atribución sutil en logins de tenants. */
+export const FRIG_REPO_URL = "https://github.com/FelipeBarraza6/nxrd_apr";
 
 /**
  * Reemplaza TODOS los link[rel=icon] del head por uno nuevo. Necesario

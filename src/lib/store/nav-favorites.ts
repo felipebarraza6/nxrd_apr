@@ -27,7 +27,7 @@ export const useNavFavorites = create<NavFavoritesState>()(
       isFavorite: (href) => get().favorites.includes(href),
     }),
     {
-      name: "frig.nav-favorites",
+      name: "cauce.nav-favorites",
       // Cap legado: antes el máximo era 8; el dock solo muestra 4.
       merge: (persisted, current) => {
         const p = persisted as Partial<NavFavoritesState> | undefined;

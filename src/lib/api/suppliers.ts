@@ -2,6 +2,7 @@ import { apiFetch, apiFile } from "./client";
 import type { ApiFileResult } from "./client";
 import type { YggdraSchemas } from "@/lib/api/types";
 import { appendMulti } from "@/lib/api/query-params";
+import { STORAGE } from "@/lib/storage-keys";
 
 export type Supplier = YggdraSchemas["Supplier"];
 export type SupplierList = YggdraSchemas["SupplierList"];
@@ -115,7 +116,7 @@ export interface SuppliersFilter {
 /** ID de la sucursal activa (persistida en localStorage por el store de auth). */
 function getStoredBranchId(): number | undefined {
   if (typeof window === "undefined") return undefined;
-  const raw = window.localStorage.getItem("frig.branch_id");
+  const raw = window.localStorage.getItem(STORAGE.branchId);
   if (!raw) return undefined;
   const n = Number(raw);
   return Number.isNaN(n) || n <= 0 ? undefined : n;

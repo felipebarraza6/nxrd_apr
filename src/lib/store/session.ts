@@ -5,6 +5,7 @@ import { persist } from "zustand/middleware";
 import { useMemo } from "react";
 import type { Branch, BranchAssignment, BranchThemeConfig, ID, Organization, User } from "@/lib/types";
 import { setBranchId, clearBranchId } from "@/lib/api/session-storage";
+import { STORAGE } from "@/lib/storage-keys";
 import type {
   FrontendConfigResponse,
   FrontendMenuGroup,
@@ -202,6 +203,7 @@ export const useSessionStore = create<SessionState>()(
       clearSession: () => {
         clearBranchId();
         if (typeof window !== "undefined") {
+          localStorage.removeItem(STORAGE.session);
           localStorage.removeItem("frig.session");
         }
         set({
@@ -221,7 +223,7 @@ export const useSessionStore = create<SessionState>()(
       setHasHydrated: (v) => set({ hasHydrated: v }),
     }),
     {
-      name: "frig.session",
+      name: STORAGE.session,
       partialize: (s) => ({
         user: s.user,
         branches: s.branches,
@@ -332,8 +334,9 @@ export function useCanManageCustomers(): boolean {
   return ["OWNER", "ADMIN_LOCAL", "MANAGER"].includes(currentRole ?? "");
 }
 
-/** True si el usuario debe llegar al POS primero (ADMIN_LOCAL / CAJERO / WAITER).
- * OWNER y superadmin entran al dashboard por defecto, pero pueden navegar a POS.
+/**
+ * Roles operativos APR que prefieren lecturas/pagos (guard de redirección).
+ * MEDIDOR → lecturas; CAJERO/EMPLOYEE → pagos. Sin rutas /pos de Frig.
  */
 export function useIsPosFirstRole(): boolean {
   const user = useSessionStore((s) => s.user);
@@ -341,7 +344,7 @@ export function useIsPosFirstRole(): boolean {
   const currentRole = useCurrentBranchRole();
   if (!user || !currentBranchId) return false;
   if (isUserAdminOrSuperuser(user)) return false;
-  return ["ADMIN_LOCAL", "CAJERO", "WAITER"].includes(currentRole ?? "");
+  return ["MEDIDOR", "CAJERO", "EMPLOYEE", "EMPLEADO"].includes(currentRole ?? "");
 }
 
 /** True si el usuario es superadmin (is_superuser o type_user === "ADM"). */
@@ -413,34 +416,24 @@ export function useCashierStationOnly(): boolean {
   return !!assignment?.station_id;
 }
 
-/** True si el rol activo es MESERO (WAITER). */
+/** Legacy gastronómico: meseros no aplican en Cauce APR. */
 export function useIsWaiter(): boolean {
-  const role = useCurrentBranchRole();
-  return role === "WAITER" || role === "MESERO";
+  return false;
 }
 
-/** True si el rol activo es cocinero (KDS). */
+/** Legacy gastronómico: cocineros/KDS no aplican en Cauce APR. */
 export function useIsCook(): boolean {
-  const role = useCurrentBranchRole();
-  return role === "COCINERO" || role === "COOK";
+  return false;
 }
 
-/** True si el usuario puede gestionar mesas (crear/editar/eliminar). */
+/** Legacy gastronómico: mesas no aplican en Cauce APR. */
 export function useCanManageTables(): boolean {
-  const user = useSessionStore((s) => s.user);
-  const currentRole = useCurrentBranchRole();
-  if (!user) return false;
-  if (isUserAdminOrSuperuser(user)) return true;
-  return ["OWNER", "ADMIN_LOCAL", "MANAGER"].includes(currentRole ?? "");
+  return false;
 }
 
-/** True si el usuario puede ver mesas (y usarlas en POS). */
+/** Legacy gastronómico: mesas no aplican en Cauce APR. */
 export function useCanViewTables(): boolean {
-  const user = useSessionStore((s) => s.user);
-  const currentRole = useCurrentBranchRole();
-  if (!user) return false;
-  if (isUserAdminOrSuperuser(user)) return true;
-  return ["OWNER", "ADMIN_LOCAL", "MANAGER", "WAITER", "CAJERO"].includes(currentRole ?? "");
+  return false;
 }
 
 /** Menú filtrado devuelto por frontend-config. */

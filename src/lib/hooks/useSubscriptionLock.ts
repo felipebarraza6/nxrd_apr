@@ -4,7 +4,6 @@ import {
   useCurrentBranch,
   useCurrentBranchRole,
   useIsSuperAdmin,
-  useSessionStore,
 } from "@/lib/store/session";
 import type { SubscriptionLockReason } from "@/lib/subscription";
 import type { Branch } from "@/lib/types";

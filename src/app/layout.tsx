@@ -1,6 +1,13 @@
 import type { Metadata, Viewport } from "next";
 import Script from "next/script";
-import { Geist, Geist_Mono, Pixelify_Sans, Space_Grotesk } from "next/font/google";
+import {
+  Bricolage_Grotesque,
+  Geist,
+  Geist_Mono,
+  IBM_Plex_Mono,
+  Pixelify_Sans,
+  Space_Grotesk,
+} from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/providers";
 import { ThemeApplier } from "@/components/theme-applier";
@@ -29,9 +36,23 @@ const spaceGrotesk = Space_Grotesk({
   weight: ["400", "500", "600", "700"],
 });
 
+/** Headings Smart APR / auth (smartapr.cl). */
+const bricolage = Bricolage_Grotesque({
+  variable: "--font-bricolage",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"],
+});
+
+/** Acentos mono Smart APR / auth. */
+const ibmPlexMono = IBM_Plex_Mono({
+  variable: "--font-ibm-plex-mono",
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
+});
+
 export const metadata: Metadata = {
-  title: "FRIG — Punto de venta gastronómico",
-  description: "POS, comandas y cocina para restaurantes.",
+  title: "Cauce by Smart APR — Gestión de APR",
+  description: "Gestión de APR: medidores, lecturas, tarifas y cobros de agua.",
   manifest: "/manifest.webmanifest",
   applicationName: "Cauce",
   appleWebApp: {
@@ -69,14 +90,14 @@ export const viewport: Viewport = {
 
 /*
  * Anti-FOUC: aplica el tema multi-tenant persistido (store Zustand
- * `frig.session`) antes del primer paint. Replica la lógica de
- * applyThemeConfig (src/lib/api/branches.ts): mismas CSS vars, mismo
- * cálculo de foreground por luminancia y misma clase .dark. Es
- * idempotente y silencioso si no hay datos; ThemeApplier re-aplica el
+ * `cauce.session`, con fallback a `frig.session`) antes del primer paint.
+ * Replica la lógica de applyThemeConfig (src/lib/api/branches.ts): mismas
+ * CSS vars, mismo cálculo de foreground por luminancia y misma clase .dark.
+ * Es idempotente y silencioso si no hay datos; ThemeApplier re-aplica el
  * tema definitivo tras hidratar.
  */
 const themeInitScript = `(function(){try{
-var raw=localStorage.getItem("frig.session");if(!raw)return;
+var raw=localStorage.getItem("cauce.session")||localStorage.getItem("frig.session");if(!raw)return;
 var theme=JSON.parse(raw);theme=theme&&theme.state&&theme.state.theme;if(!theme)return;
 var root=document.documentElement;
 function fg(hex){var m=/^#?([0-9a-f]{6})$/i.exec(String(hex||"").trim());if(!m)return "#ffffff";
@@ -107,7 +128,7 @@ export default function RootLayout({
     <html
       lang="es"
       data-scroll-behavior="smooth"
-      className={`${geistSans.variable} ${geistMono.variable} ${pixelify.variable} ${spaceGrotesk.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${pixelify.variable} ${spaceGrotesk.variable} ${bricolage.variable} ${ibmPlexMono.variable} h-full antialiased`}
       suppressHydrationWarning
     >
       <head>

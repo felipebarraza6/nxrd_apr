@@ -1,5 +1,6 @@
 import { apiFetch, apiFile, type ApiFileResult } from "./client";
 import type { YggdraSchemas } from "@/lib/api/types";
+import { STORAGE } from "@/lib/storage-keys";
 
 type Client = YggdraSchemas["Client"];
 type ClientRequest = YggdraSchemas["ClientRequest"];
@@ -110,7 +111,7 @@ export interface CustomerPayload {
 
 function getStoredBranchId(): number | undefined {
   if (typeof window === "undefined") return undefined;
-  const raw = window.localStorage.getItem("frig.branch_id");
+  const raw = window.localStorage.getItem(STORAGE.branchId);
   if (!raw) return undefined;
   const n = Number(raw);
   return Number.isNaN(n) || n <= 0 ? undefined : n;

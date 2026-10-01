@@ -1,5 +1,6 @@
 import { apiFetch } from "./client";
 import type { YggdraSchemas } from "./types";
+import { STORAGE } from "@/lib/storage-keys";
 
 export type CashRegisterStation = YggdraSchemas["CashRegisterStation"];
 export type CashRegisterStationRequest = YggdraSchemas["CashRegisterStationRequest"];
@@ -7,7 +8,7 @@ export type PaginatedCashRegisterStationList = YggdraSchemas["PaginatedCashRegis
 
 export async function fetchCashRegisterStations(): Promise<CashRegisterStation[]> {
   const branchId =
-    typeof window !== "undefined" ? window.localStorage.getItem("frig.branch_id") : null;
+    typeof window !== "undefined" ? window.localStorage.getItem(STORAGE.branchId) : null;
   // El backend no filtra por sucursal a superadmins (ven todas), así que se
   // pide el filtro server-side (?branch=, misma fuente que el header
   // X-Branch-ID de client.ts). Filtrar solo client-side sobre la página 1

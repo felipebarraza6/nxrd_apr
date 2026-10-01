@@ -8,7 +8,6 @@ import { Select } from "@/components/ui/select";
 import { Modal, ModalBody, ModalFooter } from "@/components/ui/modal";
 import { formatCLP, paymentTypeLabel } from "@/lib/utils";
 import { createPayment } from "@/lib/api/payments";
-import { freeTable } from "@/lib/api/tables";
 import { fetchBranchFinanceConfigByBranch } from "@/lib/api/branch-finance-config";
 import { useCurrentBranch } from "@/lib/store/session";
 import { useQuery } from "@tanstack/react-query";
@@ -132,14 +131,7 @@ export default function OrderCollectModal({
           skip_cash_register_validation: false,
         });
       }
-      // Al cobrar la cuenta completa, la mesa queda libre.
-      if (order.table) {
-        try {
-          await freeTable(order.table);
-        } catch {
-          // Si falla, la mesa puede liberarse manualmente.
-        }
-      }
+      // APR no usa mesas de salón; omitimos liberar table.
       setCollectSuccess("Pago registrado correctamente.");
       setTimeout(() => {
         onSuccess();

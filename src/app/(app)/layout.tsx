@@ -25,12 +25,13 @@ import { Toaster } from "@/components/ui/toaster";
 import { SupportLauncher } from "@/components/support/support-launcher";
 import { ForbiddenListener } from "@/components/forbidden-listener";
 import { HeroPlexus } from "@/components/landing/hero-plexus";
+import { TrialBanner } from "@/components/trial-banner";
 import { enabledModuleSet, firstEnabledAllowedPath } from "@/lib/modules";
 import { SUPERADMIN_ALLOWED_PATHS as SUPERADMIN_MENU_PATHS } from "@/lib/hooks/useFrigMenu";
 import { useToastStore } from "@/lib/store/toast";
 import { ApiError } from "@/lib/api/client";
 
-const HIDDEN_SIDEBAR_PATHS = ["/pos/terminal", "/kds/terminal", "/kds/monitor", "/tables/map/full"];
+const HIDDEN_SIDEBAR_PATHS = ["/readings/pos"];
 
 /** Tras un 5xx de frontend-config, no martillar el API: reintento mínimo. */
 const FRONTEND_CONFIG_RETRY_MS = 30_000;
@@ -43,7 +44,7 @@ const FRONTEND_CONFIG_RETRY_MS = 30_000;
  * Rutas sin capa cósmica (HeroPlexus): terminales densas donde la animación
  * estorba. Caja sí la mantiene — forma parte de la atmósfera del módulo.
  */
-const NO_COSMOS_PATHS = ["/pos/terminal", "/kds/terminal", "/kds/monitor"];
+const NO_COSMOS_PATHS = ["/readings/pos"];
 
 /**
  * Rutas permitidas para el super admin (menú + rutas neutrales como profile/dashboard).
@@ -300,6 +301,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
             ],
           )}
         >
+          {showChrome ? <TrialBanner /> : null}
           {blockPageContent ? (
             <div className="flex flex-1 items-center justify-center bg-background">
               <div className="h-6 w-6 animate-spin rounded-full border-2 border-muted border-t-primary" />

@@ -182,7 +182,7 @@ export const COVER_PRESETS: CoverPreset[] = [
   },
 ];
 
-const STORAGE_PREFIX = "frig.profile-appearance:";
+const STORAGE_PREFIX = "cauce.profile-appearance:";
 
 export function defaultAppearance(): ProfileAppearance {
   return {

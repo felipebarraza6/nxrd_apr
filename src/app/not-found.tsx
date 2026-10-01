@@ -16,7 +16,7 @@ export default function RootNotFound() {
         La página que buscas no existe.
       </p>
       <div className="mt-6 flex gap-3">
-        <Link href="/pos" className={buttonVariants()}>
+        <Link href="/dashboard" className={buttonVariants()}>
           <Home className="mr-2 h-4 w-4" />
           Volver al inicio
         </Link>

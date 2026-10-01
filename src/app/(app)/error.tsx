@@ -36,7 +36,7 @@ export default function AppError({
           <RotateCcw className="mr-2 h-4 w-4" />
           Intentar de nuevo
         </Button>
-        <Button variant="outline" onClick={() => router.push("/pos")}>
+        <Button variant="outline" onClick={() => router.push("/dashboard")}>
           <Home className="mr-2 h-4 w-4" />
           Volver al inicio
         </Button>

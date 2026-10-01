@@ -23,7 +23,7 @@ function resolveHost(): { host: string; isDev: boolean } {
   return { host, isDev };
 }
 
-export function AppProvider({ children, checkoutGroup = "frig" }: { children: ReactNode; checkoutGroup?: string }) {
+export function AppProvider({ children, checkoutGroup = "cauce" }: { children: ReactNode; checkoutGroup?: string }) {
   const [{ host, isDev }] = useState(resolveHost);
   const [theme, setTheme] = useState<BranchThemeConfig | null>(null);
   const [status, setStatus] = useState<AppStatus>(() => (isDev ? "ready" : "checking"));
@@ -51,6 +51,6 @@ export function AppProvider({ children, checkoutGroup = "frig" }: { children: Re
 
 export function useApp(): AppContextValue {
   const ctx = useContext(AppContext);
-  if (!ctx) return { host: "", isDev: true, theme: null, checkoutGroup: "frig", status: "ready" };
+  if (!ctx) return { host: "", isDev: true, theme: null, checkoutGroup: "cauce", status: "ready" };
   return ctx;
 }

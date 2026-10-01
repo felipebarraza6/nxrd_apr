@@ -1,54 +1,139 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
+import {
+  AuthBrandHeader,
+  AuthFormCard,
+  AuthWaterShell,
+} from "@/components/auth/auth-water-shell";
+import { fetchCheckoutStatus } from "@/lib/api/checkout";
+import { CAUCE_GROUP } from "@/lib/cauce-checkout";
 
-const PREFIX = "frig.checkout_id.";
+const STORAGE_PREFIX = "cauce.checkout_id.";
+const POLL_MS = 3000;
+const POLL_MAX = 80;
+
+type Phase = "loading" | "paid" | "failed" | "timeout";
 
 /**
- * Flow redirige aquí tras completar (o cancelar) el pago con `?token=…&flowOrder=…`.
- * La página no llama a ninguna API: el checkout-modal ya guardó el checkout_id
- * en sessionStorage (`frig.checkout_id.{group}`) y sigue haciendo polling.
- * Solo devolvemos al usuario a la landing con el checkout_id en la URL para
- * que el modal retome la confirmación y muestre "Revisa tu correo".
+ * Resultado de checkout (Flow o trial).
+ * Static export: usa query `?checkout=<uuid>` (no segmentos dinámicos).
  */
 export default function CheckoutResultPage() {
   const router = useRouter();
+  const [phase, setPhase] = useState<Phase>("loading");
+  const [message, setMessage] = useState("Confirmando tu cuenta…");
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    // Token de Flow; no lo necesitamos — la confirmación la hace el polling.
-    void params.get("token");
+    let checkoutId =
+      params.get("checkout") ??
+      params.get("checkout_id");
 
-    let checkoutId: string | null = null;
-    for (let i = 0; i < window.sessionStorage.length; i += 1) {
-      const key = window.sessionStorage.key(i);
-      if (key?.startsWith(PREFIX)) {
-        checkoutId = window.sessionStorage.getItem(key);
-        if (checkoutId) break;
+    if (!checkoutId) {
+      for (let i = 0; i < window.sessionStorage.length; i += 1) {
+        const key = window.sessionStorage.key(i);
+        if (key?.startsWith(STORAGE_PREFIX)) {
+          checkoutId = window.sessionStorage.getItem(key);
+          if (checkoutId) break;
+        }
       }
     }
 
-    router.replace(checkoutId ? `/?checkout_id=${encodeURIComponent(checkoutId)}` : "/");
+    if (!checkoutId) {
+      router.replace("/");
+      return;
+    }
+
+    let cancelled = false;
+    let attempts = 0;
+    let timer: number | undefined;
+
+    const finishPaid = () => {
+      window.sessionStorage.removeItem(`${STORAGE_PREFIX}${CAUCE_GROUP}`);
+      setPhase("paid");
+      setMessage(
+        "Listo. Revisa tu correo: te enviamos un enlace mágico para entrar a Cauce.",
+      );
+    };
+
+    const tick = async () => {
+      attempts += 1;
+      try {
+        const s = await fetchCheckoutStatus(checkoutId!, CAUCE_GROUP);
+        if (cancelled) return;
+        const status = (s.status ?? "").toUpperCase();
+        if (status === "PAID") {
+          finishPaid();
+          return;
+        }
+        if (status === "FAILED" || status === "EXPIRED" || status === "CANCELLED") {
+          setPhase("failed");
+          setMessage("El pago no se completó. Puedes intentar de nuevo desde el registro.");
+          return;
+        }
+        if (attempts >= POLL_MAX) {
+          setPhase("timeout");
+          setMessage(
+            "Todavía no confirmamos el pago. Revisa tu correo en unos minutos o vuelve a intentar.",
+          );
+          return;
+        }
+        timer = window.setTimeout(tick, POLL_MS);
+      } catch {
+        if (cancelled) return;
+        if (attempts >= POLL_MAX) {
+          setPhase("timeout");
+          setMessage("No pudimos confirmar el estado. Revisa tu correo o contacta soporte.");
+          return;
+        }
+        timer = window.setTimeout(tick, POLL_MS);
+      }
+    };
+
+    void tick();
+
+    return () => {
+      cancelled = true;
+      if (timer) window.clearTimeout(timer);
+    };
   }, [router]);
 
   return (
-    <div
-      className="flex min-h-dvh flex-1 flex-col items-center justify-center gap-6 bg-[#0a0a0a] px-4 text-zinc-100"
-    >
-      <span className="flex h-12 w-12 items-center justify-center bg-primary text-primary-foreground">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/brand/frig-symbol.png" alt="Frig" className="h-7 w-7" />
-      </span>
-      <div className="flex w-full max-w-sm flex-col items-center gap-4 rounded-xl border border-white/10 bg-white/[0.03] px-8 py-10 text-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-muted border-t-primary" />
-        <div>
-          <p className="text-sm font-semibold tracking-wide">Procesando tu pago…</p>
-          <p className="mt-2 text-sm leading-relaxed text-zinc-400">
-            Te llevamos de vuelta para confirmar tu contratación.
-          </p>
-        </div>
-      </div>
-    </div>
+    <AuthWaterShell>
+      <AuthBrandHeader />
+      <AuthFormCard className="text-center">
+        {phase === "loading" ? (
+          <div className="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-papel/20 border-t-azul" />
+        ) : null}
+        <p className="mt-3 font-heading text-sm font-semibold tracking-wide text-papel">
+          {phase === "paid"
+            ? "Cuenta activada"
+            : phase === "failed"
+              ? "Pago no completado"
+              : phase === "timeout"
+                ? "Pendiente de confirmación"
+                : "Procesando…"}
+        </p>
+        <p className="mt-2 text-sm leading-relaxed text-papel/65">{message}</p>
+        {phase !== "loading" ? (
+          <div className="mt-6 flex flex-col gap-2">
+            <Link
+              href="/login"
+              className="inline-flex h-10 items-center justify-center rounded-lg bg-azul px-4 font-accent text-[12px] font-medium uppercase tracking-[0.18em] text-papel hover:bg-azul-deep"
+            >
+              Ir al inicio de sesión
+            </Link>
+            {phase === "failed" ? (
+              <Link href="/signup" className="text-xs text-azul hover:underline">
+                Volver al registro
+              </Link>
+            ) : null}
+          </div>
+        ) : null}
+      </AuthFormCard>
+    </AuthWaterShell>
   );
 }

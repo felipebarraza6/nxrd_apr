@@ -4,12 +4,9 @@
 // payload RSC), no como "<ruta>/index.html". Por eso:
 //   1. Las URLs legacy de bodega (/warehouses/<id>) se reescriben a la vista
 //      estática /warehouses/view.html (resuelve el id desde la querystring).
-//      Otras rutas dinámicas (/menu/<slug>, /menu/<slug>/totem,
-//      /kds/station/<id> → /kds/station.html?id=, /reset-password/<token>)
-//      se reescriben a la instancia estática. Las páginas "use client"
-//      resuelven el parámetro real desde la URL/query.
-//   2. Cualquier otra URL sin extensión se resuelve a su "<ruta>.html" si existe
-//      (sirve tanto /pos como /pos/).
+//      Otras rutas dinámicas (/login/<slug>, /reset-password/<token>,
+//      /survey/<slug>) se reescriben a la instancia estática.
+//   2. Cualquier otra URL sin extensión se resuelve a su "<ruta>.html" si existe.
 
 import { writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
@@ -18,12 +15,11 @@ import { dirname, join } from "node:path";
 const outDir = join(dirname(fileURLToPath(import.meta.url)), "..", "out");
 
 const dynamicRewrites = [
-  ["^menu/[^/]+/totem/?$", "/menu/__/totem.html"],
-  ["^menu/[^/]+/?$", "/menu/__.html"],
   ["^login/[^/]+/?$", "/login/__.html"],
   ["^warehouses/\\d+/?$", "/warehouses/view.html"],
-  ["^kds/station/(\\d+)/?$", "/kds/station.html?id=$1"],
   ["^reset-password/[^/]+/?$", "/reset-password/__.html"],
+  // Encuesta pública por slug (excluye /survey/view fijo).
+  ["^survey/(?!view(?:/|$))[^/]+/?$", "/survey/__.html"],
 ];
 
 const dynamicRules = dynamicRewrites

@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 /*
- * FRIG — Design tokens multi-tenant.
+ * Design tokens multi-tenant + identidad Smart APR (auth/signup).
  *
  * Los tokens de marca (--brand-*) se inyectan dinámicamente en :root
  * desde la config de sucursal (BranchThemeConfig de Yggdra). Todo el UI
@@ -16,6 +16,13 @@
   --brand-radius: 0.75rem;
   --brand-motion: 1;
   --brand-compact: 0;
+
+  /* Identidad Smart APR (auth / signup / magic) — smartapr.cl */
+  --tinta: #000000;
+  --papel: #f3f3f3;
+  --azul: #3834ff;
+  --azul-deep: #030fc6;
+  --linea: rgba(243, 243, 243, 0.14);
 }
 
 @theme inline {
@@ -38,6 +45,10 @@
   --color-danger: var(--danger);
   --color-success: var(--success);
   --color-warning: var(--warning);
+  --color-tinta: var(--tinta);
+  --color-papel: var(--papel);
+  --color-azul: var(--azul);
+  --color-azul-deep: var(--azul-deep);
   --radius-lg: var(--radius);
   --radius-md: calc(var(--radius) - 2px);
   --radius-sm: calc(var(--radius) - 4px);
@@ -45,6 +56,28 @@
   --font-mono: var(--font-geist-mono);
   --font-pixel: var(--font-pixelify), ui-sans-serif, sans-serif;
   --font-display: var(--font-space), var(--font-geist-sans), ui-sans-serif, sans-serif;
+  --font-heading: var(--font-bricolage), var(--font-geist-sans), ui-sans-serif, sans-serif;
+  --font-accent: var(--font-ibm-plex-mono), var(--font-geist-mono), ui-monospace, monospace;
+}
+
+/* Fondo agua (fallback CSS cuando WebGL no está disponible) — smartapr.cl */
+.fondo-agua {
+  background:
+    radial-gradient(120% 90% at 70% 10%, rgba(56, 52, 255, 0.35), transparent 60%),
+    radial-gradient(100% 80% at 20% 90%, rgba(3, 15, 198, 0.5), transparent 65%),
+    var(--tinta);
+}
+
+.puntos {
+  background-image: radial-gradient(rgba(243, 243, 243, 0.13) 1px, transparent 1.5px);
+  background-size: 28px 28px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fondo-agua canvas {
+    /* Canvas ya congela el frame; evita animaciones CSS auxiliares. */
+    animation: none !important;
+  }
 }
 
 :root,

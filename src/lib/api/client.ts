@@ -14,6 +14,8 @@
  * hecho a mano no publica una app que habla con localhost.
  */
 import { getEffectiveBranchId } from "./branch-scope";
+import { YGGDRA_SCHEMA_SHA } from "./contract-sha";
+import { STORAGE, migrateFrigStorageKeys } from "@/lib/storage-keys";
 
 export const API_BASE =
   process.env.NEXT_PUBLIC_YGGDRA_API_BASE ??
@@ -34,7 +36,7 @@ export function mediaUrl(src: string | null | undefined): string | null {
   if (/^(https?:)?\/\//i.test(src) || src.startsWith("data:") || src.startsWith("blob:")) {
     return src;
   }
-  // Assets de la web (marca FRIG), no del backend.
+  // Assets de la web (marca Cauce), no del backend.
   if (
     src.startsWith("/brand/") ||
     src.startsWith("/icon") ||
@@ -60,12 +62,14 @@ export class ApiError extends Error {
 /** Token de sesión (persistido en localStorage por el store de auth). */
 function getToken(): string | null {
   if (typeof window === "undefined") return null;
-  return window.localStorage.getItem("frig.token");
+  migrateFrigStorageKeys();
+  return window.localStorage.getItem(STORAGE.token);
 }
 
 function getBranchId(): string | null {
   if (typeof window === "undefined") return null;
-  return window.localStorage.getItem("frig.branch_id");
+  migrateFrigStorageKeys();
+  return window.localStorage.getItem(STORAGE.branchId);
 }
 
 function resolveBranchHeader(): string | null {
@@ -76,12 +80,37 @@ function redirectToLogin(): void {
   if (typeof window === "undefined") return;
   // Limpiar la sesión persistida: si no, el localStorage queda con token y
   // datos de sucursal stale hasta que un nuevo login los sobrescriba.
-  window.localStorage.removeItem("frig.token");
-  window.localStorage.removeItem("frig.branch_id");
-  window.localStorage.removeItem("frig.session");
-  window.localStorage.removeItem("frig.demo_expires_at");
+  for (const key of [
+    STORAGE.token,
+    STORAGE.branchId,
+    STORAGE.session,
+    STORAGE.demoExpiresAt,
+    "frig.token",
+    "frig.branch_id",
+    "frig.session",
+    "frig.demo_expires_at",
+  ]) {
+    window.localStorage.removeItem(key);
+  }
   // eslint-disable-next-line @next/next/no-location-assign-relative-destination
   window.location.assign(`${window.location.origin}/login`);
+}
+
+let schemaDriftNotified = false;
+
+function maybeNotifySchemaDrift(res: Response): void {
+  if (typeof window === "undefined" || schemaDriftNotified) return;
+  // Header exacto: X-Yggdra-Schema-Sha. Cross-origin solo es legible si el
+  // backend lo lista en Access-Control-Expose-Headers (follow-up backend).
+  const remote =
+    res.headers.get("X-Yggdra-Schema-Sha") ||
+    res.headers.get("x-yggdra-schema-sha");
+  if (!remote || !YGGDRA_SCHEMA_SHA) return;
+  if (remote === YGGDRA_SCHEMA_SHA) return;
+  schemaDriftNotified = true;
+  window.dispatchEvent(
+    new CustomEvent("api:schema-drift", { detail: { remote, local: YGGDRA_SCHEMA_SHA } }),
+  );
 }
 
 type ApiOptions = {
@@ -203,11 +232,13 @@ export async function apiFetch<T>(path: string, opts: ApiOptions = {}): Promise<
       }
       if (typeof window !== "undefined" && notice) {
         // Sobrevive al redirect (sessionStorage) para mostrarlo en /login.
-        window.sessionStorage.setItem("frig.auth_notice", notice);
+        window.sessionStorage.setItem(STORAGE.authNotice, notice);
       }
       redirectToLogin();
       throw new ApiError(401, notice || "Sesión expirada");
     }
+
+    maybeNotifySchemaDrift(res);
 
     const text = await res.text();
     let data: unknown = null;
@@ -379,11 +410,13 @@ export async function apiFile(
       }
       if (typeof window !== "undefined" && notice) {
         // Sobrevive al redirect (sessionStorage) para mostrarlo en /login.
-        window.sessionStorage.setItem("frig.auth_notice", notice);
+        window.sessionStorage.setItem(STORAGE.authNotice, notice);
       }
       redirectToLogin();
       throw new ApiError(401, notice || "Sesión expirada");
     }
+
+    maybeNotifySchemaDrift(res);
 
     if (!res.ok) {
       const text = await res.text();

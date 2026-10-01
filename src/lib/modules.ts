@@ -1,46 +1,35 @@
 import type { ModuleName, SubmoduleConfig } from "@/lib/api/branch-modules";
 
 /**
- * Mapeo de rutas de Frig al módulo de Yggdra que las controla.
- * `null` significa que la ruta no depende de ningún módulo (siempre visible).
- * Las rutas no listadas se consideran no mapeadas y se permiten por defecto.
+ * Mapeo de rutas de Cauce al módulo de Yggdra que las controla.
+ * `null` = ruta libre de módulo. No listadas → permitidas por defecto.
+ *
+ * Water gated con `water_management` (ViewSets alineados en yggdra_infra#39).
  */
 export const ROUTE_MODULE_MAP: Record<string, ModuleName | null> = {
   "/dashboard": "dashboard",
-  "/pos": "pos",
-  "/pos/terminal": "pos",
   "/sales": "sales",
-    "/reports": null,
-    "/meters": null,
-    "/readings": null,
-    "/tariffs": null,
-    "/billing": null,
-    "/reports/nutrition": "nutrition",
-    "/reports/sales": null,
-    "/reports/money": null,
-    "/reports/revenues": null,
-    "/reports/expenses": null,
-    "/reports/dinero": null,
-    "/reports/ingresos": null,
-    "/reports/gastos": null,
+  "/reports": null,
+  "/meters": "water_management",
+  "/readings": "water_management",
+  "/readings/pos": "water_management",
+  "/tariffs": "water_management",
+  "/billing": "water_management",
+  "/reports/sales": null,
+  "/reports/money": null,
+  "/reports/revenues": null,
+  "/reports/expenses": null,
+  "/reports/dinero": null,
+  "/reports/ingresos": null,
+  "/reports/gastos": null,
   "/cash-register": "cash_register",
   "/cash-register/stations": "cash_register",
-  "/kds": "production",
-  "/products": "product_catalog",
-  "/products/combos": "product_catalog",
-  "/products/modifiers": "product_catalog",
-  "/products/menus": "public_catalog",
-  "/products/nutrition": "nutrition",
-  "/categories": "product_catalog",
   "/warehouses": "inventory",
   "/inventory": "inventory",
   "/equipment": null,
   "/iot": "iot_telemetry",
   "/reports/equipment": null,
   "/reports/crm": "customers",
-  "/tables": "tables",
-  "/tables/map": "tables",
-  "/tables/map/full": "tables",
   "/customers": "customers",
   "/customers/surveys": "customers",
   "/customers/prospects": "customers",
@@ -130,7 +119,7 @@ const ROUTE_KEYS = Object.keys(ROUTE_MODULE_MAP);
  * Resuelve el módulo asociado a una ruta.
  *
  * - Match exacto primero.
- * - Luego prefix de mayor longitud (ej. /kds/monitor → /kds).
+ * - Luego prefix de mayor longitud (ej. /readings/pos → /readings).
  * - Si no hay mapeo, devuelve `undefined` (se permite por defecto).
  */
 export function getModuleForPath(pathname: string): ModuleName | null | undefined {
@@ -184,6 +173,7 @@ export const FRIG_ALWAYS_ON_MODULES: ModuleName[] = [
   "suppliers",
   "payment_methods",
   "bank_accounts",
+  "water_management",
 ];
 
 /**
@@ -237,11 +227,11 @@ export const FRIG_MENU_DEF: FrigMenuGroup[] = [
     title: "Agua",
     icon: "Droplets",
     items: [
-      { href: "/meters", label: "Medidores", icon: "Gauge", module: null, description: "Puntos de medición por socio y sector" },
-      { href: "/readings", label: "Lecturas", icon: "NotebookPen", module: null, description: "Toma por ruta y carga masiva del período" },
-      { href: "/readings/pos", label: "POS de lectura", icon: "Gauge", module: null, description: "Casa por casa: captura rápida medidor a medidor" },
-      { href: "/tariffs", label: "Tarifarios", icon: "ScrollText", module: null, description: "Cargo fijo y tramos por m³" },
-      { href: "/billing", label: "Cobros de agua", icon: "Receipt", module: null, description: "Corridas del período y boletas SII" },
+      { href: "/meters", label: "Medidores", icon: "Gauge", module: "water_management", description: "Puntos de medición por socio y sector" },
+      { href: "/readings", label: "Lecturas", icon: "NotebookPen", module: "water_management", description: "Toma por ruta y carga masiva del período" },
+      { href: "/readings/pos", label: "POS de lectura", icon: "Gauge", module: "water_management", description: "Casa por casa: captura rápida medidor a medidor" },
+      { href: "/tariffs", label: "Tarifarios", icon: "ScrollText", module: "water_management", description: "Cargo fijo y tramos por m³ (tramos RO en API)" },
+      { href: "/billing", label: "Cobros de agua", icon: "Receipt", module: "water_management", description: "Corridas del período y boletas SII" },
     ],
   },
   {
@@ -348,24 +338,12 @@ export const FRIG_MODULE_NAMES = Array.from(
 
 // ── Guards de redirección ─────────────────────────────────────────────────────
 
-/** Módulos de ruta que en Frig dependen de que POS esté habilitado. */
+/** Módulos de ruta que en Cauce dependen de caja de oficina. */
 const POS_DEPENDENT_ROUTE_MODULES = new Set<string>(["cash_register"]);
 
 /**
- * Dado un conjunto de paths permitidos (p. ej. `CASHIER_ALLOWED_PATHS`) y
- * los módulos habilitados en la sucursal, devuelve el primer path cuyo
- * módulo asociado esté activo. Si ninguno calza, devuelve `null` y el caller
- * puede caer a una ruta neutra (p. ej. `/dashboard`).
- *
- * - Rutas no mapeadas en `ROUTE_MODULE_MAP` se consideran libres de módulo.
- * - Módulos always-on de Frig siempre califican.
- * - Rutas con módulo POS-dependiente (`cash_register`) exigen además que
- *   `pos` esté habilitado.
- *
- * Usado por el layout para evitar el loop: si el cajero está en
- * `/pos/terminal` y `pos` se desactiva, no queremos redirigirlo a
- * `/dashboard` (que también está bloqueada para cajero) ni a otra ruta
- * POS-dependiente caída.
+ * Dado un conjunto de paths permitidos y los módulos habilitados,
+ * devuelve el primer path cuyo módulo asociado esté activo.
  */
 export function firstEnabledAllowedPath(
   allowedPaths: readonly string[],

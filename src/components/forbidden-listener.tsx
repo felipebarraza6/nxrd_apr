@@ -5,22 +5,23 @@ import { usePathname, useRouter } from "next/navigation";
 import { ApiError } from "@/lib/api/client";
 import { useToast } from "@/lib/store/toast";
 import { FRIG_ALWAYS_ON_MODULES } from "@/lib/modules";
-import { useIsPosFirstRole } from "@/lib/store/session";
+import { useIsCashier } from "@/lib/store/session";
 
 /**
  * Escucha el evento global "api:forbidden" disparado por apiFetch cuando una
  * petición recibe 403. Muestra un toast discreto y evita redirigir a roles
- * operativos (cajero/mesero) o quedarse en un loop si /dashboard también falla.
+ * operativos (cajero/medidor/empleado) o quedarse en un loop si /dashboard
+ * también falla.
  *
- * Los módulos que en Frig son core (siempre activos) no generan toast ni
- * redirección: si el backend los reporta deshabilitados es un problema de
- * configuración, no una acción del usuario.
+ * Los módulos core (siempre activos) no generan toast ni redirección: si el
+ * backend los reporta deshabilitados es un problema de configuración, no una
+ * acción del usuario.
  */
 export function ForbiddenListener() {
   const router = useRouter();
   const pathname = usePathname();
   const toast = useToast();
-  const isPosFirstRole = useIsPosFirstRole();
+  const isOperationalRole = useIsCashier();
 
   // Regex compilada una sola vez con word-boundaries: evita que "sales"
   // matchee "salesperson" o "config" matchee "configuration".
@@ -39,33 +40,21 @@ export function ForbiddenListener() {
       const rawMessage = error?.message && error.message !== "Error 403" ? error.message : "";
       const message = rawMessage || "No tienes permiso para ver esta función.";
 
-      // Si el error proviene de un módulo core de Frig (siempre activo), no
+      // Si el error proviene de un módulo core (siempre activo), no
       // molestamos al usuario: el backend debería tenerlo habilitado.
-      // Match por palabra completa para no caer en falsos positivos
-      // (p. ej. "salesperson" contiene "sales" pero NO debe silenciarse).
       if (rawMessage && alwaysOnRegex.test(rawMessage)) {
         return;
       }
 
-      // No mostrar toast si es una petición secundaria silenciosa de POS.
-      const isPosRoute = pathname.startsWith("/pos");
-      const isSecondaryModule = /\b(tables|public_catalog|product_catalog|nutrition|catalogs)\b/i.test(
-        rawMessage,
-      );
       // Errores de "módulo no habilitado para esta sucursal": la UI ya oculta
-      // esas secciones y el 403 suele venir de peticiones secundarias/paralelas
-      // (no de una acción del usuario). Mostrar el toast rompe la experiencia.
+      // esas secciones y el 403 suele venir de peticiones secundarias/paralelas.
       const isModuleDisabled = /no está habilitado/i.test(rawMessage);
-      if (!isModuleDisabled && !(isPosRoute && isSecondaryModule)) {
+      if (!isModuleDisabled) {
         toast.error(message);
       }
 
-      // No redirigir si estamos en POS y el error es de un módulo secundario.
-      // Tampoco redirigir para roles operativos ni si ya estamos en /dashboard.
-      if (isPosFirstRole || pathname === "/dashboard") {
-        return;
-      }
-      if (isPosRoute && isSecondaryModule) {
+      // No redirigir roles operativos ni si ya estamos en /dashboard.
+      if (isOperationalRole || pathname === "/dashboard") {
         return;
       }
 
@@ -74,7 +63,7 @@ export function ForbiddenListener() {
 
     window.addEventListener("api:forbidden", handleForbidden);
     return () => window.removeEventListener("api:forbidden", handleForbidden);
-  }, [router, pathname, toast, isPosFirstRole, alwaysOnRegex]);
+  }, [router, pathname, toast, isOperationalRole, alwaysOnRegex]);
 
   return null;
 }
