@@ -61,7 +61,7 @@ describe("buildCauceCheckoutBody", () => {
       contact_name: "María",
       email: "maria@apr.cl",
     });
-    expect(CAUCE_CHECKOUT_TYPE).toBe("cauce");
+    expect(CAUCE_CHECKOUT_TYPE).toBe("organization");
     expect(CAUCE_DEFAULT_PLAN_ID).toBe("comunidad");
   });
 
@@ -291,7 +291,7 @@ describe("createCauceCheckout", () => {
     expect(mockedFetch).toHaveBeenCalledWith("/public/cauce-checkout/", {
       method: "POST",
       body: {
-        checkout_type: "cauce",
+        checkout_type: "organization",
         plan_id: "comunidad",
         business_name: "APR Norte",
         contact_name: "Ana",
