@@ -1,9 +1,10 @@
 /**
- * Constantes y helpers puros del self-signup Cauce (trial 30 días).
+ * Constantes y helpers puros del self-signup Cauce (trial / 1er mes gratis).
  * Contrato: yggdra_infra PR #39 — POST /api/public/cauce-checkout/.
  */
 
 import type { GroupPlanPublic, LandingConfig } from "@/lib/api/checkout";
+import { formatCLP } from "@/lib/utils";
 
 /** Valor de `checkout_type` en el body de cauce-checkout (aislado aquí). */
 export const CAUCE_CHECKOUT_TYPE = "cauce" as const;
@@ -11,20 +12,21 @@ export const CAUCE_CHECKOUT_TYPE = "cauce" as const;
 /** Grupo público / slug de landing-config. */
 export const CAUCE_GROUP = "cauce" as const;
 
-/** Plan por defecto del trial APR. */
-export const CAUCE_TRIAL_PLAN_ID = "mensual" as const;
+/** Plan por defecto del trial APR (ya no existe `mensual`). */
+export const CAUCE_DEFAULT_PLAN_ID = "comunidad" as const;
 
-/** Fallback local si landing-config aún no trae planes (backend en progreso). */
-export const CAUCE_FALLBACK_PLANS: SignupPlanOption[] = [
-  {
-    plan_id: CAUCE_TRIAL_PLAN_ID,
-    display_name: "Plan Mensual",
-    description: "Gestión completa del APR con 30 días de prueba.",
-    price_uf: null,
-    highlighted: true,
-    badge: null,
-  },
-];
+/** @deprecated usar CAUCE_DEFAULT_PLAN_ID */
+export const CAUCE_TRIAL_PLAN_ID = CAUCE_DEFAULT_PLAN_ID;
+
+/** IDs válidos publicados por el backend Cauce. */
+export const CAUCE_PLAN_IDS = [
+  "comunidad",
+  "crecimiento",
+  "gestion_integral",
+  "cooperativa",
+] as const;
+
+export type CaucePlanId = (typeof CAUCE_PLAN_IDS)[number];
 
 export const CAUCE_FRONTEND_URL = "https://cauce.smartapr.cl";
 
@@ -32,10 +34,73 @@ export type SignupPlanOption = {
   plan_id: string;
   display_name: string;
   description: string;
+  features: string[];
+  /** Rango de arranques u audience (ej. "1 – 100 arranques"). */
+  audience: string | null;
+  price_clp: number | null;
+  /** Cooperativa y similares: mostrar "desde" antes del precio. */
+  price_from: boolean;
   price_uf: number | null;
   highlighted: boolean;
-  badge?: string | null;
+  badge: string | null;
+  sort_order: number;
 };
+
+/** Fallback hardcodeado si falla landing-config / cauce-plans. */
+export const CAUCE_FALLBACK_PLANS: SignupPlanOption[] = [
+  {
+    plan_id: "comunidad",
+    display_name: "Comunidad",
+    description: "Para APR pequeños.",
+    features: [],
+    audience: "1 – 100 arranques",
+    price_clp: 30_000,
+    price_from: false,
+    price_uf: null,
+    highlighted: true,
+    badge: null,
+    sort_order: 1,
+  },
+  {
+    plan_id: "crecimiento",
+    display_name: "Crecimiento",
+    description: "Para sistemas en expansión.",
+    features: [],
+    audience: "101 – 300 arranques",
+    price_clp: 40_000,
+    price_from: false,
+    price_uf: null,
+    highlighted: false,
+    badge: null,
+    sort_order: 2,
+  },
+  {
+    plan_id: "gestion_integral",
+    display_name: "Gestión Integral",
+    description: "Operación completa del APR.",
+    features: [],
+    audience: "301 – 600 arranques",
+    price_clp: 80_000,
+    price_from: false,
+    price_uf: null,
+    highlighted: false,
+    badge: null,
+    sort_order: 3,
+  },
+  {
+    plan_id: "cooperativa",
+    display_name: "Cooperativa",
+    description: "Para cooperativas y redes grandes.",
+    features: [],
+    audience: "601+ arranques",
+    price_clp: 170_000,
+    price_from: true,
+    price_uf: null,
+    highlighted: false,
+    badge: null,
+    sort_order: 4,
+  },
+];
 
 export type SignupFormValues = {
   business_name: string;
@@ -70,7 +135,8 @@ export function normalizeSignupValues(values: SignupFormValues): SignupFormValue
     business_name: values.business_name.trim(),
     contact_name: values.contact_name.trim(),
     email: values.email.trim().toLowerCase(),
-    plan_id: (values.plan_id || CAUCE_TRIAL_PLAN_ID).trim() || CAUCE_TRIAL_PLAN_ID,
+    plan_id:
+      (values.plan_id || CAUCE_DEFAULT_PLAN_ID).trim() || CAUCE_DEFAULT_PLAN_ID,
   };
 }
 
@@ -86,9 +152,74 @@ export function buildCauceCheckoutBody(values: SignupFormValues) {
   };
 }
 
+function numOrNull(v: unknown): number | null {
+  if (v == null || v === "") return null;
+  const n = typeof v === "number" ? v : Number(v);
+  return Number.isFinite(n) ? n : null;
+}
+
+/** Extrae rango de arranques desde limits o audience. */
+export function formatArranquesLabel(
+  limits: Record<string, unknown> | undefined,
+  audience?: string | null,
+): string | null {
+  if (audience?.trim()) return audience.trim();
+  if (!limits) return null;
+  const min =
+    numOrNull(limits.arranques_min) ??
+    numOrNull(limits.min_arranques) ??
+    numOrNull(limits.connections_min);
+  const max =
+    numOrNull(limits.arranques_max) ??
+    numOrNull(limits.max_arranques) ??
+    numOrNull(limits.connections_max);
+  if (min != null && max != null) {
+    return `${min.toLocaleString("es-CL")} – ${max.toLocaleString("es-CL")} arranques`;
+  }
+  if (min != null) return `${min.toLocaleString("es-CL")}+ arranques`;
+  if (typeof limits.arranques === "string" && limits.arranques.trim()) {
+    return limits.arranques.trim();
+  }
+  return null;
+}
+
 /**
- * Planes para el selector de /signup desde landing-config.
- * Si el backend aún no publica planes, usa fallback local (mensual).
+ * Precio CLP para UI: "$30.000/mes + IVA" o "Desde $170.000/mes + IVA".
+ */
+export function formatPlanPriceClp(
+  plan: Pick<SignupPlanOption, "price_clp" | "price_from" | "plan_id">,
+): string {
+  if (plan.price_clp == null) return "A convenir";
+  const amount = formatCLP(plan.price_clp);
+  const from =
+    plan.price_from || plan.plan_id === "cooperativa" ? "Desde " : "";
+  return `${from}${amount}/mes + IVA`;
+}
+
+function mapPlan(p: GroupPlanPublic): SignupPlanOption {
+  const priceClp = numOrNull(p.price_clp);
+  const from =
+    p.plan_id === "cooperativa" ||
+    /desde/i.test(p.display_name) ||
+    /desde/i.test(p.description ?? "");
+  return {
+    plan_id: p.plan_id,
+    display_name: p.display_name,
+    description: p.description ?? "",
+    features: Array.isArray(p.features) ? p.features.filter((f) => typeof f === "string") : [],
+    audience: formatArranquesLabel(p.limits, p.audience),
+    price_clp: priceClp,
+    price_from: from,
+    price_uf: numOrNull(p.price_uf),
+    highlighted: Boolean(p.highlighted),
+    badge: p.badge ?? null,
+    sort_order: p.sort_order ?? 0,
+  };
+}
+
+/**
+ * Planes para el selector de /signup desde landing-config / cauce-plans.
+ * Si el request falla o viene vacío → fallback hardcodeado.
  */
 export function plansFromLandingConfig(
   config: LandingConfig | null | undefined,
@@ -97,27 +228,29 @@ export function plansFromLandingConfig(
   if (raw.length === 0) return CAUCE_FALLBACK_PLANS;
   return [...raw]
     .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
-    .map((p) => ({
-      plan_id: p.plan_id,
-      display_name: p.display_name,
-      description: p.description ?? "",
-      price_uf: p.price_uf,
-      highlighted: Boolean(p.highlighted),
-      badge: p.badge ?? null,
-    }));
+    .map(mapPlan);
 }
 
-function pickPlan(
-  plans: GroupPlanPublic[] | undefined,
+export function plansFromPublicList(
+  plans: GroupPlanPublic[] | null | undefined,
+): SignupPlanOption[] {
+  if (!plans?.length) return CAUCE_FALLBACK_PLANS;
+  return [...plans]
+    .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
+    .map(mapPlan);
+}
+
+function pickPlanOption(
+  plans: SignupPlanOption[],
   planId?: string,
-): GroupPlanPublic | null {
-  if (!plans?.length) return null;
+): SignupPlanOption | null {
+  if (!plans.length) return null;
   if (planId) {
-    const hit = plans.find((p) => p.plan_id.trim().toLowerCase() === planId.toLowerCase());
+    const hit = plans.find((p) => p.plan_id === planId);
     if (hit) return hit;
   }
   return (
-    plans.find((p) => p.plan_id.trim().toLowerCase() === CAUCE_TRIAL_PLAN_ID) ??
+    plans.find((p) => p.plan_id === CAUCE_DEFAULT_PLAN_ID) ??
     plans.find((p) => p.highlighted) ??
     plans[0] ??
     null
@@ -125,17 +258,17 @@ function pickPlan(
 }
 
 /**
- * Copy de precio del trial. Preferencia: plan elegido / mensual de landing-config;
- * fallback si falta el catálogo.
+ * Copy de trial: "1er mes gratis" + precio del plan elegido.
  */
 export function formatTrialPricingCopy(
   config: LandingConfig | null | undefined,
   planId?: string,
 ): string {
-  const base = "30 días gratis, sin tarjeta; luego se cobra mensualmente";
-  const plan = pickPlan(config?.plans, planId);
-  if (plan?.price_uf != null && Number(plan.price_uf) > 0) {
-    return `${base} (${plan.price_uf} UF/mes).`;
+  const plans = plansFromLandingConfig(config);
+  const plan = pickPlanOption(plans, planId);
+  const base = "1er mes gratis, sin tarjeta; luego se cobra mensualmente";
+  if (plan?.price_clp != null) {
+    return `${base} (${formatPlanPriceClp(plan)}).`;
   }
   const note =
     config?.group?.pricing_note?.trim() ||

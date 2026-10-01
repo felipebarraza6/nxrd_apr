@@ -105,7 +105,7 @@ export function createChangePlanCheckout(
 
 // ── Catálogo público de planes (landing) ─────────────────────────────────────
 
-/** Plan de un grupo expuesto públicamente (precio en UF, null = a convenir). */
+/** Plan de un grupo expuesto públicamente (Cauce: CLP + UF). */
 export interface GroupPlanPublic {
   plan_id: string;
   display_name: string;
@@ -113,18 +113,25 @@ export interface GroupPlanPublic {
   description: string;
   /** Bullets del plan (fallback a los recursos del copy local). */
   features: string[];
-  /** Límites del plan (ej: usuarios, sucursales, POS). */
+  /** Límites del plan (ej: arranques_min/max, usuarios). */
   limits: Record<string, unknown>;
+  /** Precio mensual CLP (Cauce); null = a convenir / “desde”. */
+  price_clp?: number | string | null;
   price_uf: number | null;
+  /** Audiencia / rango de arranques (copy). */
+  audience?: string | null;
+  duration_days?: number | null;
   sort_order: number;
   /** Plan destacado en la landing (sello configurable vía `badge`). */
   highlighted: boolean;
   badge: string | null;
+  allow_installments?: boolean;
+  max_installments?: number | null;
 }
 
 /** Grupo de planes con su catálogo activo: GET /public/<grupo>-plans/. */
 export interface PlanGroupPublic {
-  /** Slug del grupo (ej: "frig"). */
+  /** Slug del grupo (ej: "cauce"). */
   name: string;
   display_name: string;
   description: string;
@@ -186,6 +193,8 @@ export interface LandingBrand {
 export interface LandingConfig {
   group: LandingGroupConfig;
   brand: LandingBrand | null;
+  /** Sucursal/org resuelta (opcional; cauce landing). */
+  branch?: Record<string, unknown> | null;
   plans: GroupPlanPublic[];
   /** Bloque de contenido de la landing (todo opcional: el front tiene fallbacks). */
   content?: LandingContent | null;

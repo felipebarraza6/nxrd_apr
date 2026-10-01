@@ -17,8 +17,9 @@ import {
   type LandingConfig,
 } from "@/lib/api/checkout";
 import {
+  CAUCE_DEFAULT_PLAN_ID,
   CAUCE_GROUP,
-  CAUCE_TRIAL_PLAN_ID,
+  formatPlanPriceClp,
   formatTrialPricingCopy,
   isImmediateTrialPaid,
   plansFromLandingConfig,
@@ -39,7 +40,7 @@ export default function SignupPage() {
     business_name: "",
     contact_name: "",
     email: "",
-    plan_id: CAUCE_TRIAL_PLAN_ID,
+    plan_id: CAUCE_DEFAULT_PLAN_ID,
   });
   const [fieldErrors, setFieldErrors] = useState<SignupFieldErrors>({});
   const [formError, setFormError] = useState<string | null>(null);
@@ -55,10 +56,10 @@ export default function SignupPage() {
         setLanding(cfg);
         const list = plansFromLandingConfig(cfg);
         const preferred =
+          list.find((p) => p.plan_id === CAUCE_DEFAULT_PLAN_ID)?.plan_id ??
           list.find((p) => p.highlighted)?.plan_id ??
-          list.find((p) => p.plan_id === CAUCE_TRIAL_PLAN_ID)?.plan_id ??
           list[0]?.plan_id ??
-          CAUCE_TRIAL_PLAN_ID;
+          CAUCE_DEFAULT_PLAN_ID;
         setValues((s) => ({ ...s, plan_id: preferred }));
       })
       .catch(() => {
@@ -223,7 +224,7 @@ function PlanSelector({
   return (
     <fieldset className="flex flex-col gap-2">
       <legend className="font-accent text-[11px] font-medium uppercase tracking-[0.18em] text-papel/55">
-        Plan
+        Plan · 1er mes gratis
       </legend>
       <div className="flex flex-col gap-2">
         {plans.map((plan) => {
@@ -241,28 +242,43 @@ function PlanSelector({
               )}
               aria-pressed={selected}
             >
-              <div className="flex items-center justify-between gap-2">
-                <span className="font-heading text-sm font-semibold text-papel">
-                  {plan.display_name}
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="font-heading text-sm font-semibold text-papel">
+                      {plan.display_name}
+                    </span>
+                    {plan.badge ? (
+                      <span className="font-accent text-[10px] uppercase tracking-[0.14em] text-azul">
+                        {plan.badge}
+                      </span>
+                    ) : plan.highlighted ? (
+                      <span className="font-accent text-[10px] uppercase tracking-[0.14em] text-azul">
+                        Recomendado
+                      </span>
+                    ) : null}
+                  </div>
+                  {plan.audience ? (
+                    <p className="mt-0.5 font-accent text-[10px] uppercase tracking-[0.14em] text-papel/50">
+                      {plan.audience}
+                    </p>
+                  ) : null}
+                </div>
+                <span className="shrink-0 text-right font-accent text-[11px] uppercase tracking-[0.12em] text-papel/75">
+                  {formatPlanPriceClp(plan)}
                 </span>
-                {plan.price_uf != null && Number(plan.price_uf) > 0 ? (
-                  <span className="font-accent text-[11px] uppercase tracking-[0.14em] text-papel/60">
-                    {plan.price_uf} UF/mes
-                  </span>
-                ) : plan.badge ? (
-                  <span className="font-accent text-[10px] uppercase tracking-[0.14em] text-azul">
-                    {plan.badge}
-                  </span>
-                ) : plan.highlighted ? (
-                  <span className="font-accent text-[10px] uppercase tracking-[0.14em] text-azul">
-                    Recomendado
-                  </span>
-                ) : null}
               </div>
               {plan.description ? (
-                <p className="mt-1 text-xs leading-relaxed text-papel/55">
+                <p className="mt-1.5 text-xs leading-relaxed text-papel/55">
                   {plan.description}
                 </p>
+              ) : null}
+              {plan.features.length > 0 ? (
+                <ul className="mt-2 space-y-0.5 text-[11px] text-papel/50">
+                  {plan.features.slice(0, 4).map((f) => (
+                    <li key={f}>· {f}</li>
+                  ))}
+                </ul>
               ) : null}
             </button>
           );
