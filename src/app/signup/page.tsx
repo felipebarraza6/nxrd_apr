@@ -1,39 +1,48 @@
 "use client";
 
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  AuthBrandHeader,
+  AuthFormCard,
+  AuthWaterShell,
+} from "@/components/auth/auth-water-shell";
 import { ApiError, formatFieldErrors } from "@/lib/api/client";
 import {
   createCauceCheckout,
   fetchLandingConfig,
+  type LandingConfig,
 } from "@/lib/api/checkout";
 import {
   CAUCE_GROUP,
+  CAUCE_TRIAL_PLAN_ID,
   formatTrialPricingCopy,
   isImmediateTrialPaid,
+  plansFromLandingConfig,
   validateSignupForm,
   type SignupFieldErrors,
   type SignupFormValues,
+  type SignupPlanOption,
 } from "@/lib/cauce-checkout";
-import { FRIG_IDENTITY_STYLE } from "@/lib/frig-identity";
-import { HeroPlexus } from "@/components/landing/hero-plexus";
 import { cn } from "@/lib/utils";
 
 type Phase = "form" | "done" | "redirecting";
 
 export default function SignupPage() {
   const router = useRouter();
+  const [landing, setLanding] = useState<LandingConfig | null>(null);
+  const plans = useMemo(() => plansFromLandingConfig(landing), [landing]);
   const [values, setValues] = useState<SignupFormValues>({
     business_name: "",
     contact_name: "",
     email: "",
+    plan_id: CAUCE_TRIAL_PLAN_ID,
   });
   const [fieldErrors, setFieldErrors] = useState<SignupFieldErrors>({});
   const [formError, setFormError] = useState<string | null>(null);
-  const [pricingCopy, setPricingCopy] = useState(formatTrialPricingCopy(null));
   const [loading, setLoading] = useState(false);
   const [phase, setPhase] = useState<Phase>("form");
   const [loginSlug, setLoginSlug] = useState<string | null>(null);
@@ -42,15 +51,25 @@ export default function SignupPage() {
     let cancelled = false;
     fetchLandingConfig(CAUCE_GROUP)
       .then((cfg) => {
-        if (!cancelled) setPricingCopy(formatTrialPricingCopy(cfg));
+        if (cancelled) return;
+        setLanding(cfg);
+        const list = plansFromLandingConfig(cfg);
+        const preferred =
+          list.find((p) => p.highlighted)?.plan_id ??
+          list.find((p) => p.plan_id === CAUCE_TRIAL_PLAN_ID)?.plan_id ??
+          list[0]?.plan_id ??
+          CAUCE_TRIAL_PLAN_ID;
+        setValues((s) => ({ ...s, plan_id: preferred }));
       })
       .catch(() => {
-        if (!cancelled) setPricingCopy(formatTrialPricingCopy(null));
+        if (!cancelled) setLanding(null);
       });
     return () => {
       cancelled = true;
     };
   }, []);
+
+  const pricingCopy = formatTrialPricingCopy(landing, values.plan_id);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -78,7 +97,6 @@ export default function SignupPage() {
         window.location.assign(res.payment_url);
         return;
       }
-      // Sin payment_url ni trial inmediato: ir a resultado para polling.
       router.replace(`/checkout/result?checkout=${encodeURIComponent(res.checkout_id)}`);
     } catch (err) {
       const fields = formatFieldErrors(err);
@@ -86,9 +104,9 @@ export default function SignupPage() {
       if (fields.business_name) mapped.business_name = fields.business_name;
       if (fields.contact_name) mapped.contact_name = fields.contact_name;
       if (fields.email) mapped.email = fields.email;
+      if (fields.plan_id) mapped.plan_id = fields.plan_id;
       setFieldErrors(mapped);
-      const hasField = Object.keys(mapped).length > 0;
-      if (!hasField) {
+      if (Object.keys(mapped).length === 0) {
         setFormError(
           err instanceof ApiError
             ? err.message
@@ -103,64 +121,37 @@ export default function SignupPage() {
   }
 
   return (
-    <div
-      className="relative flex min-h-dvh flex-1 flex-col bg-[#061624] text-zinc-100"
-      style={FRIG_IDENTITY_STYLE}
-    >
-      <div aria-hidden className="pointer-events-none absolute inset-0">
-        <div
-          className="absolute inset-x-0 bottom-0 h-1/2"
-          style={{
-            background:
-              "radial-gradient(120% 90% at 50% 115%, rgba(56,189,248,0.16), transparent 70%)",
-          }}
-        />
-        <HeroPlexus className="absolute inset-0 opacity-50" />
-      </div>
+    <AuthWaterShell>
+      <AuthBrandHeader title="Crea tu APR en minutos" subtitle={pricingCopy} />
 
-      <main className="relative z-[1] mx-auto flex w-full max-w-md flex-1 flex-col justify-center px-4 py-12">
-        <div className="mb-8 flex flex-col items-center gap-3 text-center">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/brand/cauce-wordmark-light.svg"
-            alt="Cauce"
-            className="h-16 w-auto sm:h-20"
-          />
-          <p className="text-[10px] font-semibold uppercase tracking-[0.25em] text-sky-300/90">
-            un producto de Smart APR SpA
+      {phase === "done" ? (
+        <AuthFormCard className="text-center">
+          <p className="font-heading text-base font-semibold text-azul">Cuenta lista</p>
+          <p className="mt-2 text-sm leading-relaxed text-papel/75">
+            Revisa tu correo: te enviamos un enlace mágico para entrar a Cauce.
+            No necesitas tarjeta durante la prueba.
           </p>
-          <h1 className="mt-2 font-display text-xl font-semibold tracking-tight sm:text-2xl">
-            Crea tu APR en minutos
-          </h1>
-          <p className="text-sm text-zinc-400">{pricingCopy}</p>
-        </div>
-
-        {phase === "done" ? (
-          <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-6 text-center">
-            <p className="text-base font-semibold text-sky-200">Cuenta lista</p>
-            <p className="mt-2 text-sm leading-relaxed text-zinc-300">
-              Revisa tu correo: te enviamos un enlace mágico para entrar a Cauce.
-              No necesitas tarjeta durante la prueba.
+          {loginSlug ? (
+            <p className="mt-3 font-accent text-[11px] uppercase tracking-[0.18em] text-papel/45">
+              Portal: /{loginSlug}
             </p>
-            {loginSlug ? (
-              <p className="mt-3 text-xs text-zinc-500">
-                Portal:{" "}
-                <span className="font-medium text-zinc-300">/{loginSlug}</span>
-              </p>
-            ) : null}
-            <Link
-              href="/login"
-              className="mt-6 inline-flex h-10 items-center justify-center rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground"
-            >
-              Ir al inicio de sesión
-            </Link>
-          </div>
-        ) : (
-          <form
-            onSubmit={handleSubmit}
-            className="flex flex-col gap-4 rounded-2xl border border-white/10 bg-white/[0.03] p-5 sm:p-6"
-            noValidate
+          ) : null}
+          <Link
+            href="/login"
+            className="mt-6 inline-flex h-10 items-center justify-center rounded-lg bg-azul px-4 font-accent text-[12px] font-medium uppercase tracking-[0.18em] text-papel hover:bg-azul-deep"
           >
+            Ir al inicio de sesión
+          </Link>
+        </AuthFormCard>
+      ) : (
+        <AuthFormCard>
+          <form onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
+            <PlanSelector
+              plans={plans}
+              value={values.plan_id}
+              error={fieldErrors.plan_id}
+              onChange={(plan_id) => setValues((s) => ({ ...s, plan_id }))}
+            />
             <Field
               id="business_name"
               label="Nombre de la APR"
@@ -189,7 +180,7 @@ export default function SignupPage() {
             />
 
             {formError ? (
-              <p className="rounded-lg bg-danger/10 px-3 py-2 text-sm text-danger">
+              <p className="rounded-lg bg-danger/15 px-3 py-2 text-sm text-danger">
                 {formError}
               </p>
             ) : null}
@@ -198,23 +189,87 @@ export default function SignupPage() {
               type="submit"
               size="lg"
               disabled={loading || phase === "redirecting"}
-              className="mt-1 rounded-lg bg-primary text-white hover:bg-primary/90"
+              className="mt-1 rounded-lg bg-azul font-accent text-[12px] uppercase tracking-[0.18em] text-papel hover:bg-azul-deep"
             >
               {loading || phase === "redirecting"
                 ? "Creando cuenta…"
                 : "Empezar prueba gratis"}
             </Button>
 
-            <p className="text-center text-xs text-zinc-500">
+            <p className="text-center text-xs text-papel/50">
               ¿Ya tienes cuenta?{" "}
-              <Link href="/login" className="font-medium text-sky-300 hover:underline">
+              <Link href="/login" className="font-medium text-azul hover:underline">
                 Inicia sesión
               </Link>
             </p>
           </form>
-        )}
-      </main>
-    </div>
+        </AuthFormCard>
+      )}
+    </AuthWaterShell>
+  );
+}
+
+function PlanSelector({
+  plans,
+  value,
+  error,
+  onChange,
+}: {
+  plans: SignupPlanOption[];
+  value: string;
+  error?: string;
+  onChange: (id: string) => void;
+}) {
+  return (
+    <fieldset className="flex flex-col gap-2">
+      <legend className="font-accent text-[11px] font-medium uppercase tracking-[0.18em] text-papel/55">
+        Plan
+      </legend>
+      <div className="flex flex-col gap-2">
+        {plans.map((plan) => {
+          const selected = plan.plan_id === value;
+          return (
+            <button
+              key={plan.plan_id}
+              type="button"
+              onClick={() => onChange(plan.plan_id)}
+              className={cn(
+                "rounded-xl border px-3 py-3 text-left transition-colors",
+                selected
+                  ? "border-azul bg-azul/20"
+                  : "border-papel/15 bg-tinta/40 hover:border-papel/30",
+              )}
+              aria-pressed={selected}
+            >
+              <div className="flex items-center justify-between gap-2">
+                <span className="font-heading text-sm font-semibold text-papel">
+                  {plan.display_name}
+                </span>
+                {plan.price_uf != null && Number(plan.price_uf) > 0 ? (
+                  <span className="font-accent text-[11px] uppercase tracking-[0.14em] text-papel/60">
+                    {plan.price_uf} UF/mes
+                  </span>
+                ) : plan.badge ? (
+                  <span className="font-accent text-[10px] uppercase tracking-[0.14em] text-azul">
+                    {plan.badge}
+                  </span>
+                ) : plan.highlighted ? (
+                  <span className="font-accent text-[10px] uppercase tracking-[0.14em] text-azul">
+                    Recomendado
+                  </span>
+                ) : null}
+              </div>
+              {plan.description ? (
+                <p className="mt-1 text-xs leading-relaxed text-papel/55">
+                  {plan.description}
+                </p>
+              ) : null}
+            </button>
+          );
+        })}
+      </div>
+      {error ? <p className="text-xs text-danger">{error}</p> : null}
+    </fieldset>
   );
 }
 
@@ -239,7 +294,10 @@ function Field({
 }) {
   return (
     <div className="flex flex-col gap-1.5">
-      <label htmlFor={id} className="text-sm font-medium text-zinc-200">
+      <label
+        htmlFor={id}
+        className="font-accent text-[11px] font-medium uppercase tracking-[0.18em] text-papel/55"
+      >
         {label}
       </label>
       <Input
@@ -250,7 +308,10 @@ function Field({
         placeholder={placeholder}
         aria-invalid={Boolean(error)}
         onChange={(e) => onChange(e.target.value)}
-        className={cn(error && "border-danger")}
+        className={cn(
+          "border-papel/20 bg-tinta/50 text-papel placeholder:text-papel/35",
+          error && "border-danger",
+        )}
       />
       {error ? <p className="text-xs text-danger">{error}</p> : null}
     </div>

@@ -3,9 +3,13 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import {
+  AuthBrandHeader,
+  AuthFormCard,
+  AuthWaterShell,
+} from "@/components/auth/auth-water-shell";
 import { fetchCheckoutStatus } from "@/lib/api/checkout";
 import { CAUCE_GROUP } from "@/lib/cauce-checkout";
-import { FRIG_IDENTITY_STYLE } from "@/lib/frig-identity";
 
 const STORAGE_PREFIX = "cauce.checkout_id.";
 const POLL_MS = 3000;
@@ -39,7 +43,6 @@ export default function CheckoutResultPage() {
     }
 
     if (!checkoutId) {
-      // Sin id: legacy Flow → volver a home.
       router.replace("/");
       return;
     }
@@ -99,44 +102,38 @@ export default function CheckoutResultPage() {
   }, [router]);
 
   return (
-    <div
-      className="flex min-h-dvh flex-1 flex-col items-center justify-center gap-6 bg-[#061624] px-4 text-zinc-100"
-      style={FRIG_IDENTITY_STYLE}
-    >
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src="/brand/cauce-symbol.svg" alt="" className="h-10 w-auto opacity-90" />
-      <div className="flex w-full max-w-sm flex-col items-center gap-4 rounded-2xl border border-white/10 bg-white/[0.03] px-8 py-10 text-center">
+    <AuthWaterShell>
+      <AuthBrandHeader />
+      <AuthFormCard className="text-center">
         {phase === "loading" ? (
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-muted border-t-primary" />
+          <div className="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-papel/20 border-t-azul" />
         ) : null}
-        <div>
-          <p className="text-sm font-semibold tracking-wide">
-            {phase === "paid"
-              ? "Cuenta activada"
-              : phase === "failed"
-                ? "Pago no completado"
-                : phase === "timeout"
-                  ? "Pendiente de confirmación"
-                  : "Procesando…"}
-          </p>
-          <p className="mt-2 text-sm leading-relaxed text-zinc-400">{message}</p>
-        </div>
+        <p className="mt-3 font-heading text-sm font-semibold tracking-wide text-papel">
+          {phase === "paid"
+            ? "Cuenta activada"
+            : phase === "failed"
+              ? "Pago no completado"
+              : phase === "timeout"
+                ? "Pendiente de confirmación"
+                : "Procesando…"}
+        </p>
+        <p className="mt-2 text-sm leading-relaxed text-papel/65">{message}</p>
         {phase !== "loading" ? (
-          <div className="flex flex-col gap-2 pt-2">
+          <div className="mt-6 flex flex-col gap-2">
             <Link
               href="/login"
-              className="inline-flex h-9 items-center justify-center rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground"
+              className="inline-flex h-10 items-center justify-center rounded-lg bg-azul px-4 font-accent text-[12px] font-medium uppercase tracking-[0.18em] text-papel hover:bg-azul-deep"
             >
               Ir al inicio de sesión
             </Link>
             {phase === "failed" ? (
-              <Link href="/signup" className="text-xs text-sky-300 hover:underline">
+              <Link href="/signup" className="text-xs text-azul hover:underline">
                 Volver al registro
               </Link>
             ) : null}
           </div>
         ) : null}
-      </div>
-    </div>
+      </AuthFormCard>
+    </AuthWaterShell>
   );
 }

@@ -19,11 +19,14 @@ import type { BranchThemeConfig } from "@/lib/types";
 import { setToken } from "@/lib/api/session-storage";
 import { pickDefaultBranchId } from "@/lib/branch-session";
 import { cn } from "@/lib/utils";
-import { FRIG_IDENTITY_STYLE, FRIG_REPO_URL, setTenantFavicon } from "@/lib/frig-identity";
+import { FRIG_REPO_URL, setTenantFavicon } from "@/lib/frig-identity";
 import { getHomeRouteForUser } from "@/lib/home-route";
 import { STORAGE, migrateFrigStorageKeys } from "@/lib/storage-keys";
-import { HeroPlexus } from "@/components/landing/hero-plexus";
 import { BrandLogo } from "@/components/brand-logo";
+import {
+  AuthFormCard,
+  AuthWaterBackdrop,
+} from "@/components/auth/auth-water-shell";
 import type { LoginCompleteResponse } from "@/lib/types";
 
 if (typeof window !== "undefined") {
@@ -353,41 +356,26 @@ export default function LoginPage() {
     }
   }
 
-  // Identidad Frig SOLO sin tenant: con branding de sucursal la paleta la
-  // deriva applyThemeConfig desde su primary (lo que eligió es lo que ve).
+  // Identidad Cauce/Smart APR sin tenant: fondo agua WebGL.
+  // Con branding de sucursal la paleta la deriva applyThemeConfig.
   const isFrigIdentity = !brandTheme;
   const darkSection = isFrigIdentity || brandTheme?.algorithm === "dark";
 
   return (
     <div
-      className={cn("relative flex min-h-dvh flex-1 flex-col", isFrigIdentity ? "bg-[#0a0a0a]" : "bg-background text-foreground")}
-      style={isFrigIdentity ? FRIG_IDENTITY_STYLE : undefined}
+      className={cn(
+        "relative flex min-h-dvh flex-1 flex-col overflow-hidden",
+        isFrigIdentity ? "bg-tinta text-papel" : "bg-background text-foreground",
+      )}
     >
-      {/* Fondo único de identidad: horizonte cálido + red que reacciona al mouse */}
-      <div aria-hidden className="pointer-events-none absolute inset-0">
-        <div
-          className="absolute inset-x-0 bottom-0 h-1/2"
-          style={{
-            background:
-              "radial-gradient(120% 90% at 50% 115%, rgba(56,189,248,0.16), transparent 70%)",
-          }}
-        />
-        <div
-          className="absolute inset-0 opacity-70"
-          style={{
-            maskImage:
-              "radial-gradient(140% 140% at 50% 50%, black 55%, transparent 100%)",
-            WebkitMaskImage:
-              "radial-gradient(140% 140% at 50% 50%, black 55%, transparent 100%)",
-          }}
-        >
-          <HeroPlexus className="h-full w-full" />
-        </div>
-      </div>
+      {isFrigIdentity ? (
+        <AuthWaterBackdrop />
+      ) : (
+        <div aria-hidden className="pointer-events-none absolute inset-0 bg-background" />
+      )}
       <section
-        style={isFrigIdentity ? { "--input": "#1d3a55", "--border": "#1d3a55", "--muted": "#10293f", "--muted-foreground": "#7fb3d5", "--accent": "#10293f", "--background": "#061624", "--card": "#0b2239" } as React.CSSProperties : undefined}
         className={cn(
-          "relative flex min-h-dvh flex-1 flex-col items-center justify-center px-4 py-10",
+          "relative z-10 flex min-h-dvh flex-1 flex-col items-center justify-center px-4 py-10",
           darkSection ? "dark text-white" : "text-foreground",
         )}
       >
@@ -397,6 +385,11 @@ export default function LoginPage() {
           transition={{ duration: 0.25, ease: "easeOut" }}
           className="relative flex w-full max-w-sm flex-col overflow-hidden px-1 font-sans lg:min-h-[600px] lg:justify-center"
         >
+          <AuthFormCard
+            className={cn(
+              !isFrigIdentity && "border-border bg-card/90 text-card-foreground",
+            )}
+          >
           {/* Fade marcado entre modos: el contenido se desvanece con blur
               mientras la ola de nodos cubre el fondo y trae el siguiente. */}
           <AnimatePresence mode="wait">
@@ -409,7 +402,6 @@ export default function LoginPage() {
             // y recién emerge: primero el fondo, después el formulario.
             transition={{ duration: 0.65, delay: 0.45, ease: [0.22, 0.61, 0.36, 1] }}
             className="flex w-full flex-col"
-            style={{ textShadow: "0 2px 18px rgba(0,0,0,0.75)" }}
           >
           {/* El wordmark de la marca presidiendo el formulario */}
           {/* Marca que preside el formulario: la del tenant si hay branding
@@ -613,11 +605,11 @@ export default function LoginPage() {
                   ¿Olvidaste tu contraseña? Recupérala aquí
                 </button>
               </div>
-              <p className="mt-4 text-center text-xs text-muted-foreground">
+              <p className="mt-4 text-center text-xs text-papel/55">
                 ¿Nueva APR?{" "}
                 <a
                   href="/signup"
-                  className="font-medium text-sky-300 underline-offset-4 hover:underline"
+                  className="font-medium text-azul underline-offset-4 hover:underline"
                 >
                   Empieza 30 días gratis
                 </a>
@@ -658,6 +650,7 @@ export default function LoginPage() {
           )}
           </motion.div>
           </AnimatePresence>
+          </AuthFormCard>
         </motion.div>
 
         {success && (
@@ -679,7 +672,7 @@ export default function LoginPage() {
             transition={{ duration: 0.7, ease: "easeOut" }}
             style={{
               background:
-                "radial-gradient(120% 120% at 50% 100%, rgba(56,189,248,0.4), transparent 60%)",
+                "radial-gradient(120% 120% at 50% 100%, rgba(56,52,255,0.45), transparent 60%)",
             }}
           />
         )}

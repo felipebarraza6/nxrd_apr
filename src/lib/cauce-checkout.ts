@@ -14,22 +14,45 @@ export const CAUCE_GROUP = "cauce" as const;
 /** Plan por defecto del trial APR. */
 export const CAUCE_TRIAL_PLAN_ID = "mensual" as const;
 
+/** Fallback local si landing-config aún no trae planes (backend en progreso). */
+export const CAUCE_FALLBACK_PLANS: SignupPlanOption[] = [
+  {
+    plan_id: CAUCE_TRIAL_PLAN_ID,
+    display_name: "Plan Mensual",
+    description: "Gestión completa del APR con 30 días de prueba.",
+    price_uf: null,
+    highlighted: true,
+    badge: null,
+  },
+];
+
 export const CAUCE_FRONTEND_URL = "https://cauce.smartapr.cl";
+
+export type SignupPlanOption = {
+  plan_id: string;
+  display_name: string;
+  description: string;
+  price_uf: number | null;
+  highlighted: boolean;
+  badge?: string | null;
+};
 
 export type SignupFormValues = {
   business_name: string;
   contact_name: string;
   email: string;
+  plan_id: string;
 };
 
 export type SignupFieldErrors = Partial<Record<keyof SignupFormValues, string>>;
 
-/** Validación local antes de POST (campos requeridos + email). */
+/** Validación local antes de POST (campos requeridos + email + plan). */
 export function validateSignupForm(values: SignupFormValues): SignupFieldErrors {
   const errors: SignupFieldErrors = {};
   const business = values.business_name.trim();
   const contact = values.contact_name.trim();
   const email = values.email.trim().toLowerCase();
+  const planId = values.plan_id.trim();
 
   if (!business) errors.business_name = "Indica el nombre de tu APR.";
   if (!contact) errors.contact_name = "Indica el nombre de contacto.";
@@ -38,6 +61,7 @@ export function validateSignupForm(values: SignupFormValues): SignupFieldErrors 
   } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     errors.email = "Correo inválido.";
   }
+  if (!planId) errors.plan_id = "Elige un plan.";
   return errors;
 }
 
@@ -46,6 +70,7 @@ export function normalizeSignupValues(values: SignupFormValues): SignupFormValue
     business_name: values.business_name.trim(),
     contact_name: values.contact_name.trim(),
     email: values.email.trim().toLowerCase(),
+    plan_id: (values.plan_id || CAUCE_TRIAL_PLAN_ID).trim() || CAUCE_TRIAL_PLAN_ID,
   };
 }
 
@@ -54,15 +79,43 @@ export function buildCauceCheckoutBody(values: SignupFormValues) {
   const normalized = normalizeSignupValues(values);
   return {
     checkout_type: CAUCE_CHECKOUT_TYPE,
-    plan_id: CAUCE_TRIAL_PLAN_ID,
+    plan_id: normalized.plan_id,
     business_name: normalized.business_name,
     contact_name: normalized.contact_name,
     email: normalized.email,
   };
 }
 
-function pickMensualPlan(plans: GroupPlanPublic[] | undefined): GroupPlanPublic | null {
+/**
+ * Planes para el selector de /signup desde landing-config.
+ * Si el backend aún no publica planes, usa fallback local (mensual).
+ */
+export function plansFromLandingConfig(
+  config: LandingConfig | null | undefined,
+): SignupPlanOption[] {
+  const raw = config?.plans ?? [];
+  if (raw.length === 0) return CAUCE_FALLBACK_PLANS;
+  return [...raw]
+    .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
+    .map((p) => ({
+      plan_id: p.plan_id,
+      display_name: p.display_name,
+      description: p.description ?? "",
+      price_uf: p.price_uf,
+      highlighted: Boolean(p.highlighted),
+      badge: p.badge ?? null,
+    }));
+}
+
+function pickPlan(
+  plans: GroupPlanPublic[] | undefined,
+  planId?: string,
+): GroupPlanPublic | null {
   if (!plans?.length) return null;
+  if (planId) {
+    const hit = plans.find((p) => p.plan_id.trim().toLowerCase() === planId.toLowerCase());
+    if (hit) return hit;
+  }
   return (
     plans.find((p) => p.plan_id.trim().toLowerCase() === CAUCE_TRIAL_PLAN_ID) ??
     plans.find((p) => p.highlighted) ??
@@ -72,12 +125,15 @@ function pickMensualPlan(plans: GroupPlanPublic[] | undefined): GroupPlanPublic 
 }
 
 /**
- * Copy de precio del trial. Preferencia: plan mensual de landing-config;
+ * Copy de precio del trial. Preferencia: plan elegido / mensual de landing-config;
  * fallback si falta el catálogo.
  */
-export function formatTrialPricingCopy(config: LandingConfig | null | undefined): string {
+export function formatTrialPricingCopy(
+  config: LandingConfig | null | undefined,
+  planId?: string,
+): string {
   const base = "30 días gratis, sin tarjeta; luego se cobra mensualmente";
-  const plan = pickMensualPlan(config?.plans);
+  const plan = pickPlan(config?.plans, planId);
   if (plan?.price_uf != null && Number(plan.price_uf) > 0) {
     return `${base} (${plan.price_uf} UF/mes).`;
   }

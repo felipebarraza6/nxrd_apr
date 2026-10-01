@@ -6,21 +6,31 @@ import {
   formatTrialPricingCopy,
   getTrialBannerState,
   isImmediateTrialPaid,
+  plansFromLandingConfig,
   validateSignupForm,
 } from "@/lib/cauce-checkout";
 
 describe("validateSignupForm", () => {
   it("exige nombre APR, contacto y email válido", () => {
-    expect(validateSignupForm({ business_name: "", contact_name: "", email: "" })).toEqual({
+    expect(
+      validateSignupForm({
+        business_name: "",
+        contact_name: "",
+        email: "",
+        plan_id: "",
+      }),
+    ).toEqual({
       business_name: "Indica el nombre de tu APR.",
       contact_name: "Indica el nombre de contacto.",
       email: "Indica un correo.",
+      plan_id: "Elige un plan.",
     });
     expect(
       validateSignupForm({
         business_name: "APR Norte",
         contact_name: "Ana",
         email: "malo",
+        plan_id: "mensual",
       }).email,
     ).toBe("Correo inválido.");
     expect(
@@ -28,27 +38,80 @@ describe("validateSignupForm", () => {
         business_name: "APR Norte",
         contact_name: "Ana",
         email: "ana@apr.cl",
+        plan_id: "mensual",
       }),
     ).toEqual({});
   });
 });
 
 describe("buildCauceCheckoutBody", () => {
-  it("incluye checkout_type aislado, plan mensual y campos normalizados", () => {
+  it("incluye checkout_type aislado, plan elegido y campos normalizados", () => {
     expect(
       buildCauceCheckoutBody({
         business_name: "  APR Valle  ",
         contact_name: " María ",
         email: "  Maria@APR.CL ",
+        plan_id: "crecimiento",
       }),
     ).toEqual({
       checkout_type: CAUCE_CHECKOUT_TYPE,
-      plan_id: CAUCE_TRIAL_PLAN_ID,
+      plan_id: "crecimiento",
       business_name: "APR Valle",
       contact_name: "María",
       email: "maria@apr.cl",
     });
     expect(CAUCE_CHECKOUT_TYPE).toBe("cauce");
+  });
+});
+
+describe("plansFromLandingConfig", () => {
+  it("usa fallback mensual si no hay planes", () => {
+    const plans = plansFromLandingConfig(null);
+    expect(plans).toHaveLength(1);
+    expect(plans[0].plan_id).toBe(CAUCE_TRIAL_PLAN_ID);
+  });
+
+  it("mapea planes del landing-config ordenados", () => {
+    const plans = plansFromLandingConfig({
+      group: {
+        slug: "cauce",
+        display_name: "Cauce",
+        description: "",
+        integration_uf: 0,
+        frontend_url: "https://cauce.smartapr.cl",
+        contact_email: "a@b.cl",
+        pricing_note: "",
+        hero: null,
+        features: [],
+      },
+      brand: null,
+      plans: [
+        {
+          plan_id: "crecimiento",
+          display_name: "Crecimiento",
+          description: "101+",
+          features: [],
+          limits: {},
+          price_uf: 3,
+          sort_order: 2,
+          highlighted: false,
+          badge: null,
+        },
+        {
+          plan_id: "mensual",
+          display_name: "Comunidad",
+          description: "1-100",
+          features: [],
+          limits: {},
+          price_uf: 2,
+          sort_order: 1,
+          highlighted: true,
+          badge: "Popular",
+        },
+      ],
+    });
+    expect(plans.map((p) => p.plan_id)).toEqual(["mensual", "crecimiento"]);
+    expect(plans[0].badge).toBe("Popular");
   });
 });
 
@@ -179,6 +242,7 @@ describe("createCauceCheckout", () => {
       business_name: "APR Norte",
       contact_name: "Ana",
       email: "ana@apr.cl",
+      plan_id: "mensual",
     });
     expect(mockedFetch).toHaveBeenCalledWith("/public/cauce-checkout/", {
       method: "POST",
