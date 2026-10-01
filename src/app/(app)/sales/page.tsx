@@ -6,6 +6,7 @@
  */
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import dynamic from "next/dynamic";
 import {
@@ -193,6 +194,14 @@ export default function ChargesPage() {
             icon={Receipt}
             title="Sin cargos"
             description="Genera una corrida en Cobros de agua para crear los cargos del período."
+            action={
+              <Link
+                href="/billing"
+                className="inline-flex h-9 items-center justify-center rounded-md bg-azul px-4 text-sm font-medium text-white hover:bg-azul-deep"
+              >
+                Ir a cobros de agua
+              </Link>
+            }
           />
         ) : (
           <div className="overflow-hidden rounded-2xl border border-border">

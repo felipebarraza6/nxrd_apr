@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useRef, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -184,6 +185,14 @@ export default function ReadingsPage() {
             icon={NotebookPen}
             title="Sin medidores activos"
             description="Registra medidores en Puntos de medición para poder tomar lecturas."
+            action={
+              <Link
+                href="/meters"
+                className="inline-flex h-9 items-center justify-center rounded-md bg-azul px-4 text-sm font-medium text-white hover:bg-azul-deep"
+              >
+                Ir a medidores
+              </Link>
+            }
           />
         ) : (
           <div className="grid gap-3 sm:grid-cols-2">

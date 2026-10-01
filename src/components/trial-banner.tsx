@@ -4,15 +4,18 @@ import { useQuery } from "@tanstack/react-query";
 import { fetchBillingStatus } from "@/lib/api/checkout";
 import { getTrialBannerState } from "@/lib/cauce-checkout";
 import { useSessionStore } from "@/lib/store/session";
+import { logoutLocal } from "@/lib/logout-local";
 import { cn } from "@/lib/utils";
+import { useQueryClient } from "@tanstack/react-query";
 
 /**
  * Banner de trial (días restantes) o pantalla de bloqueo si access_active=false.
  * Datos: GET /api/plan-checkout/billing-status/ con X-Branch-ID.
  */
-export function TrialBanner() {
+export function TrialBanner({ forceOverlay = false }: { forceOverlay?: boolean }) {
   const branchId = useSessionStore((s) => s.currentBranchId);
   const hasUser = useSessionStore((s) => Boolean(s.user));
+  const queryClient = useQueryClient();
 
   const query = useQuery({
     queryKey: ["billing-status", branchId],
@@ -23,6 +26,9 @@ export function TrialBanner() {
   });
 
   const state = getTrialBannerState(query.data);
+
+  // Solo overlay forzado (p. ej. POS sin chrome) cuando el trial expiró.
+  if (forceOverlay && state.kind !== "expired") return null;
 
   if (state.kind === "none" || query.isError) return null;
 
@@ -40,12 +46,24 @@ export function TrialBanner() {
             continuar con el cobro mensual vía Flow; mientras tanto contacta a
             soporte si necesitas ayuda.
           </p>
-          <a
-            href="mailto:contacto@smartapr.cl?subject=Prueba%20Cauce%20terminada"
-            className="mt-5 inline-flex h-10 items-center justify-center rounded-none bg-azul px-4 font-accent text-[12px] font-medium uppercase tracking-[0.18em] text-white hover:bg-azul-deep"
-          >
-            Contactar soporte
-          </a>
+          <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:justify-center">
+            <a
+              href="mailto:contacto@smartapr.cl?subject=Prueba%20Cauce%20terminada"
+              className="inline-flex h-10 items-center justify-center rounded-none bg-azul px-4 font-accent text-[12px] font-medium uppercase tracking-[0.18em] text-white hover:bg-azul-deep"
+            >
+              Contactar soporte
+            </a>
+            <button
+              type="button"
+              className="inline-flex h-10 items-center justify-center rounded-none border border-tinta/20 px-4 font-accent text-[12px] font-medium uppercase tracking-[0.18em] text-tinta hover:bg-tinta/5"
+              onClick={async () => {
+                await logoutLocal(queryClient);
+                window.location.assign(window.location.origin + "/login");
+              }}
+            >
+              Cerrar sesión
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -67,7 +85,7 @@ export function TrialBanner() {
   );
 }
 
-/** True si el trial bloquea la app (para consumidores futuros). */
+/** True si el trial bloquea la app (para layout / POS). */
 export function useTrialAccessBlocked(): boolean {
   const branchId = useSessionStore((s) => s.currentBranchId);
   const hasUser = useSessionStore((s) => Boolean(s.user));

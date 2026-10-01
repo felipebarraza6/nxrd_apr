@@ -150,7 +150,7 @@ export default function ForgotPasswordPage() {
                   placeholder="tu@negocio.cl"
                 />
                 <p className="text-xs text-muted-foreground">
-                  Ingresa el correo con el que ingresas a FRIG.
+                  Ingresa el correo con el que ingresas a Cauce.
                 </p>
               </div>
 
@@ -185,7 +185,7 @@ export default function ForgotPasswordPage() {
                   rel="noreferrer"
                   className="font-medium underline-offset-4 transition-colors hover:text-foreground hover:underline"
                 >
-                  FRIG
+                  Smart APR
                 </a>
               </p>
               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -198,7 +198,7 @@ export default function ForgotPasswordPage() {
             </div>
           ) : (
             <p className={cn("mt-8 text-center text-xs text-muted-foreground")}>
-              Gestión comercial y gastronómica por FRIG
+              Cauce — un producto de Smart APR SpA
             </p>
           )}
         </motion.div>

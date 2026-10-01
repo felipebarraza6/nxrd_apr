@@ -16,7 +16,7 @@ import {
   applyThemeConfig,
 } from "@/lib/api/branches";
 import type { BranchThemeConfig } from "@/lib/types";
-import { setToken } from "@/lib/api/session-storage";
+import { setToken, getToken } from "@/lib/api/session-storage";
 import { pickDefaultBranchId } from "@/lib/branch-session";
 import { cn } from "@/lib/utils";
 import { FRIG_REPO_URL, setTenantFavicon } from "@/lib/frig-identity";
@@ -109,6 +109,8 @@ export default function LoginPage() {
   const setOwnedOrganizations = useSessionStore((s) => s.setOwnedOrganizations);
   const setFrontendConfig = useSessionStore((s) => s.setFrontendConfig);
   const setTheme = useSessionStore((s) => s.setTheme);
+  const user = useSessionStore((s) => s.user);
+  const hasHydrated = useSessionStore((s) => s.hasHydrated);
 
   const [mode, setMode] = useState<"login" | "forgot" | "set_password">("login");
   const [email, setEmail] = useState("");
@@ -127,7 +129,24 @@ export default function LoginPage() {
   // Remonta el mensaje de error para re-disparar el shake en cada intento.
   const [errorKey, setErrorKey] = useState(0);
 
-  function celebrateThen(callback: () => void) {
+  // Canje del magic-link de contratación: /login/<slug>?token=… llega aquí
+  // como ?branch=<slug>&token=<token>. Si el canje falla (expirado/inválido)
+  // se muestra el error y queda disponible el login normal con clave.
+  const [magicToken] = useState<string | null>(() =>
+    typeof window === "undefined"
+      ? null
+      : new URLSearchParams(window.location.search).get("token"),
+  );
+
+  // Sesión ya activa: no mostrar el formulario (salvo flujo magic/set_password).
+  useEffect(() => {
+    if (!hasHydrated) return;
+    if (magicToken || mode === "set_password") return;
+    if (!getToken()) return;
+    router.replace(getHomeRouteForUser(user));
+  }, [hasHydrated, user, router, magicToken, mode]);
+
+  function celebrateThen(callback: () => void, safetyPath = "/dashboard") {
     setSuccess(true);
     // Navegar pronto (el overlay sigue hasta el desmonte). La red de
     // seguridad es tardía a propósito: un 4s en conexiones lentas forzaba
@@ -135,7 +154,7 @@ export default function LoginPage() {
     window.setTimeout(callback, 700);
     window.setTimeout(() => {
       if (window.location.pathname === "/login") {
-        window.location.href = window.location.origin + "/dashboard";
+        window.location.href = window.location.origin + safetyPath;
       }
     }, 8000);
   }
@@ -252,29 +271,21 @@ export default function LoginPage() {
               // tema no crítico
             }
           }
-          celebrateThen(() =>
-            router.replace(getHomeRouteForUser(config.user, config.dashboard)),
-          );
+          const home = getHomeRouteForUser(config.user, config.dashboard);
+          celebrateThen(() => router.replace(home), home);
           return;
         } catch {
           // Falló frontend-config: el layout reactivará la sucursal por defecto.
         }
       }
       setSession(res.user, res.branches, res.permissions ?? null);
-      celebrateThen(() => router.replace("/dashboard"));
+      const home = getHomeRouteForUser(res.user);
+      celebrateThen(() => router.replace(home), home);
     },
     [router, setFrontendConfig, setSession, setOwnedOrganizations, setTheme],
   );
 
-  // Canje del magic-link de contratación: /login/<slug>?token=… llega aquí
-  // como ?branch=<slug>&token=<token>. Si el canje falla (expirado/inválido)
-  // se muestra el error y queda disponible el login normal con clave.
-  const [magicToken] = useState<string | null>(() =>
-    typeof window === "undefined"
-      ? null
-      : new URLSearchParams(window.location.search).get("token"),
-  );
-
+  // Canje del magic-link: el token ya se lee arriba en `magicToken`.
   useEffect(() => {
     if (!magicToken) return;
     let cancelled = false;
@@ -284,6 +295,9 @@ export default function LoginPage() {
         const res = await fetchMagicLogin(magicToken);
         if (cancelled) return;
         if (res.must_set_password) {
+          // El set-password requiere Authorization; sin token el client
+          // limpia storage y manda a /login (quema el magic link).
+          setToken(res.token);
           setMagicLoginResult(res);
           setMode("set_password");
         } else {
@@ -518,7 +532,7 @@ export default function LoginPage() {
                     placeholder="tu@negocio.cl"
                   />
                   <p className="text-xs text-muted-foreground">
-                    Ingresa el correo con el que ingresas a FRIG.
+                    Ingresa el correo con el que ingresas a Cauce.
                   </p>
                 </div>
 
@@ -621,14 +635,14 @@ export default function LoginPage() {
           {brandTheme ? (
             <div className="mt-8 flex flex-col items-center gap-1.5 text-xs text-muted-foreground">
               <p>
-                powered by{" "}
+                  powered by{" "}
                 <a
                   href={FRIG_REPO_URL}
                   target="_blank"
                   rel="noreferrer"
                   className="font-medium underline-offset-4 transition-colors hover:text-foreground hover:underline"
                 >
-                  FRIG
+                  Smart APR
                 </a>
               </p>
               {/* eslint-disable-next-line @next/next/no-img-element */}

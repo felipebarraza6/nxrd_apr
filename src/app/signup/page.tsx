@@ -19,6 +19,7 @@ import {
 import {
   CAUCE_DEFAULT_PLAN_ID,
   CAUCE_GROUP,
+  CAUCE_PLAN_IDS,
   formatPlanPriceClp,
   formatTrialPricingCopy,
   isImmediateTrialPaid,
@@ -29,11 +30,16 @@ import {
   type SignupPlanOption,
 } from "@/lib/cauce-checkout";
 import { cn } from "@/lib/utils";
+import { getToken } from "@/lib/api/session-storage";
+import { getHomeRouteForUser } from "@/lib/home-route";
+import { useSessionStore } from "@/lib/store/session";
 
 type Phase = "form" | "done" | "redirecting";
 
 export default function SignupPage() {
   const router = useRouter();
+  const user = useSessionStore((s) => s.user);
+  const hasHydrated = useSessionStore((s) => s.hasHydrated);
   const [landing, setLanding] = useState<LandingConfig | null>(null);
   const plans = useMemo(() => plansFromLandingConfig(landing), [landing]);
   const [values, setValues] = useState<SignupFormValues>({
@@ -47,6 +53,12 @@ export default function SignupPage() {
   const [loading, setLoading] = useState(false);
   const [phase, setPhase] = useState<Phase>("form");
   const [loginSlug, setLoginSlug] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!hasHydrated) return;
+    if (!getToken()) return;
+    router.replace(getHomeRouteForUser(user));
+  }, [hasHydrated, user, router]);
 
   useEffect(() => {
     const fromQuery =
@@ -70,7 +82,12 @@ export default function SignupPage() {
       .catch(() => {
         if (!cancelled) {
           setLanding(null);
-          if (fromQuery) setValues((s) => ({ ...s, plan_id: fromQuery }));
+          if (
+            fromQuery &&
+            (CAUCE_PLAN_IDS as readonly string[]).includes(fromQuery)
+          ) {
+            setValues((s) => ({ ...s, plan_id: fromQuery }));
+          }
         }
       });
     return () => {
@@ -132,6 +149,14 @@ export default function SignupPage() {
   return (
     <AuthWaterShell>
       <AuthBrandHeader title="Crea tu APR en minutos" subtitle={pricingCopy} />
+      <p className="mb-4 text-center">
+        <Link
+          href="/"
+          className="font-accent text-[11px] uppercase tracking-[0.18em] text-papel/50 hover:text-papel"
+        >
+          ← Volver al inicio
+        </Link>
+      </p>
 
       {phase === "done" ? (
         <AuthFormCard className="text-center">

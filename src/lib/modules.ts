@@ -308,7 +308,7 @@ export const FRIG_MENU_DEF: FrigMenuGroup[] = [
         label: "Documentación",
         icon: "BookOpen",
         module: null,
-        description: "Guías claras para usar FRIG",
+        description: "Guías claras para usar Cauce",
       },
       {
         href: "/help/api",
@@ -338,8 +338,8 @@ export const FRIG_MODULE_NAMES = Array.from(
 
 // ── Guards de redirección ─────────────────────────────────────────────────────
 
-/** Módulos de ruta que en Cauce dependen de caja de oficina. */
-const POS_DEPENDENT_ROUTE_MODULES = new Set<string>(["cash_register"]);
+/** Módulos de ruta que en Cauce dependen de POS (vacío: caja es independiente). */
+const POS_DEPENDENT_ROUTE_MODULES = new Set<string>([]);
 
 /**
  * Dado un conjunto de paths permitidos y los módulos habilitados,

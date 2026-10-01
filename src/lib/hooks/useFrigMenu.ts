@@ -28,8 +28,8 @@ export interface FrigNavGroup {
   items: FrigNavItem[];
 }
 
-/** Módulos que en Frig dependen de que POS esté habilitado. */
-const POS_DEPENDENT_MODULES = new Set<string>(["cash_register"]);
+/** Módulos que en Frig gastronómico dependían de POS. En Cauce: ninguno. */
+const POS_DEPENDENT_MODULES = new Set<string>([]);
 
 /** Rutas de gestión de sucursales: solo las ve OWNER/ADMIN_LOCAL/superadmin. */
 const BRANCH_MANAGEMENT_PATHS = new Set<string>(["/branches"]);

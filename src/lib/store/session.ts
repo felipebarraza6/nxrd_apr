@@ -559,18 +559,16 @@ const MEDIDOR_ALLOWED_PATHS = [
   "/support",
 ];
 
-const OPERATIONAL_ALLOWED_PATHS = [
-  "/readings",
-  "/readings/pos",
+/** Paths para CAJERO / empleado de caja (cobros APR + caja de oficina). */
+const CASHIER_ALLOWED_PATHS = [
   "/payments",
+  "/sales",
+  "/cash-register",
+  "/customers",
   "/profile",
   "/help",
   "/support",
 ];
-
-const CASHIER_ALLOWED_PATHS = OPERATIONAL_ALLOWED_PATHS;
-
-
 
 /** App de cocina: KDS + perfil (como el cajero con POS). */
 
@@ -580,7 +578,12 @@ export function useMedidorAllowedPaths(): string[] {
   return useMemo(() => MEDIDOR_ALLOWED_PATHS, []);
 }
 
-/** Rutas a las que un cajero puede navegar libremente. */
+/** Rutas a las que un cajero puede navegar libremente.
+ * MEDIDOR comparte useIsCashier pero usa su allowlist propia. */
 export function useCashierAllowedPaths(): string[] {
-  return useMemo(() => CASHIER_ALLOWED_PATHS, []);
+  const isMedidor = useIsMedidor();
+  return useMemo(
+    () => (isMedidor ? MEDIDOR_ALLOWED_PATHS : CASHIER_ALLOWED_PATHS),
+    [isMedidor],
+  );
 }

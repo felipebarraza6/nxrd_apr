@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AlertCircle, FileText, Loader2, Play, Receipt } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
@@ -171,6 +172,22 @@ export default function BillingPage() {
             icon={Receipt}
             title="Sin corridas de cobro"
             description="Genera la corrida del período para crear los cargos de cada socio desde sus lecturas."
+            action={
+              <div className="flex flex-wrap items-center justify-center gap-2">
+                <Link
+                  href="/readings"
+                  className="inline-flex h-9 items-center justify-center rounded-md border border-tinta/15 bg-white px-4 text-sm font-medium text-tinta hover:border-azul/40"
+                >
+                  Ir a lecturas
+                </Link>
+                <Link
+                  href="/sales"
+                  className="inline-flex h-9 items-center justify-center rounded-md bg-azul px-4 text-sm font-medium text-white hover:bg-azul-deep"
+                >
+                  Ver cargos
+                </Link>
+              </div>
+            }
           />
         ) : (
           <div className="flex flex-col gap-3">
