@@ -9,6 +9,7 @@
  */
 
 import { useMemo, useRef, useState } from "react";
+import Link from "next/link";
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   ArrowRight,
@@ -33,12 +34,18 @@ function currentPeriod(): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
 }
 
+function periodFromQuery(): string {
+  if (typeof window === "undefined") return currentPeriod();
+  const q = new URLSearchParams(window.location.search).get("period");
+  return q && /^\d{4}-\d{2}$/.test(q) ? q : currentPeriod();
+}
+
 export default function ReadingPosPage() {
   const toast = useToast();
   const queryClient = useQueryClient();
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const [period, setPeriod] = useState(currentPeriod());
+  const [period, setPeriod] = useState(periodFromQuery);
   const [sector, setSector] = useState("");
   const [value, setValue] = useState("");
   const [skipped, setSkipped] = useState<Set<string>>(new Set());
@@ -180,6 +187,14 @@ export default function ReadingPosPage() {
             icon={Gauge}
             title="No hay medidores activos con socio en esta ruta"
             description="Asigná socios a los medidores en Puntos de medición para poder leerlos."
+            action={
+              <Link
+                href="/meters"
+                className="inline-flex h-9 items-center justify-center rounded-md bg-azul px-4 text-sm font-medium text-white hover:bg-azul-deep"
+              >
+                Ir a medidores
+              </Link>
+            }
           />
         ) : done || !current ? (
           /* ── Ruta completa ── */

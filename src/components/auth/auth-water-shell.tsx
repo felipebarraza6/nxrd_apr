@@ -3,34 +3,57 @@
 import dynamic from "next/dynamic";
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
+import type { WaterVariant } from "@/components/auth/water-canvas";
 
 const WaterCanvas = dynamic(() => import("@/components/auth/water-canvas"), {
   ssr: false,
   loading: () => null,
 });
 
-/** Solo el fondo WebGL + CSS fallback (sin contenedor de formulario). */
-export function AuthWaterBackdrop() {
+/** Backdrop WebGL + CSS fallback. Una instancia por shell. */
+export function AuthWaterBackdrop({
+  variant = "dark",
+  intensity = 1,
+}: {
+  variant?: WaterVariant;
+  intensity?: number;
+}) {
+  const light = variant === "light";
   return (
     <>
-      <div className="fondo-agua absolute inset-0" aria-hidden />
-      <WaterCanvas className="pointer-events-none absolute inset-0 h-full w-full" />
-      <div className="puntos pointer-events-none absolute inset-0 opacity-50" aria-hidden />
       <div
-        className="pointer-events-none absolute inset-0 bg-gradient-to-r from-tinta/80 via-tinta/30 to-transparent"
+        className={cn(
+          "absolute inset-0",
+          light ? "fondo-agua-light" : "fondo-agua",
+        )}
         aria-hidden
       />
-      <div
-        className="pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-tinta to-transparent"
-        aria-hidden
+      <WaterCanvas
+        variant={variant}
+        intensity={intensity}
+        className="pointer-events-none absolute inset-0 h-full w-full"
       />
+      {!light ? (
+        <>
+          <div className="puntos pointer-events-none absolute inset-0 opacity-50" aria-hidden />
+          <div
+            className="pointer-events-none absolute inset-0 bg-gradient-to-r from-tinta/80 via-tinta/30 to-transparent"
+            aria-hidden
+          />
+          <div
+            className="pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-tinta to-transparent"
+            aria-hidden
+          />
+        </>
+      ) : (
+        <div className="puntos-oscura pointer-events-none absolute inset-0 opacity-30" aria-hidden />
+      )}
     </>
   );
 }
 
 /**
  * Shell visual Smart APR para páginas públicas de auth/signup.
- * CSS `.fondo-agua` como fallback; WebGL encima si está disponible.
  */
 export function AuthWaterShell({
   children,
@@ -48,7 +71,7 @@ export function AuthWaterShell({
         className,
       )}
     >
-      <AuthWaterBackdrop />
+      <AuthWaterBackdrop variant="dark" intensity={1} />
       <div
         className={cn(
           "relative z-10 mx-auto flex w-full max-w-md flex-1 flex-col justify-center px-4 py-12",

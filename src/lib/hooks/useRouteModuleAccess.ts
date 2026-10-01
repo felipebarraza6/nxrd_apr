@@ -4,8 +4,9 @@ import { useBranchModulesState } from "@/lib/store/session";
 import type { FrontendModuleState } from "@/lib/api/types/modules";
 import { getModuleForPath, FRIG_ALWAYS_ON_MODULES } from "@/lib/modules";
 
-/** Módulos de ruta que en Frig dependen de que POS esté habilitado. */
-const POS_DEPENDENT_ROUTE_MODULES = new Set<string>(["cash_register"]);
+/** Módulos de ruta que en Frig gastronómico dependían de POS.
+ * En Cauce la caja de oficina NO depende de POS. */
+const POS_DEPENDENT_ROUTE_MODULES = new Set<string>([]);
 
 /**
  * Verifica si una ruta está permitida según el estado de módulos dado.
@@ -16,7 +17,6 @@ const POS_DEPENDENT_ROUTE_MODULES = new Set<string>(["cash_register"]);
  * - Módulos always-on de Frig: siempre permitidos (ignoran el estado del backend).
  * - Resto: requiere `is_enabled === true` explícito. Si no viene del
  *   backend, se bloquea (evita el fallback permisivo).
- * - En Frig, Caja/Estaciones POS requieren que POS esté habilitado.
  */
 export function isPathModuleEnabled(
   pathname: string,

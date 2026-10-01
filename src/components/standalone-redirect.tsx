@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 /**
  * La PWA instalada arranca en start_url "/". Si abre en standalone, el
  * usuario quiere la app (no la landing de marketing): lo mandamos a /login,
- * que redirige solo al dashboard si ya hay sesión.
+ * que redirige al home del rol si ya hay sesión.
  */
 export function StandaloneRedirect() {
   const router = useRouter();
@@ -15,7 +15,9 @@ export function StandaloneRedirect() {
     const standalone =
       window.matchMedia("(display-mode: standalone)").matches ||
       (navigator as unknown as { standalone?: boolean }).standalone === true;
-    if (standalone) router.replace("/login");
+    if (!standalone) return;
+    // Login ya redirige a home si hay token; evita flash de landing en PWA.
+    router.replace("/login");
   }, [router]);
 
   return null;
