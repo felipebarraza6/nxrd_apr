@@ -196,10 +196,10 @@ export function QuotationDetailModal({
 
             <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
               <div className="min-w-0">
-                <span className="block text-[10px] uppercase tracking-wide text-muted-foreground">Cliente</span>
+                <span className="block text-[10px] uppercase tracking-wide text-muted-foreground">Socio</span>
                 <p className="mt-0.5 flex items-center gap-1.5">
                   <User className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-                  <span className="truncate">{quotation.client?.name ?? "Sin cliente"}</span>
+                  <span className="truncate">{quotation.client?.name ?? "Sin socio"}</span>
                 </p>
               </div>
               <div>
@@ -385,7 +385,7 @@ export function QuotationDetailModal({
             </h2>
             <p className="mt-1 text-sm text-muted-foreground">
               {confirmAction === "approve"
-                ? `La cotización ${quotation.order_number ?? quotation.id.slice(0, 8)} dejará de ser cotización y pasará a ser una orden de venta del cliente.`
+                ? `La cotización ${quotation.order_number ?? quotation.id.slice(0, 8)} dejará de ser cotización y pasará a ser una orden de venta del socio.`
                 : `La cotización ${quotation.order_number ?? quotation.id.slice(0, 8)} quedará rechazada/cancelada. Esta acción no se puede deshacer.`}
             </p>
             

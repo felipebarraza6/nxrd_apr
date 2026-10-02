@@ -68,7 +68,7 @@ function FillInner() {
           <div className="rounded-2xl border border-dashed border-border px-6 py-12 text-center">
             <p className="text-sm font-medium">No se pudo cargar la encuesta</p>
             <p className="mt-1 text-xs text-muted-foreground">
-              Revisá el link o que la encuesta exista en esta sucursal.
+              Revisa el link o que la encuesta exista en esta sucursal.
             </p>
           </div>
         ) : (

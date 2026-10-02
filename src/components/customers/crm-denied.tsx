@@ -22,7 +22,7 @@ export function CrmDenied({
           </span>
           <p className="mt-3 text-sm font-medium">Sin permisos para CRM</p>
           <p className="mt-1 max-w-sm text-xs text-muted-foreground">
-            Pedile al administrador de la sucursal acceso a clientes y CRM.
+            Pídele al administrador de la sucursal acceso a socios y CRM.
           </p>
         </div>
       </PageBody>

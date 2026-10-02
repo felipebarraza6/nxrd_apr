@@ -435,7 +435,7 @@ export async function generateOrdersExcel(
     "Estado",
     "Pago",
     "Fecha",
-    "Cliente",
+    "Socio",
     "Sucursal",
     "Monto Total",
     "Costo Total",
@@ -446,8 +446,8 @@ export async function generateOrdersExcel(
   const rows = orders.map((o) => {
     const client =
       o.client && typeof o.client === "object"
-        ? ((o.client as { name?: string }).name ?? "Sin cliente")
-        : "Sin cliente";
+        ? ((o.client as { name?: string }).name ?? "Sin socio")
+        : "Sin socio";
     const branch =
       o.branch && typeof o.branch === "object"
         ? ((o.branch as { business_name?: string; name?: string }).business_name ??

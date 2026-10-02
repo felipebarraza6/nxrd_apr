@@ -263,7 +263,7 @@ export function customTemplateQuestions(): SurveyQuestion[] {
     {
       id: "need",
       type: "text",
-      label: "¿Qué necesitás cotizar o resolver?",
+      label: "¿Qué necesitas cotizar o resolver?",
       required: true,
     },
     {
@@ -275,7 +275,7 @@ export function customTemplateQuestions(): SurveyQuestion[] {
     {
       id: "timing",
       type: "select",
-      label: "¿Para cuándo lo necesitás?",
+      label: "¿Para cuándo lo necesitas?",
       required: false,
       options: ["Lo antes posible", "Esta semana", "Este mes", "Sin apuro"],
     },
@@ -296,7 +296,7 @@ export const DEFAULT_SYSTEM_TEMPLATES: CustomSurveyTemplate[] = [
   {
     id: "tmpl_system_custom",
     name: "Formulario / Levantamiento Libre",
-    description: "Formulario personalizable para cualquier requerimiento o consulta de clientes.",
+    description: "Formulario personalizable para cualquier requerimiento o consulta de socios.",
     survey_type: "CUSTOM",
     questions: customTemplateQuestions(),
     created_at: "2026-01-01T00:00:00.000Z",
@@ -305,7 +305,7 @@ export const DEFAULT_SYSTEM_TEMPLATES: CustomSurveyTemplate[] = [
   {
     id: "tmpl_system_nps",
     name: "Encuesta de Recomendación (Lealtad 0 al 10)",
-    description: "Mide qué tan probable es que el cliente recomiende tu empresa (Promotores 9-10 vs Detractores 0-6).",
+    description: "Mide qué tan probable es que el socio recomiende tu APR (Promotores 9-10 vs Detractores 0-6).",
     survey_type: "NPS",
     questions: npsTemplateQuestions(),
     created_at: "2026-01-01T00:00:00.000Z",

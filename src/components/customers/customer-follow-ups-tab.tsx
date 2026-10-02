@@ -117,7 +117,7 @@ export function CustomerFollowUpsTab({
         <p className="mt-1 max-w-xs text-xs text-muted-foreground">
           {setupQuery.error instanceof Error
             ? setupQuery.error.message
-            : "Revisa permisos del módulo Clientes o intenta de nuevo."}
+            : "Revisa permisos del módulo Socios o intenta de nuevo."}
         </p>
         <Button
           size="sm"
@@ -146,7 +146,7 @@ export function CustomerFollowUpsTab({
           }}
           className="glass rounded-2xl px-3 py-2 text-left text-xs text-warning transition-colors hover:bg-warning/10"
         >
-          Hay montos por cobrar. Tocá para prellenar una llamada de cobro.
+          Hay montos por cobrar. Toca para prellenar una llamada de cobro.
         </button>
       )}
 
@@ -208,7 +208,7 @@ export function CustomerFollowUpsTab({
           <NotebookPen className="h-7 w-7 text-muted-foreground" />
           <p className="mt-2 text-sm font-medium">Sin seguimientos</p>
           <p className="mt-1 text-xs text-muted-foreground">
-            Dejá la primera nota o programá una llamada.
+            Deja la primera nota o programa una llamada.
           </p>
         </div>
       ) : (

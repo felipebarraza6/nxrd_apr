@@ -241,7 +241,7 @@ export function SurveyFillForm({
       <div className="rounded-2xl border border-dashed border-border px-6 py-12 text-center">
         <p className="text-sm font-medium">Esta encuesta no está activa</p>
         <p className="mt-1 text-xs text-muted-foreground">
-          Pedile al equipo que la active desde{" "}
+          Pídele al equipo que la active desde{" "}
           {survey.survey_type === "CUSTOM" ? "Fichas" : "Encuestas"}.
         </p>
       </div>
@@ -255,6 +255,7 @@ export function SurveyFillForm({
   const intro = (survey.description ?? "").trim();
   const showIntro =
     intro.length > 0 &&
+    intro !== "Completa estos datos para que podamos armarte una cotización." &&
     intro !== "Completá estos datos para que podamos armarte una cotización.";
 
   return (
@@ -325,7 +326,7 @@ export function SurveyFillForm({
                   <Input
                     value={String(answers[q.id] ?? "")}
                     onChange={(e) => setAnswer(q, e.target.value)}
-                    placeholder="Escribí acá"
+                    placeholder="Escribe acá"
                   />
                 ) : (
                   <textarea
@@ -333,7 +334,7 @@ export function SurveyFillForm({
                     onChange={(e) => setAnswer(q, e.target.value)}
                     rows={3}
                     className="w-full resize-none rounded-xl border border-border bg-background px-3 py-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                    placeholder="Escribí aquí…"
+                    placeholder="Escribe aquí…"
                   />
                 ))}
               {q.type === "url" && (
@@ -401,7 +402,7 @@ export function SurveyFillForm({
                   value={String(answers[q.id] ?? "")}
                   onChange={(e) => setAnswer(q, e.target.value)}
                 >
-                  <option value="">Elegí…</option>
+                  <option value="">Elige…</option>
                   {(q.options ?? []).map((opt) => (
                     <option key={opt} value={opt}>
                       {opt}

@@ -107,7 +107,7 @@ function ThemeModePreview({
         <DashboardMiniCard label="Ventas" value="$0" sub="0 ventas" theme={previewTheme} icon={DollarSign} />
         <DashboardMiniCard label="Productos" value="0" sub="activos" theme={previewTheme} icon={Package} />
         <DashboardMiniCard label="Ingresos" value="$0" sub="del mes" theme={previewTheme} icon={TrendingUp} />
-        <DashboardMiniCard label="Clientes" value="0" sub="registrados" theme={previewTheme} icon={ArrowUpRight} />
+        <DashboardMiniCard label="Socios" value="0" sub="registrados" theme={previewTheme} icon={ArrowUpRight} />
       </div>
 
       {/* Barra tricolor */}

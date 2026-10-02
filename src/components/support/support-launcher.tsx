@@ -32,7 +32,7 @@ const QUICK: {
   {
     kind: "claim",
     label: "Reclamo",
-    hint: "Queja de un cliente",
+    hint: "Queja de un socio",
     icon: MessageSquareWarning,
   },
   {

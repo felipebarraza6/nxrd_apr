@@ -11,7 +11,7 @@ export const FRIG_API_APPS = [
   { id: "finance", label: "Finanzas", blurb: "Caja, ingresos, egresos e impuestos" },
   { id: "bank_accounts", label: "Bancos", blurb: "Billeteras y conciliaciones" },
   { id: "invoices", label: "Facturación", blurb: "Boletas y documentos tributarios" },
-  { id: "customers", label: "Socios", blurb: "Clientes, campos personalizados y fichas" },
+  { id: "customers", label: "Socios", blurb: "Socios, campos personalizados y fichas" },
   { id: "crm", label: "CRM", blurb: "Solicitantes, conexiones y seguimientos" },
   { id: "surveys", label: "Encuestas", blurb: "Encuestas, respuestas y plantillas" },
   { id: "support", label: "Soporte", blurb: "Tickets, comentarios y adjuntos" },

@@ -56,7 +56,7 @@ const TABS: { key: TabKey; label: string }[] = [
   { key: "resumen", label: "Resumen" },
   { key: "ordenes", label: "Órdenes" },
   { key: "ventas", label: "Ventas" },
-  { key: "cliente", label: "Clientes" },
+  { key: "cliente", label: "Socios" },
 ];
 
 const MAX_PAGES = 20;
@@ -248,7 +248,7 @@ function ClientGallery({
   const compact = Boolean(limit);
 
   if (list.length === 0) {
-    return <EmptyState message="Sin clientes en el período." />;
+    return <EmptyState message="Sin socios en el período." />;
   }
 
   return (
@@ -395,12 +395,12 @@ function ClientGallery({
 
       {limit && rows.length > limit ? (
         <p className="text-center text-[11px] text-muted-foreground">
-          +{rows.length - limit} clientes más en la pestaña Clientes
+          +{rows.length - limit} socios más en la pestaña Socios
         </p>
       ) : !limit ? (
         <div className="flex items-center justify-between border-t border-border/50 pt-3 text-[11px] font-medium">
           <span className="text-muted-foreground">
-            {rows.length} cliente{rows.length === 1 ? "" : "s"} · hover para más · click para viewer
+            {rows.length} socio{rows.length === 1 ? "" : "s"} · hover para más · click para viewer
           </span>
           <span className="tabular-nums">{formatCLP(totalAll)}</span>
         </div>
@@ -594,7 +594,7 @@ function OrdersTable({
               <th className={cn("font-medium", headPad)}>N°</th>
               {showType ? <th className={cn("font-medium", headPad)}>Origen</th> : null}
               <th className={cn("font-medium", headPad)}>Estado</th>
-              {!hideClient ? <th className={cn("font-medium", headPad)}>Cliente</th> : null}
+              {!hideClient ? <th className={cn("font-medium", headPad)}>Socio</th> : null}
               <th className={cn("text-right font-medium", headPad)}>Total</th>
               <th className={cn("text-right font-medium", headPad)}>Margen</th>
               <th className={cn("pl-3 text-right font-medium", headPad, embedded && "pr-4")}>PDF</th>
@@ -637,7 +637,7 @@ function OrdersTable({
                     </td>
                     {!hideClient ? (
                       <td className={cn("max-w-[180px] truncate", cellPad)}>
-                        {o.client?.name ?? "Sin cliente"}
+                        {o.client?.name ?? "Sin socio"}
                       </td>
                     ) : null}
                     <td className={cn("text-right font-semibold tabular-nums", cellPad)}>
@@ -704,7 +704,7 @@ function OrdersTable({
                 <div className="flex items-center justify-between gap-2 text-xs">
                   {!hideClient ? (
                     <span className="truncate text-foreground/80">
-                      {o.client?.name ?? "Sin cliente"}
+                      {o.client?.name ?? "Sin socio"}
                     </span>
                   ) : (
                     <span
@@ -1063,7 +1063,7 @@ export default function SalesReportPage() {
   }, [rows]);
 
   const byClient = useMemo(
-    () => buildGroups(rows, (o) => o.client?.name ?? "Sin cliente"),
+    () => buildGroups(rows, (o) => o.client?.name ?? "Sin socio"),
     [rows],
   );
   const byOrigen = useMemo(
@@ -1073,7 +1073,7 @@ export default function SalesReportPage() {
 
   const clientDetailOrders = useMemo(() => {
     if (!clientDetail) return [];
-    return rows.filter((o) => (o.client?.name ?? "Sin cliente") === clientDetail);
+    return rows.filter((o) => (o.client?.name ?? "Sin socio") === clientDetail);
   }, [rows, clientDetail]);
 
   const clientDetailStats = useMemo(() => {
@@ -1090,7 +1090,7 @@ export default function SalesReportPage() {
     <div className="relative mx-auto flex min-h-full w-full min-w-0 max-w-7xl flex-col">
       <PageHeader
         title="Informe de ventas"
-        subtitle="Analiza ventas del período: resumen, órdenes, ventas y clientes."
+        subtitle="Analiza ventas del período: resumen, órdenes, ventas y socios."
         icon={<TrendingUp className="h-5 w-5" />}
         className="sticky top-0 z-20 glass-strong border-b"
         actions={
@@ -1199,7 +1199,7 @@ export default function SalesReportPage() {
               <motion.div variants={item}>
                 <KpiTile
                   icon={Users}
-                  label="Clientes"
+                  label="Socios"
                   value={String(byClient.length)}
                   hint="Personas o empresas distintas que compraron en el período"
                   tone="danger"
@@ -1225,7 +1225,7 @@ export default function SalesReportPage() {
               <section className="min-w-0 lg:col-span-8">
                 <div className="mx-auto w-full max-w-3xl">
                   <SectionHeading
-                    title="Top clientes"
+                    title="Top socios"
                     hint={`Top ${Math.min(6, byClient.length)} de ${byClient.length}`}
                     icon={Users}
                   />
@@ -1299,7 +1299,7 @@ export default function SalesReportPage() {
         ) : (
           <section>
             <p className="mb-4 text-xs text-muted-foreground">
-              {byClient.length} cliente{byClient.length === 1 ? "" : "s"} · galería · hover revela margen · click abre viewer
+              {byClient.length} socio{byClient.length === 1 ? "" : "s"} · galería · hover revela margen · click abre viewer
             </p>
             <ClientGallery
               rows={byClient}
@@ -1335,7 +1335,7 @@ export default function SalesReportPage() {
       <Modal
         open={Boolean(clientDetail)}
         onClose={() => setClientDetail(null)}
-        title={clientDetail ?? "Cliente"}
+        title={clientDetail ?? "Socio"}
         size="xl"
         className="sm:h-[min(92vh,52rem)]"
         description={
@@ -1369,7 +1369,7 @@ export default function SalesReportPage() {
           </div>
           <OrdersTable
             rows={clientDetailOrders}
-            emptyMessage="Sin ventas de este cliente en el período."
+            emptyMessage="Sin ventas de este socio en el período."
             showType
             hideClient
             embedded

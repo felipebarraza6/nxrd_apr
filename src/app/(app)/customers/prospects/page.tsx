@@ -287,7 +287,7 @@ export default function ProspectsPage() {
     onSuccess: (res) => {
       queryClient.invalidateQueries({ queryKey: ["crm", "leads"] });
       queryClient.invalidateQueries({ queryKey: ["customers"] });
-      toast.success("¡Prospecto convertido a cliente con éxito!");
+      toast.success("¡Prospecto convertido a socio con éxito!");
       if (res?.converted_to_client) {
         router.push(`/customers?id=${res.converted_to_client}`);
       }
@@ -342,7 +342,7 @@ export default function ProspectsPage() {
       <PageHeader
         title="Prospectos Comerciales"
         icon={<Users className="h-5 w-5" />}
-        subtitle="Contactos y oportunidades potenciales antes de convertirlos en clientes activos."
+        subtitle="Contactos y oportunidades potenciales antes de convertirlos en socios activos."
         actions={
           <div className="flex items-center gap-2">
             <Button variant="outline" className="h-9" onClick={openSourceCreate}>
@@ -401,7 +401,7 @@ export default function ProspectsPage() {
             variant="compact"
             label="Listos para cierre"
             value={metrics.qualifiedCount}
-            sub="Calificados para cliente"
+            sub="Calificados para socio"
             icon={UserCheck}
             tone="success"
             onClick={() => setStatusFilter(statusFilter === "QUALIFIED" ? "" : "QUALIFIED")}
@@ -517,7 +517,7 @@ export default function ProspectsPage() {
           <EmptyState
             icon={AlertCircle}
             title="Error al cargar prospectos"
-            description="Hubo un problema al consultar los prospectos comerciales. Verificá tu conexión o reintentá."
+            description="Hubo un problema al consultar los prospectos comerciales. Verifica tu conexión o reintenta."
             action={
               <Button size="sm" onClick={() => listQuery.refetch()}>
                 Reintentar
@@ -534,7 +534,7 @@ export default function ProspectsPage() {
           <EmptyState
             icon={UserPlus}
             title={search || statusFilter || sourceFilter ? "No hay prospectos con este filtro" : "Sin prospectos registrados"}
-            description="Registrá contactos y potenciales clientes para gestionar llamadas, propuestas y cotizaciones."
+            description="Registra contactos y potenciales socios para gestionar llamadas, propuestas y cotizaciones."
             action={
               <Button size="sm" onClick={openCreate}>
                 Crear primer prospecto
@@ -684,9 +684,9 @@ export default function ProspectsPage() {
                         className="h-7 px-2.5 text-[11px]"
                         disabled={convert.isPending}
                         onClick={() => convert.mutate(lead)}
-                        title="Convertir a cliente"
+                        title="Convertir a socio"
                       >
-                        A cliente
+                        A socio
                       </Button>
                     </div>
                   </div>
@@ -803,7 +803,7 @@ export default function ProspectsPage() {
                             disabled={convert.isPending}
                             onClick={() => convert.mutate(lead)}
                           >
-                            A cliente
+                            A socio
                           </Button>
                           <button
                             type="button"
@@ -851,7 +851,7 @@ export default function ProspectsPage() {
             {editing ? "Editar prospecto" : "Nuevo prospecto"}
           </h2>
           <p className="mt-0.5 text-xs text-muted-foreground">
-            Completá los datos del contacto para seguimiento y prospección.
+            Completa los datos del contacto para seguimiento y prospección.
           </p>
 
           <div className="mt-4 grid gap-3 sm:grid-cols-2">
@@ -974,7 +974,7 @@ export default function ProspectsPage() {
             {editingSource ? "Editar fuente" : "Fuentes de prospectos"}
           </h2>
           <p className="mt-0.5 text-xs text-muted-foreground">
-            Definí de dónde provienen tus contactos (ej. Web, WhatsApp, Referidos).
+            Define de dónde provienen tus contactos (ej. Web, WhatsApp, Referidos).
           </p>
 
           <div className="mt-4 flex flex-col gap-3">

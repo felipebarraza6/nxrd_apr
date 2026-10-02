@@ -3,7 +3,7 @@
 /**
  * POS de lectura — captura casa por casa.
  *
- * Como el POS de ventas pero para el medidor: elegís la ruta, y avanza
+ * Como el POS de ventas pero para el medidor: eliges la ruta, y avanza
  * medidor a medidor con teclado (Enter = registrar y seguir). Al terminar
  * la ruta muestra el resumen y deja ir directo a facturar el período.
  *
@@ -267,7 +267,7 @@ export default function ReadingPosPage() {
       <PageHeader
         title="POS de lectura — casa por casa"
         icon={<Gauge className="h-5 w-5" />}
-        subtitle={`Período ${period} · tomá la lectura medidor a medidor, Enter avanza al siguiente.`}
+        subtitle={`Período ${period} · toma la lectura medidor a medidor, Enter avanza al siguiente.`}
         actions={
           <Select
             value={period}
@@ -350,8 +350,8 @@ export default function ReadingPosPage() {
             }
             description={
               hasSearch
-                ? "Probá con nombre, dirección, RUT o número de medidor."
-                : "Asigná socios a los medidores en Puntos de medición para poder leerlos."
+                ? "Prueba con nombre, dirección, RUT o número de medidor."
+                : "Asigna socios a los medidores en Puntos de medición para poder leerlos."
             }
             action={
               hasSearch ? (
@@ -537,7 +537,7 @@ export default function ReadingPosPage() {
                 />
                 {value !== "" && Number(value) < baseReading && (
                   <p className="text-xs font-medium text-destructive">
-                    La lectura es menor que la anterior — revisá el número.
+                    La lectura es menor que la anterior — revisa el número.
                   </p>
                 )}
                 {isEditing ? (

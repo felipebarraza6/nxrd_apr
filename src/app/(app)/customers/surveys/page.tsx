@@ -223,7 +223,7 @@ export default function CustomerSurveysPage() {
     mutationFn: async () => {
       const ready = normalizeQuestions(questions);
       if (ready.length === 0) {
-        throw new Error("Agregá al menos una pregunta válida con texto");
+        throw new Error("Agrega al menos una pregunta válida con texto");
       }
 
       if (saveAsTemplateChecked && title.trim()) {
@@ -397,7 +397,7 @@ export default function CustomerSurveysPage() {
       <PageHeader
         title="Encuestas y Formularios"
         icon={<ClipboardList className="h-5 w-5" />}
-        subtitle="Diseñá encuestas 100% personalizadas, gestioná tus plantillas y medí la satisfacción de tus clientes."
+        subtitle="Diseña encuestas 100% personalizadas, gestiona tus plantillas y mide la satisfacción de tus socios."
         actions={
           <div className="flex gap-2">
             <Button
@@ -497,7 +497,7 @@ export default function CustomerSurveysPage() {
               />
               <StatCard
                 variant="compact"
-                label="Clasificación de Clientes (NPS)"
+                label="Clasificación de Socios (NPS)"
                 value={`${promoters} Promotores (9-10)`}
                 sub={`${passives} neutros (7-8) · ${detractors} detractores (0-6)`}
                 icon={CheckCircle2}
@@ -549,23 +549,23 @@ export default function CustomerSurveysPage() {
                       <span className="flex h-6 w-6 items-center justify-center rounded-md bg-amber-500/10 text-amber-600 font-bold text-[11px]">
                         NPS
                       </span>
-                      <h4 className="font-bold text-foreground">NPS (Net Promoter Score / Lealtad del Cliente)</h4>
+                      <h4 className="font-bold text-foreground">NPS (Net Promoter Score / Lealtad del Socio)</h4>
                     </div>
                     <p className="mt-1.5 text-muted-foreground leading-relaxed text-[11px]">
-                      Mide qué tan probable es que un cliente recomiende tu empresa o servicio a un amigo o colega (escala de 0 a 10).
+                      Mide qué tan probable es que un socio recomiende tu APR o servicio a un amigo o colega (escala de 0 a 10).
                     </p>
                     <ul className="mt-2 space-y-1.5 text-[11px]">
                       <li className="flex items-start gap-1.5">
                         <span className="mt-1 h-2 w-2 rounded-full bg-emerald-500 shrink-0" />
-                        <span><strong>Promotores (9 a 10):</strong> Clientes entusiastas y leales que promueven tu marca.</span>
+                        <span><strong>Promotores (9 a 10):</strong> Socios entusiastas y leales que promueven tu marca.</span>
                       </li>
                       <li className="flex items-start gap-1.5">
                         <span className="mt-1 h-2 w-2 rounded-full bg-amber-500 shrink-0" />
-                        <span><strong>Pasivos / Neutros (7 a 8):</strong> Clientes satisfechos pero neutrales.</span>
+                        <span><strong>Pasivos / Neutros (7 a 8):</strong> Socios satisfechos pero neutrales.</span>
                       </li>
                       <li className="flex items-start gap-1.5">
                         <span className="mt-1 h-2 w-2 rounded-full bg-rose-500 shrink-0" />
-                        <span><strong>Detractores (0 a 6):</strong> Clientes insatisfechos.</span>
+                        <span><strong>Detractores (0 a 6):</strong> Socios insatisfachos.</span>
                       </li>
                     </ul>
                     <p className="mt-2 text-[10px] italic text-muted-foreground border-t border-border pt-1">
@@ -581,12 +581,12 @@ export default function CustomerSurveysPage() {
                       <h4 className="font-bold text-foreground">CSAT (Customer Satisfaction / Nota de Atención)</h4>
                     </div>
                     <p className="mt-1.5 text-muted-foreground leading-relaxed text-[11px]">
-                      Mide la satisfacción inmediata del cliente sobre una visita, atención puntual o servicio recibido (escala de 1 a 5 estrellas).
+                      Mide la satisfacción inmediata del socio sobre una visita, atención puntual o servicio recibido (escala de 1 a 5 estrellas).
                     </p>
                     <ul className="mt-2 space-y-1.5 text-[11px]">
                       <li className="flex items-start gap-1.5">
                         <Star className="mt-0.5 h-3 w-3 text-amber-500 shrink-0 fill-amber-500" />
-                        <span><strong>1 a 5 Estrellas:</strong> Calificación directa de la experiencia del cliente.</span>
+                        <span><strong>1 a 5 Estrellas:</strong> Calificación directa de la experiencia del socio.</span>
                       </li>
                       <li className="flex items-start gap-1.5">
                         <span className="mt-1 h-2 w-2 rounded-full bg-blue-500 shrink-0" />
@@ -740,7 +740,7 @@ export default function CustomerSurveysPage() {
                 </span>
                 <p className="mt-3 text-sm font-medium">Todavía no hay encuestas creadas</p>
                 <p className="mt-1 max-w-sm text-xs text-muted-foreground">
-                  Crea tu primera encuesta para recibir opiniones, datos o evaluar la satisfacción de tus clientes.
+                  Crea tu primera encuesta para recibir opiniones, datos o evaluar la satisfacción de tus socios.
                 </p>
                 <Button className="mt-4" size="sm" onClick={() => openCreate("CUSTOM")}>
                   Crear Encuesta
@@ -824,7 +824,7 @@ export default function CustomerSurveysPage() {
                 {editingSurveyId ? "Editar Encuesta" : "Nueva Encuesta"}
               </h2>
               <p className="text-xs text-muted-foreground">
-                Diseñá tu encuesta libremente o usá una plantilla.
+                Diseña tu encuesta libremente o usa una plantilla.
               </p>
             </div>
 
@@ -960,7 +960,7 @@ export default function CustomerSurveysPage() {
             <div className="mt-4 flex flex-col gap-3">
               <div className="rounded-xl border border-border bg-muted/40 p-4">
                 <p className="text-xs font-medium text-muted-foreground mb-3">
-                  Así es exactamente como verá tu cliente la encuesta:
+                  Así es exactamente como verá tu socio la encuesta:
                 </p>
                 <SurveyFillForm
                   survey={{
@@ -1401,7 +1401,7 @@ function TemplateEditorModal({
     if (!name.trim()) return;
     const ready = normalizeQuestions(questions);
     if (ready.length === 0) {
-      toast.error("Agregá al menos una pregunta válida");
+      toast.error("Agrega al menos una pregunta válida");
       return;
     }
     try {
@@ -1439,7 +1439,7 @@ function TemplateEditorModal({
           {template ? "Editar Plantilla" : "Nueva Plantilla Personalizada"}
         </h3>
         <p className="mt-1 text-xs text-muted-foreground">
-          Diseñá un formato reusable para crear encuestas en 1-click.
+          Diseña un formato reusable para crear encuestas en 1-click.
         </p>
 
         <div className="mt-4 flex flex-col gap-3">
@@ -1458,7 +1458,7 @@ function TemplateEditorModal({
             <Input
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Ej: Plantilla estándar para medir atención al cliente"
+              placeholder="Ej: Plantilla estándar para medir atención al socio"
               className="h-8 text-xs"
             />
           </div>
@@ -1541,7 +1541,7 @@ function SurveyWorkspace({
                   </span>
                 </div>
                 <p className="mt-0.5 text-xs text-muted-foreground">
-                  {survey.response_count ?? 0} respuestas recibidas de clientes
+                  {survey.response_count ?? 0} respuestas recibidas de socios
                 </p>
               </div>
             </div>
@@ -1918,7 +1918,7 @@ function QuestionEditor({
       <div className="flex items-center justify-between">
         <p className="text-xs font-semibold text-foreground">Preguntas de la encuesta ({questions.length})</p>
         <span className="text-[11px] text-muted-foreground">
-          Podés modificar el texto, tipo o quitar cualquier pregunta
+          Puedes modificar el texto, tipo o quitar cualquier pregunta
         </span>
       </div>
 
@@ -1942,7 +1942,7 @@ function QuestionEditor({
               <Input
                 value={question.label}
                 onChange={(e) => patch(index, { ...question, label: e.target.value })}
-                placeholder="Escribí tu pregunta..."
+                placeholder="Escribe tu pregunta..."
                 className="h-8 text-xs flex-1"
               />
               <Button

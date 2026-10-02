@@ -42,7 +42,7 @@ export function CrmNav({
   const items = [
     {
       href: "/customers",
-      label: "Clientes",
+      label: "Socios",
       icon: UserCircle,
       exact: true,
     },

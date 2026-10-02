@@ -243,7 +243,7 @@ export const HELP_GUIDES: HelpGuide[] = [
   // ── CRM ─────────────────────────────────────────────────────────────────
   {
     slug: "clientes",
-    title: "Clientes",
+    title: "Socios",
     summary: "Ficha 360: historial, deuda y seguimientos comerciales.",
     group: "crm",
     module: "customers",
@@ -254,15 +254,15 @@ export const HELP_GUIDES: HelpGuide[] = [
       {
         heading: "Ficha 360",
         body: [
-          "Abrí un cliente para ver identidad, KPIs, ventas y montos por cobrar.",
-          "Desde Pendientes podés cobrar sin salir de la ficha.",
+          "Abre un socio para ver identidad, KPIs, ventas y montos por cobrar.",
+          "Desde Pendientes puedes cobrar sin salir de la ficha.",
         ],
       },
       {
         heading: "Seguimientos",
         body: [
-          "Registrá notas, llamadas y tareas en la pestaña Seguimientos.",
-          "Quedan ligados al cliente para el próximo contacto comercial.",
+          "Registra notas, llamadas y tareas en la pestaña Seguimientos.",
+          "Quedan ligados al socio para el próximo contacto comercial.",
         ],
       },
     ],
@@ -270,7 +270,7 @@ export const HELP_GUIDES: HelpGuide[] = [
   {
     slug: "prospectos",
     title: "Prospectos",
-    summary: "Leads antes de convertirse en clientes.",
+    summary: "Leads antes de convertirse en socios.",
     group: "crm",
     module: "customers",
     audience: ["ops", "admin"],
@@ -280,8 +280,8 @@ export const HELP_GUIDES: HelpGuide[] = [
       {
         heading: "Flujo",
         body: [
-          "Alta rápida → contactar / calificar → Convertir a cliente.",
-          "Al convertir se crea la ficha y podés seguir en Clientes.",
+          "Alta rápida → contactar / calificar → Convertir a socio.",
+          "Al convertir se crea la ficha y puedes seguir en Socios.",
         ],
       },
     ],
@@ -299,7 +299,7 @@ export const HELP_GUIDES: HelpGuide[] = [
       {
         heading: "Dónde",
         body: [
-          "Hub de abiertos/completados, o pestaña Seguimientos dentro de cada cliente.",
+          "Hub de abiertos/completados, o pestaña Seguimientos dentro de cada socio.",
         ],
       },
     ],
@@ -307,7 +307,7 @@ export const HELP_GUIDES: HelpGuide[] = [
   {
     slug: "fichas",
     title: "Fichas de levantamiento",
-    summary: "Campos del cliente y el formulario de levantamiento para cotizar.",
+    summary: "Campos del socio y el formulario de levantamiento para cotizar.",
     group: "crm",
     module: "customers",
     audience: ["admin", "ops"],
@@ -317,9 +317,9 @@ export const HELP_GUIDES: HelpGuide[] = [
       {
         heading: "Armar",
         body: [
-          "Creá secciones y campos (texto, sí/no, fecha, etc.).",
-          "Publicá el levantamiento de la sección: el link queda en Fichas.",
-          "Desde el cliente se envía por WhatsApp; al responder, se aplica a la ficha y se cotiza.",
+          "Crea secciones y campos (texto, sí/no, fecha, etc.).",
+          "Publica el levantamiento de la sección: el link queda en Fichas.",
+          "Desde el socio se envía por WhatsApp; al responder, se aplica a la ficha y se cotiza.",
         ],
       },
     ],
@@ -338,14 +338,14 @@ export const HELP_GUIDES: HelpGuide[] = [
         heading: "Crear",
         body: [
           "Plantillas NPS (0–10) o CSAT (1–5).",
-          "Copiá el link público (QR) o el interno (staff).",
+          "Copia el link público (QR) o el interno (staff).",
         ],
       },
       {
         heading: "Link",
         body: [
           "Público: sin login (/survey/view?slug=…).",
-          "Interno: dentro de la app con sesión y cliente opcional.",
+          "Interno: dentro de la app con sesión y socio opcional.",
         ],
       },
     ],
@@ -363,7 +363,7 @@ export const HELP_GUIDES: HelpGuide[] = [
       {
         heading: "Mover",
         body: [
-          "Arrastrá o usá las flechas ← → de cada tarjeta para cambiar de etapa.",
+          "Arrastra o usa las flechas ← → de cada tarjeta para cambiar de etapa.",
           "El detalle permite editar valor, cierre esperado y notas (botón lápiz).",
         ],
       },
@@ -371,7 +371,7 @@ export const HELP_GUIDES: HelpGuide[] = [
         heading: "KPIs",
         body: [
           "Total abierto, valor ponderado por probabilidad de etapa y ganado.",
-          "Creá oportunidades desde un prospecto con el atajo de la tarjeta.",
+          "Crea oportunidades desde un prospecto con el atajo de la tarjeta.",
         ],
       },
     ],
@@ -610,7 +610,7 @@ export const HELP_GUIDES: HelpGuide[] = [
   {
     slug: "informes-ventas",
     title: "Informe de ventas",
-    summary: "Ventas por cliente, tipo y día.",
+    summary: "Cobros por socio, tipo y día.",
     group: "informes",
     module: null,
     audience: ["admin"],
@@ -801,7 +801,7 @@ export const HELP_GUIDES: HelpGuide[] = [
           "Vive en Ayuda → Soporte. Cada caso tiene tablero, hilo, adjuntos y plazos.",
         ],
         limits: [
-          "No es un chat de clientes finales ni un helpdesk de otro producto.",
+          "No es un chat de socios finales ni un helpdesk de otro producto.",
           "No sustituye las guías de uso ni la consola API.",
         ],
       },

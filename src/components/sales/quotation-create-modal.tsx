@@ -259,9 +259,9 @@ function QuotationForm({
       setNewClientName("");
       setNewClientDni("");
       setNewClientPhone("");
-      toast.success("Cliente creado");
+      toast.success("Socio creado");
     },
-    onError: (err: Error) => toast.error(err.message || "No se pudo crear el cliente"),
+    onError: (err: Error) => toast.error(err.message || "No se pudo crear el socio"),
   });
 
   function handleCreateClient() {
@@ -361,7 +361,7 @@ function QuotationForm({
   function handleSubmit() {
     setFormError(null);
     if (!client) {
-      setFormError("Selecciona un cliente para la cotización.");
+      setFormError("Selecciona un socio para la cotización.");
       return;
     }
     if (items.length === 0) {
@@ -397,7 +397,7 @@ function QuotationForm({
         <div className="flex flex-col gap-4">
           <div className="flex flex-col gap-2">
             <label className="text-sm font-medium">
-              Cliente <span className="text-danger">*</span>
+              Socio <span className="text-danger">*</span>
             </label>
             <SearchableSelect
               options={clientOptions}
@@ -421,7 +421,7 @@ function QuotationForm({
               selectedOption={
                 client ? { value: String(client.id), label: client.name ?? "Sin nombre" } : null
               }
-              placeholder="Buscar cliente por nombre, RUT o teléfono…"
+              placeholder="Buscar socio por nombre, RUT o teléfono…"
               searchPlaceholder="Nombre, RUT o teléfono…"
               emptyMessage="Sin coincidencias"
             />
@@ -434,12 +434,12 @@ function QuotationForm({
                 }}
                 className="self-start text-xs font-medium text-primary hover:underline"
               >
-                + Crear cliente nuevo
+                + Crear socio nuevo
               </button>
             ) : (
               <div className="flex flex-col gap-2 rounded-xl border border-primary/20 bg-primary/[0.02] p-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-semibold">Nuevo cliente</span>
+                  <span className="text-xs font-semibold">Nuevo socio</span>
                   <button
                     type="button"
                     onClick={() => setShowCreateClient(false)}
@@ -476,7 +476,7 @@ function QuotationForm({
                   isLoading={createClientMutation.isPending}
                   onClick={handleCreateClient}
                 >
-                  Guardar cliente
+                  Guardar socio
                 </Button>
                 {newClientError && <p className="text-xs text-danger">{newClientError}</p>}
               </div>
@@ -488,7 +488,7 @@ function QuotationForm({
             <div className="flex flex-col gap-2">
               <p className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                 <History className="h-3.5 w-3.5" />
-                Últimos productos del cliente
+                Últimos productos del socio
               </p>
               {historyQuery.isLoading ? (
                 <div className="flex flex-wrap gap-2">

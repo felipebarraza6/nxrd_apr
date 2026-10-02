@@ -39,7 +39,7 @@ const FRIG_MODULES = [
   { key: "cash_register", label: "Caja registradora" },
   { key: "tables", label: "Mesas" },
   { key: "inventory", label: "Inventario" },
-  { key: "customers", label: "Clientes" },
+  { key: "customers", label: "Socios" },
   { key: "suppliers", label: "Proveedores" },
   { key: "finance", label: "Finanzas" },
   { key: "sales", label: "Ventas" },

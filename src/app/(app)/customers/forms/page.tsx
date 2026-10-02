@@ -154,7 +154,7 @@ const SECTION_PRESETS: PresetTemplate[] = [
     description: "RUT, razón social, correo de facturación y teléfono de tesorería.",
     badge: "Comercial",
     fields: [
-      { name: "RUT Empresa / Cliente", field_type: "TEXT", is_required: true, display_in_card: true },
+      { name: "RUT Empresa / Socio", field_type: "TEXT", is_required: true, display_in_card: true },
       { name: "Razón Social", field_type: "TEXT", is_required: true, display_in_card: true },
       { name: "Giro Comercial", field_type: "TEXT", is_required: false, display_in_card: true },
       { name: "Correo Facturación (DTE)", field_type: "EMAIL", is_required: true, display_in_card: true },
@@ -350,12 +350,12 @@ export default function CustomerFormsPage() {
     mutationFn: async () => {
       const name = fieldDraft.name.trim();
       if (!name) throw new Error("Nombre obligatorio");
-      if (!fieldDraft.id && !fieldDraft.group) throw new Error("Elegí una sección");
+      if (!fieldDraft.id && !fieldDraft.group) throw new Error("Elige una sección");
       const needsOptions =
         fieldDraft.field_type === "SELECT" || fieldDraft.field_type === "MULTISELECT";
       const options = needsOptions ? textToOptions(fieldDraft.optionsText) : [];
       if (needsOptions && options.length === 0) {
-        throw new Error("Agregá al menos una opción (una por línea)");
+        throw new Error("Agrega al menos una opción (una por línea)");
       }
       if (fieldDraft.id) {
         return updateExtraFieldDefinition(fieldDraft.id, {
@@ -565,7 +565,7 @@ export default function CustomerFormsPage() {
       <PageHeader
         title="Fichas Técnicas & Levantamientos"
         icon={<FileText className="h-5 w-5" />}
-        subtitle="Estructura técnica para cotizaciones, levantamientos y ficha 360 del cliente."
+        subtitle="Estructura técnica para cotizaciones, levantamientos y ficha 360 del socio."
         actions={
           <div className="flex items-center gap-2">
             <Button variant="outline" className="h-9 gap-1.5" onClick={() => setPresetOpen(true)}>
@@ -603,7 +603,7 @@ export default function CustomerFormsPage() {
           <EmptyState
             icon={FileText}
             title="Todavía no hay secciones de ficha"
-            description="Creá una sección (ej. Medidas, Alcance, Rubro) para estructurar datos técnicos y publicar fichas a clientes."
+            description="Crea una sección (ej. Medidas, Alcance, Rubro) para estructurar datos técnicos y publicar fichas a socios."
             action={
               <Button size="sm" onClick={openGroupCreate}>
                 <Plus className="h-3.5 w-3.5" />
@@ -645,7 +645,7 @@ export default function CustomerFormsPage() {
                 variant="compact"
                 label="Levantamientos"
                 value={totalResponses}
-                sub="Respuestas de clientes"
+                sub="Respuestas de socios"
                 icon={ClipboardList}
                 tone="primary"
               />
@@ -956,7 +956,7 @@ export default function CustomerFormsPage() {
                   setFieldDraft((d) => ({ ...d, display_in_card: e.target.checked }))
                 }
               />
-              Visible en la ficha del cliente
+              Visible en la ficha del socio
             </label>
             {needsOptions && (
               <div>
@@ -1560,7 +1560,7 @@ function SectionWorkspace({
             <EmptyState
               icon={FileText}
               title="Esta ficha aún no tiene campos"
-              description="Configura los atributos técnicos que necesitas levantar para tus clientes o servicios."
+              description="Configura los atributos técnicos que necesitas levantar para tus socios o servicios."
               action={
                 <Button size="sm" onClick={onAddField}>
                   <Plus className="mr-1.5 h-3.5 w-3.5" />
@@ -1594,7 +1594,7 @@ function SectionWorkspace({
               <div>
                 <h3 className="text-sm font-semibold">Simulador de Ficha Pública</h3>
                 <p className="text-xs text-muted-foreground">
-                  Así visualiza el cliente la ficha al abrir el enlace web en su dispositivo.
+                  Así visualiza el socio la ficha al abrir el enlace web en su dispositivo.
                 </p>
               </div>
               <span className="rounded-full bg-emerald-500/10 px-2.5 py-1 text-[11px] font-medium text-emerald-600 dark:text-emerald-400">
@@ -1631,9 +1631,9 @@ function SectionWorkspace({
       {tab === "share" && (
         <div className="flex flex-col gap-4">
           <div className="rounded-xl border border-border bg-card p-4 sm:p-5">
-            <h3 className="text-sm font-semibold">Levantamientos Públicos para Clientes</h3>
+            <h3 className="text-sm font-semibold">Levantamientos Públicos para Socios</h3>
             <p className="mt-1 text-xs text-muted-foreground">
-              Comparte estos enlaces directos con clientes o personal técnico en terreno.
+              Comparte estos enlaces directos con socios o personal técnico en terreno.
               Cualquier dato enviado se registrará de inmediato en la ficha correspondiente.
             </p>
 
@@ -1683,7 +1683,7 @@ function exportResponsesToCSV(
   }>,
 ) {
   if (rows.length === 0) return;
-  const headers = ["Fecha", "Cliente / Respondiente", "Sección", ...columns.map((c) => c.name)];
+  const headers = ["Fecha", "Socio / Respondiente", "Sección", ...columns.map((c) => c.name)];
   const csvLines = [headers.join(",")];
 
   for (const row of rows) {
@@ -1832,7 +1832,7 @@ function ResponseSheet({
         </div>
       </div>
       {surveys.length === 0 ? (
-        <p className="mt-3 text-xs text-muted-foreground">Publicá una sección para recibir datos.</p>
+        <p className="mt-3 text-xs text-muted-foreground">Publica una sección para recibir datos.</p>
       ) : sheetQuery.isLoading ? (
         <Skeleton className="mt-3 h-40 w-full rounded-xl" />
       ) : count === 0 ? (
@@ -1927,7 +1927,7 @@ function ResponseSheet({
             <div className="flex items-center justify-between border-b border-border pb-3">
               <div>
                 <h3 className="text-base font-bold text-foreground">
-                  Ficha de {selectedRow.client_name || selectedRow.respondent_name || "Cliente"}
+                  Ficha de {selectedRow.client_name || selectedRow.respondent_name || "Socio"}
                 </h3>
                 <p className="text-xs text-muted-foreground">
                   {(selectedRow.survey_title ?? "").replace(/^Levantamiento\s·\s/, "")} ·{" "}
@@ -2091,7 +2091,7 @@ function LevantamientoList({
         <QrModal
           url={publicSurveyAbsoluteUrl(qrSurvey.slug)}
           title={qrSurvey.title || "Ficha Pública"}
-          heading="Código QR para Clientes"
+          heading="Código QR para Socios"
           onClose={() => setQrSurvey(null)}
         />
       ) : null}

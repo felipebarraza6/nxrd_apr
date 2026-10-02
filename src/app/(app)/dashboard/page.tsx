@@ -155,7 +155,7 @@ export default function DashboardPage() {
   const salesTotal = summary?.sales?.completed?.total_amount ?? 0;
   const salesCount = summary?.sales?.completed?.count ?? 0;
   const salesProfit = summary?.sales?.completed?.profit ?? 0;
-  // Órdenes del período = órdenes de cliente completadas.
+  // Órdenes del período = órdenes de socio completadas.
   const ordersTotal = summary?.orders?.completed_summary?.total_amount ?? 0;
   const ordersCount = summary?.orders?.completed_summary?.count ?? 0;
   const ordersProfit = summary?.orders?.completed_summary?.profit ?? 0;
@@ -296,7 +296,7 @@ export default function DashboardPage() {
                 icon: Receipt,
                 tone: "primary",
                 description:
-                  "Suma total de órdenes de cliente completadas y pagadas en el rango seleccionado. Pueden ser pedidos, cotizaciones convertidas o cualquier transacción tipo orden según tu negocio.",
+                  "Suma total de órdenes de socio completadas y pagadas en el rango seleccionado. Pueden ser pedidos, cotizaciones convertidas o cualquier transacción tipo orden según tu negocio.",
                 sections: [
                   { label: "Órdenes completadas", value: String(ordersCount) },
                   {
@@ -444,7 +444,7 @@ export default function DashboardPage() {
                 value: formatCLP(totalRevenue),
                 icon: ArrowDownLeft,
                 description:
-                  "Suma total del dinero que ingresó por ventas y órdenes de cliente completadas en el rango seleccionado.",
+                  "Suma total del dinero que ingresó por ventas y órdenes de socio completadas en el rango seleccionado.",
                 sections: [
                   { label: "Ventas completadas", value: String(salesCount) },
                   { label: "Órdenes completadas", value: String(ordersCount) },
@@ -485,7 +485,7 @@ export default function DashboardPage() {
                 value: formatCLP(totalProfit),
                 icon: Wallet,
                 description:
-                  "Margen aproximado calculado sobre ventas y órdenes de cliente completadas en el rango seleccionado. Se obtiene restando el costo estimado al total vendido.",
+                  "Margen aproximado calculado sobre ventas y órdenes de socio completadas en el rango seleccionado. Se obtiene restando el costo estimado al total vendido.",
                 sections: [
                   { label: "Ingresos totales", value: formatCLP(totalRevenue) },
                   { label: "Costo estimado", value: formatCLP(totalRevenue - totalProfit) },
@@ -717,7 +717,7 @@ export default function DashboardPage() {
                 <li key={o.id} className="flex items-center justify-between gap-3 py-2">
                   <div className="min-w-0">
                     <p className="truncate text-sm font-medium">
-                      {o.order_number ? `#${o.order_number}` : o.client?.name ?? "Sin cliente"}
+                      {o.order_number ? `#${o.order_number}` : o.client?.name ?? "Sin socio"}
                       {o.order_number && o.client?.name && (
                         <span className="ml-2 text-xs font-normal text-muted-foreground">
                           {o.client.name}
@@ -761,7 +761,7 @@ export default function DashboardPage() {
                   <li key={o.id} className="flex items-center justify-between gap-3 py-2">
                     <div className="min-w-0">
                       <p className="truncate text-sm font-medium">
-                        {o.order_number ? `#${o.order_number}` : o.client?.name ?? "Sin cliente"}
+                        {o.order_number ? `#${o.order_number}` : o.client?.name ?? "Sin socio"}
                         {o.order_number && o.client?.name && (
                           <span className="ml-2 text-xs font-normal text-muted-foreground">
                             {o.client.name}
@@ -1010,7 +1010,7 @@ function BusinessSummaryPanel({
           metrics={[
             { label: "Ventas", value: Math.min(salesTotal / 100000, 1) },
             { label: "Órdenes", value: Math.min(ordersCount / 50, 1) },
-            { label: "Clientes", value: Math.min(customers / 100, 1) },
+            { label: "Socios", value: Math.min(customers / 100, 1) },
             { label: "Ganancia", value: Math.min(totalProfit / 50000, 1) },
           ]}
         />

@@ -194,10 +194,10 @@ export function PlanningCard({
           </div>
           {clientHref ? (
             <Link href={clientHref} className="block truncate text-[11px] font-medium text-primary hover:underline">
-              {clientName || "Cliente"}
+              {clientName || "Socio"}
             </Link>
           ) : (
-            <p className="truncate text-[11px] text-muted-foreground">{clientName || "Sin cliente"}</p>
+            <p className="truncate text-[11px] text-muted-foreground">{clientName || "Sin socio"}</p>
           )}
         </div>
       </div>

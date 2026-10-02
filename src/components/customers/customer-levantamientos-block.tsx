@@ -208,7 +208,7 @@ export function CustomerLevantamientosTab({
       const label = kind === "ficha" ? formTitle(survey.title) : survey.title || "encuesta";
       const ask =
         kind === "ficha"
-          ? `Hola${customerName ? ` ${customerName}` : ""}, completá esta ficha para que armemos tu cotización: ${label}\n${url}`
+          ? `Hola${customerName ? ` ${customerName}` : ""}, completa esta ficha para que armemos tu cotización: ${label}\n${url}`
           : `Hola${customerName ? ` ${customerName}` : ""}, nos ayudás con esta encuesta: ${label}\n${url}`;
       const phone = (customerPhone ?? "").replace(/\D/g, "");
       const href =
@@ -225,7 +225,7 @@ export function CustomerLevantamientosTab({
     try {
       const url = await personalUrl(survey.id);
       const label = kind === "ficha" ? formTitle(survey.title) : survey.title || "encuesta";
-      setQrModal({ url, title: `Ficha para ${customerName || "Cliente"}: ${label}` });
+      setQrModal({ url, title: `Ficha para ${customerName || "Socio"}: ${label}` });
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "No se pudo armar el link");
     }
@@ -292,9 +292,9 @@ export function CustomerLevantamientosTab({
   return (
     <div className="flex flex-col gap-4">
       <section className="glass rounded-2xl p-4">
-        <p className="text-sm font-semibold">Enviar link a este cliente</p>
+        <p className="text-sm font-semibold">Enviar link a este socio</p>
         <p className="mt-0.5 text-xs text-muted-foreground">
-          El link es solo de {customerName || "este cliente"}. Cuando lo responde, la data queda en su ficha.
+          El link es solo de {customerName || "este socio"}. Cuando lo responde, la data queda en su ficha.
           Fichas para cotizar, encuestas para la nota del local.
         </p>
         <div className="mt-3 grid gap-3 lg:grid-cols-2">
@@ -303,7 +303,7 @@ export function CustomerLevantamientosTab({
             hint="Fichas publicadas"
             loading={customQuery.isLoading}
             items={published}
-            empty="Publicá una sección en Fichas."
+            empty="Publica una sección en Fichas."
             emptyHref="/customers/forms"
             kind="ficha"
             onCopy={copyLink}
@@ -315,7 +315,7 @@ export function CustomerLevantamientosTab({
             hint="Satisfacción activa"
             loading={satisfactionQuery.isLoading}
             items={encuestas}
-            empty="Creá una encuesta de satisfacción."
+            empty="Crea una encuesta de satisfacción."
             emptyHref="/customers/surveys"
             kind="encuesta"
             onCopy={copyLink}
@@ -326,7 +326,7 @@ export function CustomerLevantamientosTab({
       </section>
 
       <p className="text-xs text-muted-foreground">
-        Arrastrá una ficha a Completados para llenarla acá. Los hechos se mueven a Cotizados cuando ya armaste la cotización.
+        Arrastra una ficha a Completados para llenarla acá. Los hechos se mueven a Cotizados cuando ya armaste la cotización.
       </p>
 
       {responsesQuery.isLoading || customQuery.isLoading ? (
@@ -339,7 +339,7 @@ export function CustomerLevantamientosTab({
         <div className="grid items-start gap-3 xl:grid-cols-3">
           <BoardColumn
             title="Por llenar"
-            hint="Elegí o arrastrá para completarla"
+            hint="Elige o arrastra para completarla"
             count={published.length}
             active={overColumn === "todo"}
             onDragOver={(event) => {
@@ -369,7 +369,7 @@ export function CustomerLevantamientosTab({
                     <GripVertical className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-sm font-semibold">{formTitle(survey.title)}</p>
-                      <p className="text-[11px] text-muted-foreground">Pendiente de este cliente</p>
+                      <p className="text-[11px] text-muted-foreground">Pendiente de este socio</p>
                     </div>
                   </div>
                   <Button
@@ -431,7 +431,7 @@ export function CustomerLevantamientosTab({
           >
             {quoted.length === 0 ? (
               <p className="px-1 py-6 text-center text-xs text-muted-foreground">
-                Arrastrá un completado acá.
+                Arrastra un completado acá.
               </p>
             ) : (
               quoted.map((response) => (

@@ -399,7 +399,7 @@ export default function TaxDocumentsPage() {
               <Input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="Cliente, RUT o folio…"
+                placeholder="Socio, RUT o folio…"
                 className="pl-9"
                 aria-label="Buscar documentos"
               />
@@ -425,7 +425,7 @@ export default function TaxDocumentsPage() {
                 <Input
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  placeholder="Cliente, RUT o folio…"
+                  placeholder="Socio, RUT o folio…"
                   className="h-10 pl-9"
                   aria-label="Buscar documentos"
                 />
@@ -521,7 +521,7 @@ export default function TaxDocumentsPage() {
                     <th className="px-4 py-3">Folio</th>
                     <th className="px-4 py-3">Orden</th>
                     <th className="px-4 py-3">Fecha</th>
-                    <th className="px-4 py-3">Cliente</th>
+                    <th className="px-4 py-3">Socio</th>
                     <th className="px-4 py-3 text-right">Neto</th>
                     <th className="px-4 py-3 text-right">IVA</th>
                     <th className="px-4 py-3 text-right">Total</th>
@@ -610,7 +610,7 @@ export default function TaxDocumentsPage() {
                 </div>
                 <hr className="border-border" />
                 <div className="grid grid-cols-2 gap-3">
-                  <div><span className="text-xs text-muted-foreground">Cliente</span><p className="font-medium">{detail.customer_name}</p></div>
+                  <div><span className="text-xs text-muted-foreground">Socio</span><p className="font-medium">{detail.customer_name}</p></div>
                   <div><span className="text-xs text-muted-foreground">RUT</span><p className="font-mono">{detail.customer_rut}</p></div>
                   {detail.customer_address && <div className="col-span-2"><span className="text-xs text-muted-foreground">Dirección</span><p>{detail.customer_address}</p></div>}
                 </div>
@@ -800,7 +800,7 @@ function FromOrderModal({
   const orderOptions = (ordersPage?.results ?? []).map((o) => ({
     value: String(o.id),
     label: `${o.order_number ?? o.id.slice(0, 8)} · ${formatCLPShared(o.total_amount ?? "0")}`,
-    description: o.client?.name ?? "Sin cliente",
+    description: o.client?.name ?? "Sin socio",
   }));
 
   const selected = (ordersPage?.results ?? []).find((o) => String(o.id) === orderId);
@@ -820,7 +820,7 @@ function FromOrderModal({
     const client = o?.client as { name?: string; dni?: string; default_document_type?: string | null; receiver_type?: string | null } | undefined;
     const nextType = preferredType(client);
     setDocType(nextType);
-    setName(client?.name ?? "Cliente");
+    setName(client?.name ?? "Socio");
     setRut(client?.dni?.trim() || (nextType === "39" || nextType === "41" ? BOLETA_RUT : ""));
     setAddress("");
   }
@@ -833,11 +833,11 @@ function FromOrderModal({
     }
     const useRut = (docType === "39" || docType === "41") && !rut.trim() ? BOLETA_RUT : rut.trim();
     if (!isValidRUT(useRut)) {
-      toast.error("El RUT del cliente no es válido.");
+      toast.error("El RUT del socio no es válido.");
       return;
     }
     if (!name.trim()) {
-      toast.error("Falta el nombre del cliente.");
+      toast.error("Falta el nombre del socio.");
       return;
     }
     onSubmit({
@@ -877,7 +877,7 @@ function FromOrderModal({
                 onChange={applyOrder}
                 options={orderOptions}
                 placeholder="Elige una venta pagada"
-                searchPlaceholder="Buscar número o cliente…"
+                searchPlaceholder="Buscar número o socio…"
                 emptyMessage="No hay órdenes pagadas"
                 loading={isFetching}
                 onQueryChange={setOrderQuery}
