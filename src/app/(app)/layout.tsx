@@ -26,6 +26,7 @@ import { SupportLauncher } from "@/components/support/support-launcher";
 import { ForbiddenListener } from "@/components/forbidden-listener";
 import { AuthWaterBackdrop } from "@/components/auth/auth-water-shell";
 import { TrialBanner, useTrialAccessBlocked } from "@/components/trial-banner";
+import { DemoBanner, useIsCauceDemo } from "@/components/demo/demo-banner";
 import { enabledModuleSet, firstEnabledAllowedPath } from "@/lib/modules";
 import { SUPERADMIN_ALLOWED_PATHS as SUPERADMIN_MENU_PATHS } from "@/lib/hooks/useFrigMenu";
 import { useToastStore } from "@/lib/store/toast";
@@ -77,6 +78,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
   const isRouteModuleEnabled = useIsRouteModuleEnabled(pathname);
   const { locked: subscriptionLocked } = useSubscriptionLock();
   const trialBlocked = useTrialAccessBlocked();
+  const isCauceDemo = useIsCauceDemo();
   const setFrontendConfig = useSessionStore((s) => s.setFrontendConfig);
   const branches = useSessionStore((s) => s.branches);
   const queryClient = useQueryClient();
@@ -262,7 +264,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
     <RealtimeProvider>
       <ForbiddenListener />
       <div className="relative flex min-h-full bg-papel">
-        {trialBlocked ? <TrialBanner forceOverlay /> : null}
+        {trialBlocked && !isCauceDemo ? <TrialBanner forceOverlay /> : null}
         {showChrome && !NO_WATER_PATHS.some((p) => pathname.startsWith(p)) && (
           <div
             aria-hidden
@@ -290,7 +292,8 @@ export default function AppLayout({ children }: { children: ReactNode }) {
             ],
           )}
         >
-          {showChrome && !trialBlocked ? <TrialBanner /> : null}
+          {isCauceDemo ? <DemoBanner /> : null}
+          {showChrome && !trialBlocked && !isCauceDemo ? <TrialBanner /> : null}
           {blockPageContent ? (
             <div className="flex flex-1 items-center justify-center bg-background">
               <div className="h-6 w-6 animate-spin rounded-full border-2 border-muted border-t-primary" />

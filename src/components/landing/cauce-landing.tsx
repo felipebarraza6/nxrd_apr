@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AuthWaterBackdrop } from "@/components/auth/auth-water-shell";
@@ -10,12 +10,15 @@ import {
   SIGNUP_SECTION_ID,
   useCaucePlans,
 } from "@/components/landing/cauce-signup";
+import { DemoRolePicker } from "@/components/landing/demo-role-picker";
+import { DemoShowcase } from "@/components/landing/demo-showcase";
 import { getToken } from "@/lib/api/session-storage";
 import {
   CAUCE_FALLBACK_PLANS,
   formatPlanPriceClp,
   type SignupPlanOption,
 } from "@/lib/cauce-checkout";
+import { CAUCE_DEMO_NOTICE_KEY } from "@/lib/cauce-demo";
 import { cn } from "@/lib/utils";
 import { getHomeRouteForUser } from "@/lib/home-route";
 import { useSessionStore } from "@/lib/store/session";
@@ -29,6 +32,8 @@ export function CauceLanding() {
   const user = useSessionStore((s) => s.user);
   const hasHydrated = useSessionStore((s) => s.hasHydrated);
   const { landing, plans, planId, setPlanId } = useCaucePlans();
+  const [demoPickerOpen, setDemoPickerOpen] = useState(false);
+  const [demoNotice, setDemoNotice] = useState<string | null>(null);
 
   useEffect(() => {
     if (!hasHydrated) return;
@@ -38,6 +43,18 @@ export function CauceLanding() {
     const home = getHomeRouteForUser(user);
     router.replace(home);
   }, [hasHydrated, user, router]);
+
+  useEffect(() => {
+    try {
+      const notice = window.sessionStorage.getItem(CAUCE_DEMO_NOTICE_KEY);
+      if (!notice) return;
+      window.sessionStorage.removeItem(CAUCE_DEMO_NOTICE_KEY);
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- aviso one-shot desde sessionStorage al montar
+      setDemoNotice(notice);
+    } catch {
+      /* */
+    }
+  }, []);
 
   /** Elegir plan en la tabla → registro embebido en esta misma página. */
   const choosePlan = useCallback(
@@ -54,6 +71,9 @@ export function CauceLanding() {
     },
     [setPlanId],
   );
+
+  const openDemo = useCallback(() => setDemoPickerOpen(true), []);
+
   const hero = landing?.group?.hero;
   const features =
     landing?.group?.features?.length
@@ -92,6 +112,22 @@ export function CauceLanding() {
 
   return (
     <main className="bg-tinta text-papel">
+      {demoNotice ? (
+        <div
+          role="status"
+          className="relative z-30 border-b border-azul/40 bg-azul px-4 py-3 text-center text-sm text-white"
+        >
+          {demoNotice}
+          <button
+            type="button"
+            onClick={() => setDemoNotice(null)}
+            className="ml-3 font-accent text-[10px] uppercase tracking-[0.16em] underline"
+          >
+            Cerrar
+          </button>
+        </div>
+      ) : null}
+
       {/* ── HERO ── */}
       <section
         id="top"
@@ -105,13 +141,20 @@ export function CauceLanding() {
             alt="Cauce"
             className="h-8 w-auto md:h-10"
           />
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3 md:gap-4">
             <a
               href="#planes"
               className="font-accent hidden text-[11px] uppercase tracking-[0.22em] text-papel/70 hover:text-papel md:inline"
             >
               Planes
             </a>
+            <button
+              type="button"
+              onClick={openDemo}
+              className="font-accent hidden text-[11px] uppercase tracking-[0.22em] text-papel/80 hover:text-papel sm:inline"
+            >
+              Probar demo
+            </button>
             <Link
               href="/login"
               className="font-accent text-[11px] uppercase tracking-[0.22em] text-papel/80 hover:text-papel"
@@ -120,7 +163,7 @@ export function CauceLanding() {
             </Link>
             <a
               href={`#${SIGNUP_SECTION_ID}`}
-              className="font-accent bg-azul px-5 py-2.5 text-[11px] font-medium uppercase tracking-[0.22em] text-white transition-colors hover:bg-azul-deep"
+              className="font-accent bg-azul px-4 py-2.5 text-[11px] font-medium uppercase tracking-[0.22em] text-white transition-colors hover:bg-azul-deep md:px-5"
             >
               1er mes gratis
             </a>
@@ -150,13 +193,20 @@ export function CauceLanding() {
                 landing?.group?.description ||
                 "Gestión hídrica para comités y cooperativas: medidores, lecturas, tarifas y cobros con boleta electrónica SII."}
             </p>
-            <div className="flex flex-wrap items-center gap-4">
+            <div className="flex flex-wrap items-center gap-3 md:gap-4">
               <a
                 href={`#${SIGNUP_SECTION_ID}`}
                 className="font-accent bg-azul px-8 py-4 text-[12px] font-medium uppercase tracking-[0.22em] text-white transition-colors hover:bg-azul-deep"
               >
                 {hero?.cta_label || "Plan Piloto — 30 días gratis"}
               </a>
+              <button
+                type="button"
+                onClick={openDemo}
+                className="font-accent border border-papel/30 px-6 py-4 text-[12px] uppercase tracking-[0.22em] text-papel transition-colors hover:border-papel hover:bg-papel/10"
+              >
+                Probar demo
+              </button>
               <a
                 href="#planes"
                 className="font-accent px-2 py-4 text-[12px] uppercase tracking-[0.22em] text-papel/80"
@@ -218,13 +268,16 @@ export function CauceLanding() {
         </div>
       </section>
 
+      {/* ── SHOWCASE (componentes reales + KPIs demo) ── */}
+      <DemoShowcase />
+
       {/* ── PLANES ── */}
       <section id="planes" className="relative bg-papel text-tinta">
         <div className="puntos-oscura pointer-events-none absolute inset-0 opacity-40" />
         <div className="relative mx-auto max-w-[1400px] px-5 py-24 md:px-10 md:py-36">
           <div className="flex items-baseline justify-between border-t-2 border-tinta pt-4">
             <p className="font-accent text-[11px] uppercase tracking-[0.28em]">
-              02 — Planes
+              03 — Planes
             </p>
             <p className="font-accent hidden text-[11px] uppercase tracking-[0.28em] text-tinta/50 md:block">
               CLP mensual + IVA
@@ -257,13 +310,20 @@ export function CauceLanding() {
               "Implementación $0 · Sin amarras: aviso 15 días y te llevas tu base en Excel."}
           </p>
 
-          <div className="mt-16 flex flex-wrap items-center gap-6">
+          <div className="mt-16 flex flex-wrap items-center gap-4 md:gap-6">
             <button
               type="button"
               onClick={() => choosePlan(planId)}
               className="font-accent bg-tinta px-10 py-5 text-[12px] font-medium uppercase tracking-[0.22em] text-papel transition-colors hover:bg-azul"
             >
               Comenzar Plan Piloto — 30 días gratis →
+            </button>
+            <button
+              type="button"
+              onClick={openDemo}
+              className="font-accent border border-tinta/25 px-8 py-5 text-[12px] uppercase tracking-[0.22em] text-tinta transition-colors hover:border-azul hover:text-azul"
+            >
+              Probar demo
             </button>
             <Link
               href="/login"
@@ -281,7 +341,7 @@ export function CauceLanding() {
         landing={landing}
         planId={planId}
         onPlanChange={setPlanId}
-        sectionLabel="03 — Registro"
+        sectionLabel="04 — Registro"
       />
 
       {/* ── FOOTER ── */}
@@ -289,7 +349,7 @@ export function CauceLanding() {
         <div className="puntos pointer-events-none absolute inset-0 opacity-40" />
         <div className="relative mx-auto max-w-[1400px] px-5 pb-10 pt-24 md:px-10 md:pt-32">
           <p className="font-accent text-[11px] uppercase tracking-[0.28em] text-papel/50">
-            04 — Contacto
+            05 — Contacto
           </p>
           <h2 className="mt-10 font-heading text-[clamp(2.5rem,10vw,8rem)] font-extrabold leading-[0.9] tracking-[-0.04em]">
             Hablemos<span className="text-azul">.</span>
@@ -310,6 +370,11 @@ export function CauceLanding() {
           </div>
         </div>
       </footer>
+
+      <DemoRolePicker
+        open={demoPickerOpen}
+        onClose={() => setDemoPickerOpen(false)}
+      />
     </main>
   );
 }

@@ -6,6 +6,11 @@ import { ApiError } from "@/lib/api/client";
 import { useToast } from "@/lib/store/toast";
 import { FRIG_ALWAYS_ON_MODULES } from "@/lib/modules";
 import { useIsCashier } from "@/lib/store/session";
+import {
+  formatDemoBlockedMessage,
+  looksLikeDemoBlockedError,
+} from "@/lib/cauce-demo";
+import { STORAGE } from "@/lib/storage-keys";
 
 /**
  * Escucha el evento global "api:forbidden" disparado por apiFetch cuando una
@@ -38,11 +43,17 @@ export function ForbiddenListener() {
     function handleForbidden(e: Event) {
       const error = e instanceof CustomEvent ? (e.detail as ApiError) : null;
       const rawMessage = error?.message && error.message !== "Error 403" ? error.message : "";
-      const message = rawMessage || "No tienes permiso para ver esta función.";
+      const inDemo =
+        typeof window !== "undefined" &&
+        Boolean(window.localStorage.getItem(STORAGE.demoExpiresAt));
+      const message =
+        inDemo && looksLikeDemoBlockedError(error ?? rawMessage)
+          ? formatDemoBlockedMessage(rawMessage)
+          : rawMessage || "No tienes permiso para ver esta función.";
 
       // Si el error proviene de un módulo core (siempre activo), no
       // molestamos al usuario: el backend debería tenerlo habilitado.
-      if (rawMessage && alwaysOnRegex.test(rawMessage)) {
+      if (rawMessage && alwaysOnRegex.test(rawMessage) && !inDemo) {
         return;
       }
 
@@ -54,7 +65,8 @@ export function ForbiddenListener() {
       }
 
       // No redirigir roles operativos ni si ya estamos en /dashboard.
-      if (isOperationalRole || pathname === "/dashboard") {
+      // En demo tampoco redirigir: el 403 suele ser acción bloqueada (DTE/Flow).
+      if (isOperationalRole || pathname === "/dashboard" || inDemo) {
         return;
       }
 
