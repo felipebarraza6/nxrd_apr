@@ -1,10 +1,13 @@
 /**
- * Demo pública de Cauce (APR Río Claro).
+ * Demo pública de Cauce.
  * Contrato: yggdra_infra PR #42 — cauce-demo-login / cauce-demo-kpis.
  */
 
 export const CAUCE_DEMO_LOGIN_SLUG = "apr-cauce-demo";
+/** Nombre de la sucursal demo en backend (detección de sesión). */
 export const CAUCE_DEMO_BRANCH_NAME = "APR Río Claro (demo)";
+/** Label genérico en UI pública (landing): no exhibe el APR seed. */
+export const CAUCE_DEMO_DISPLAY_LABEL = "Datos de ejemplo";
 export const CAUCE_DEMO_EMAIL_SUFFIX = "@demo.yggdra.cl";
 export const CAUCE_DEMO_KPI_CACHE_KEY = "cauce.demo_kpis.v1";
 export const CAUCE_DEMO_NOTICE_KEY = "cauce.demo_notice";
@@ -72,13 +75,13 @@ export type CauceDemoKpis = {
   demo: true;
 };
 
-/** Misma data que siembra setup_cauce_demo (APR Río Claro, socio M-001). */
+/** Seed de muestra para la tarjeta POS de la landing (datos de ejemplo). */
 export const CAUCE_DEMO_SAMPLE_READING_FALLBACK: CauceDemoSampleReading = {
   meter_number: "M-001",
   client_name: "María Pérez Soto",
   sector: "Alto",
-  address: "Alto, sitio 1",
-  period: "2026-10",
+  address: null,
+  period: "ejemplo",
   previous_reading: 210.5,
   current_reading: 240.9,
   consumed_m3: 30.4,
@@ -89,7 +92,14 @@ export function demoSampleReading(
   kpis: Pick<CauceDemoKpis, "sample_reading"> | null | undefined,
 ): CauceDemoSampleReading {
   const s = kpis?.sample_reading;
-  if (s && s.meter_number && s.client_name) return s;
+  if (s && s.meter_number && s.client_name) {
+    // Neutraliza domicilio/período con aspecto de APR real en el showcase.
+    return {
+      ...s,
+      address: null,
+      period: "ejemplo",
+    };
+  }
   return CAUCE_DEMO_SAMPLE_READING_FALLBACK;
 }
 
@@ -97,12 +107,12 @@ export function demoSampleReading(
 export const CAUCE_DEMO_KPI_FALLBACK: CauceDemoKpis = {
   branch: {
     id: 0,
-    name: CAUCE_DEMO_BRANCH_NAME,
+    name: CAUCE_DEMO_DISPLAY_LABEL,
     login_slug: CAUCE_DEMO_LOGIN_SLUG,
-    commune: "Lautaro",
-    region: "Región de La Araucanía",
+    commune: null,
+    region: null,
   },
-  period: "2026-10",
+  period: "ejemplo",
   socios: 40,
   meters: 40,
   readings_this_month: 24,

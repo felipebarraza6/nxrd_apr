@@ -7,7 +7,7 @@ import { DemoRolePicker } from "@/components/landing/demo-role-picker";
 import { logoutLocal } from "@/lib/logout-local";
 import { STORAGE } from "@/lib/storage-keys";
 import {
-  CAUCE_DEMO_BRANCH_NAME,
+  CAUCE_DEMO_DISPLAY_LABEL,
   CAUCE_DEMO_NOTICE_KEY,
   demoSecondsRemaining,
   formatDemoCountdown,
@@ -93,7 +93,7 @@ export function DemoBanner() {
       >
         <div className="mx-auto flex max-w-5xl flex-col items-center justify-center gap-2 sm:flex-row sm:gap-4">
           <p className="font-accent text-[11px] font-medium uppercase tracking-[0.14em]">
-            Estás en la demo de Cauce · {branchName || CAUCE_DEMO_BRANCH_NAME} ·
+            Estás en la demo de Cauce · {CAUCE_DEMO_DISPLAY_LABEL} ·
             quedan{" "}
             <span className="tabular-nums text-azul">{formatDemoCountdown(seconds)}</span>
           </p>
