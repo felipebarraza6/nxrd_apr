@@ -240,6 +240,29 @@ const KIND_META: Record<PendingEntityKind, { icon: LucideIcon; chip: string }> =
 
 const isIncomeEntity = (kind: PendingEntityKind) => kind === "order" || kind === "revenue";
 
+/** Página todas las órdenes PENDING/PARTIAL siguiendo `next` (la demo supera page_size 100). */
+const PENDING_ORDERS_PAGE_SIZE = 100;
+const PENDING_ORDERS_MAX_PAGES = 50;
+
+async function fetchAllPendingOrders(): Promise<OrderDetail[]> {
+  const all: OrderDetail[] = [];
+  let next: string | null | undefined;
+  let first = true;
+  for (let page = 0; page < PENDING_ORDERS_MAX_PAGES; page++) {
+    const data = await fetchOrders({
+      payment_status: ["PENDING", "PARTIAL"],
+      page_size: PENDING_ORDERS_PAGE_SIZE,
+      next: first ? undefined : next,
+      previous: undefined,
+    });
+    all.push(...((data.results ?? []) as OrderDetail[]));
+    next = data.next;
+    first = false;
+    if (!next) break;
+  }
+  return all;
+}
+
 // Entidades pendientes de pago (la fuente de verdad de la vista "Pendientes"
 // y del picker de "Registrar pago").
 // Ingreso: ÓRDENES con pago pendiente — ventas (SALE), pedidos (ORDER) y
@@ -261,6 +284,14 @@ function buildPendingEntities(
       const typeLabel = o.order_type === "SALE" ? "Venta" : o.order_type === "ORDER" ? "Orden" : "Convenio";
       const partial = o.payment_status === "PARTIAL";
       const overdue = !partial && new Date(o.date).getTime() < today;
+      const total = parseAmount(o.total_amount);
+      // Preferir saldo restante cuando el backend lo expone (PARTIAL); si no, total - pagado.
+      const remainingRaw = (o as { remaining_amount?: number | string | null }).remaining_amount;
+      const paidRaw = (o as { paid_amount?: number | string | null }).paid_amount;
+      const pending =
+        remainingRaw != null && remainingRaw !== ""
+          ? parseAmount(remainingRaw)
+          : Math.max(0, total - parseAmount(paidRaw ?? undefined));
       return {
         key: `order:${o.id}`,
         kind: "order" as const,
@@ -272,9 +303,9 @@ function buildPendingEntities(
         paymentStatus: partial ? "PARTIAL" : overdue ? "OVERDUE" : "PENDING",
         date: o.date,
         dueDate: o.date,
-        amount: parseAmount(o.total_amount),
-        pending: parseAmount(o.total_amount),
-        hint: "total orden",
+        amount: total,
+        pending: pending > 0 ? pending : total,
+        hint: partial ? "saldo pendiente" : "total orden",
       };
     });
   const revenueEntities: PickerEntity[] = revenues
@@ -434,10 +465,11 @@ export default function PaymentsPage() {
     isError: isOrdersForPaymentError,
     refetch: refetchOrdersForPayment,
   } = useQuery({
-    queryKey: ["orders", "for-payment"],
+    queryKey: ["orders", "for-payment", "all-pages"],
     // Todas las órdenes con pago pendiente/parcial, sin filtrar por tipo:
     // SALE (venta), ORDER (orden de pedido) y AGREEMENT (convenio) se pueden pagar.
-    queryFn: () => fetchOrders({ payment_status: ["PENDING", "PARTIAL"], page_size: 100 }),
+    // Se pagina siguiendo `next` para no truncar en page_size 100.
+    queryFn: fetchAllPendingOrders,
     enabled: createOpen || view === "pendientes",
   });
 
@@ -506,7 +538,7 @@ export default function PaymentsPage() {
   const pendingList = useMemo(
     () =>
       buildPendingEntities(
-        ordersForPayment?.results ?? [],
+        ordersForPayment ?? [],
         revenuesForPayment?.results ?? [],
         purchaseOrdersForPayment?.results ?? [],
         expenses?.results ?? [],
@@ -1429,7 +1461,7 @@ export default function PaymentsPage() {
         open={createOpen}
         onClose={() => { setCreateOpen(false); setPaymentPreset(null); }}
         paymentMethods={paymentMethods ?? []}
-        orders={ordersForPayment?.results ?? []}
+        orders={ordersForPayment ?? []}
         revenues={revenuesForPayment?.results ?? []}
         purchaseOrders={purchaseOrdersForPayment?.results ?? []}
         expenses={expenses?.results ?? []}

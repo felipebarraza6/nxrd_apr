@@ -94,7 +94,12 @@ export function OrdersMetricDetail({
   const { data, isLoading, error } = useQuery({
     queryKey: ["dashboard", "metric-orders", filter],
     queryFn: () => fetchOrders({ ...filter, page_size: 50 }),
-    enabled: !!filter.start_date && !!filter.end_date,
+    // Permite listados sin rango de fechas (p.ej. cuentas abiertas / receivables).
+    enabled:
+      (!!filter.start_date && !!filter.end_date) ||
+      filter.payment_status != null ||
+      filter.status != null ||
+      filter.order_type != null,
   });
 
   if (isLoading) {

@@ -126,13 +126,26 @@ export default function DashboardPage() {
   const { data: pendingPayment = [] } = useQuery({
     queryKey: ["dashboard", "pending-payment", "v2", branchId],
     queryFn: async () => {
-      const data = await fetchOrders({ order_type: ["SALE", "ORDER"], payment_status: ["PENDING", "PARTIAL"], page_size: 5 });
+      // Sin filtro de order_type: incluye SALE, ORDER y AGREEMENT (como Pagos).
+      const data = await fetchOrders({ payment_status: ["PENDING", "PARTIAL"], page_size: 5 });
       return data.results ?? [];
     },
     enabled: !!branch,
   });
 
-  const loading = loadingCounts || loadingSummary || (nutritionEnabled && loadingIngredients);
+  // Fallback si el backend aún no expone receivables en module_counts.
+  const needsReceivablesFallback = !!counts && counts.receivables == null;
+  const { data: receivablesFallback, isLoading: loadingReceivablesFallback } = useQuery({
+    queryKey: ["dashboard", "receivables-fallback", "v2", branchId],
+    queryFn: () => fetchOrders({ payment_status: ["PENDING", "PARTIAL"], page_size: 1 }),
+    enabled: !!branch && needsReceivablesFallback,
+  });
+
+  const loading =
+    loadingCounts ||
+    loadingSummary ||
+    (nutritionEnabled && loadingIngredients) ||
+    (needsReceivablesFallback && loadingReceivablesFallback);
   const error = countsError || summaryError;
 
   if (loading) {
@@ -163,10 +176,11 @@ export default function DashboardPage() {
   const totalRevenue = salesTotal + ordersTotal;
   const totalProfit = salesProfit + ordersProfit;
   // Métricas de contexto para estados y totales generales.
-  const completedOrders = summary?.orders?.completed ?? 0;
   const customers = counts?.customers?.total ?? 0;
-  const pendingOrders = counts?.sales?.pending_orders ?? 0;
-  const pendingSalesAmount = counts?.sales?.pending_sales_amount ?? 0;
+  // Cuentas abiertas = cargos por cobrar (PENDING/PARTIAL, cualquier tipo, sin filtro de fecha).
+  const openAccountsCount =
+    counts?.receivables?.pending_count ?? receivablesFallback?.count ?? 0;
+  const openAccountsAmount = counts?.receivables?.pending_amount ?? 0;
   const expensesTotal = counts?.expenses_by_supplier?.reduce((sum, e) => sum + e.total, 0) ?? 0;
 
   return (
@@ -344,46 +358,43 @@ export default function DashboardPage() {
         />
         <SharedStatCard
           label="Cuentas abiertas"
-          value={pendingOrders}
+          value={openAccountsCount}
           icon={Clock}
-          sub="ventas sin pagar"
+          sub="cargos sin pagar"
           tone="warning"
-          href="/sales"
+          href="/payments"
 
           onClick={() =>
             setDrawer({
               open: true,
               metric: {
                 title: "Cuentas abiertas",
-                value: pendingOrders,
+                value: openAccountsCount,
                 icon: Clock,
-                description: "Ventas que todavía no se han pagado en el rango seleccionado. Requieren atención para completar el cobro.",
+                description:
+                  "Total que te deben actualmente: cargos con pago pendiente o parcial, de cualquier tipo. No depende del rango de fechas que tengas seleccionado.",
                 sections: [
-                  { label: "Monto pendiente", value: formatCLP(pendingSalesAmount) },
-                  { label: "Ventas completadas", value: String(salesCount) },
-                  { label: "Órdenes completadas", value: String(completedOrders) },
+                  { label: "Monto pendiente", value: formatCLP(openAccountsAmount) },
+                  { label: "Cargos sin pagar", value: String(openAccountsCount) },
                 ],
                 actions: (
                   <Link
-                    href="/sales"
+                    href="/payments"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center justify-center gap-2 rounded-xl bg-amber-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-amber-600/90"
                   >
-                    Gestionar cuentas abiertas
+                    Gestionar
                     <ArrowRight className="h-4 w-4" />
                   </Link>
                 ),
                 children: (
-                                      <OrdersMetricDetail
-                      filter={{
-                        start_date: dates.start,
-                        end_date: dates.end,
-                        order_type: "SALE",
-                        status: "PENDING",
-                      }}
-                      emptyMessage="No hay cuentas abiertas en el período seleccionado."
-                    />
+                  <OrdersMetricDetail
+                    filter={{
+                      payment_status: ["PENDING", "PARTIAL"],
+                    }}
+                    emptyMessage="No hay cargos pendientes de pago."
+                  />
                 ),
               },
             })
@@ -744,7 +755,7 @@ export default function DashboardPage() {
               <Wallet className="h-4 w-4 text-primary" />
               Últimos pendientes por pagar
             </h2>
-            <Link href="/sales" className="text-xs font-medium text-primary transition-colors hover:underline">
+            <Link href="/payments" className="text-xs font-medium text-primary transition-colors hover:underline">
               Ver todas
             </Link>
           </div>
