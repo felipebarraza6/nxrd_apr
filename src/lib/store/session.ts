@@ -251,8 +251,15 @@ export function useCurrentBranch(): Branch | null {
   return branches.find((b) => String(b.branch_id) === currentBranchId) ?? null;
 }
 
-function normalizeRole(role?: string | null): string | undefined {
-  return role?.trim().toUpperCase() || undefined;
+// El backend usa el código de catálogo METER para el medidor; la UI
+// (allowlists, guards, sidebar) habla de MEDIDOR. Sin este alias el medidor
+// caía como rol no operativo y veía el menú completo de administración.
+const ROLE_ALIASES: Record<string, string> = { METER: "MEDIDOR" };
+
+export function normalizeRole(role?: string | null): string | undefined {
+  const code = role?.trim().toUpperCase();
+  if (!code) return undefined;
+  return ROLE_ALIASES[code] ?? code;
 }
 
 /** Comprueba si el usuario tiene privilegios de administrador global o superusuario. */
