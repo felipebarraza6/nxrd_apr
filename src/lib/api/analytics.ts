@@ -6,6 +6,8 @@ export type ModuleCounts = {
   customers?: { total: number };
   inventory?: { total_products: number; low_stock: number };
   sales?: { total_orders: number; pending_orders: number; pending_sales_amount: number };
+  /** Cargos por cobrar (PENDING/PARTIAL, cualquier tipo, sin filtro de fecha). */
+  receivables?: { pending_count: number; pending_amount: number };
   finance?: { total_payments: number; total_expenses: number };
   scheduling?: { today_appointments: number };
   certificates?: { total: number; expiring_soon: number };
