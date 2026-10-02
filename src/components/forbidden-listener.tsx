@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useMemo } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
+import { useNormalizedPathname } from "@/lib/pathname";
 import { ApiError } from "@/lib/api/client";
 import { useToast } from "@/lib/store/toast";
 import { FRIG_ALWAYS_ON_MODULES } from "@/lib/modules";
@@ -24,7 +25,7 @@ import { STORAGE } from "@/lib/storage-keys";
  */
 export function ForbiddenListener() {
   const router = useRouter();
-  const pathname = usePathname();
+  const pathname = useNormalizedPathname();
   const toast = useToast();
   const isOperationalRole = useIsCashier();
 
