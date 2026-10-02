@@ -69,7 +69,8 @@ import { fetchRevenues, type Revenue } from "@/lib/api/revenues";
 import { fetchPurchaseOrders, payPurchaseOrder, type PurchaseOrderList } from "@/lib/api/suppliers";
 import { fetchBranchFinanceConfigByBranch } from "@/lib/api/branch-finance-config";
 import { formatCLP, paymentTypeLabel } from "@/lib/utils";
-import { useIsOwner, useIsAdminLocal } from "@/lib/store/session";
+import { useIsOwner, useIsAdminLocal, useIsModuleEnabledFromConfig } from "@/lib/store/session";
+import { emptyOnForbidden } from "@/lib/api/client";
 import { useDownloadFile, exportFilename } from "@/lib/hooks/useDownloadFile";
 import { generateExcelBlob } from "@/lib/export-excel";
 
@@ -451,6 +452,7 @@ export default function PaymentsPage() {
     enabled: createOpen || view === "pendientes",
   });
 
+  const suppliersEnabled = useIsModuleEnabledFromConfig("suppliers");
   const {
     data: purchaseOrdersForPayment,
     isLoading: loadingPurchaseOrdersForPayment,
@@ -458,8 +460,13 @@ export default function PaymentsPage() {
     refetch: refetchPurchaseOrdersForPayment,
   } = useQuery({
     queryKey: ["purchase-orders", "for-payment"],
-    queryFn: () => fetchPurchaseOrders({ payment_status__in: ["PENDING", "PARTIAL", "OVERDUE"], page_size: 100 }),
-    enabled: createOpen || view === "pendientes",
+    // OC solo si Proveedores está activo en la sucursal; un 403 (rol sin
+    // Proveedores, p.ej. cajero) cuenta como "sin OC" y no tumba la vista.
+    queryFn: () =>
+      emptyOnForbidden(
+        fetchPurchaseOrders({ payment_status__in: ["PENDING", "PARTIAL", "OVERDUE"], page_size: 100 }),
+      ),
+    enabled: (createOpen || view === "pendientes") && suppliersEnabled,
   });
 
   const {

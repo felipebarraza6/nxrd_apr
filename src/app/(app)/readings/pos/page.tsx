@@ -332,7 +332,9 @@ export default function ReadingPosPage() {
           </div>
           <div className="rounded-xl border border-border bg-card p-3 text-center">
             <p className="text-[10px] uppercase tracking-wide text-muted-foreground">m³ del período</p>
-            <p className="text-xl font-semibold tabular-nums">{totalConsumed}</p>
+            <p className="text-xl font-semibold tabular-nums">
+              {totalConsumed.toLocaleString("es-CL", { maximumFractionDigits: 1 })}
+            </p>
           </div>
         </div>
 
@@ -372,7 +374,7 @@ export default function ReadingPosPage() {
             <CheckCircle2 className="h-14 w-14 text-emerald-500" />
             <h2 className="text-xl font-semibold">¡Ruta completada!</h2>
             <p className="text-sm text-muted-foreground">
-              {completed} lecturas registradas · {totalConsumed} m³ en el período {period}
+              {completed} lecturas registradas · {totalConsumed.toLocaleString("es-CL", { maximumFractionDigits: 1 })} m³ en el período {period}
             </p>
             <div className="flex gap-2">
               <Button

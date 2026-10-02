@@ -444,3 +444,20 @@ export async function apiFile(
     cleanup();
   }
 }
+
+/**
+ * Lista paginada opcional: si el rol no tiene acceso (403) se trata como
+ * vacía en vez de romper la vista que la combina con otras fuentes.
+ */
+export async function emptyOnForbidden<T extends { results?: unknown[] }>(
+  request: Promise<T>,
+): Promise<T> {
+  try {
+    return await request;
+  } catch (err) {
+    if (err instanceof ApiError && err.status === 403) {
+      return { count: 0, next: null, previous: null, results: [] } as unknown as T;
+    }
+    throw err;
+  }
+}
