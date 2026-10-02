@@ -72,7 +72,7 @@ export function DemoRolePicker({
         <div className="flex items-start justify-between gap-3">
           <div>
             <p className="font-accent text-[10px] uppercase tracking-[0.22em] text-papel/50">
-              Demo · APR Río Claro
+              Demo · datos de ejemplo
             </p>
             <h2
               id="demo-picker-title"
@@ -81,7 +81,7 @@ export function DemoRolePicker({
               ¿Cómo quieres probar Cauce?
             </h2>
             <p className="mt-1 text-sm text-papel/60">
-              Sesión de 60 minutos con datos reales de demostración.
+              Sesión de 60 minutos con datos de demostración.
             </p>
           </div>
           <button

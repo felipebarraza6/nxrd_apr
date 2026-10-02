@@ -23,6 +23,7 @@ import { formatCLP, cn } from "@/lib/utils";
 
 /**
  * Showcase "Así se ve Cauce" con componentes reales (StatCard) y KPIs públicos.
+ * Copy genérico (demo / datos de ejemplo): sin nombre de APR, comuna ni período.
  * Un fetch por carga de página; cache sessionStorage; fallback estático.
  */
 function formatM3(value: number | string | null | undefined): string {
@@ -33,12 +34,19 @@ function formatM3(value: number | string | null | undefined): string {
   });
 }
 
+/** Label neutral de sector para el showcase (sin comuna/APR). */
+function formatSectorLabel(sector: string | null | undefined): string {
+  const s = (sector ?? "").trim();
+  if (!s) return "Sector de ejemplo";
+  if (/^sector\b/i.test(s)) return s;
+  return `Sector ${s}`;
+}
+
 export function DemoShowcase() {
   // El HTML estático se genera con el fallback: el primer render del cliente
   // debe coincidir (si no, React #418). La cache de sessionStorage se lee
   // recién después del montaje.
   const [kpis, setKpis] = useState<CauceDemoKpis>(CAUCE_DEMO_KPI_FALLBACK);
-  const [source, setSource] = useState<"live" | "cache" | "fallback">("fallback");
 
   useEffect(() => {
     let cancelled = false;
@@ -46,7 +54,6 @@ export function DemoShowcase() {
     if (cached) {
       // eslint-disable-next-line react-hooks/set-state-in-effect -- cache sessionStorage solo tras montar (hidratación sin mismatch)
       setKpis(cached);
-      setSource("cache");
     }
     fetchCauceDemoKpis()
       .then((data) => {
@@ -54,13 +61,11 @@ export function DemoShowcase() {
         writeDemoKpiCache(data);
         const resolved = resolveDemoKpis(data, cached, false);
         setKpis(resolved.data);
-        setSource(resolved.source);
       })
       .catch(() => {
         if (cancelled) return;
         const resolved = resolveDemoKpis(null, cached, true);
         setKpis(resolved.data);
-        setSource(resolved.source);
       });
     return () => {
       cancelled = true;
@@ -83,22 +88,19 @@ export function DemoShowcase() {
       <div className="relative mx-auto max-w-[1400px] px-5 py-24 md:px-10 md:py-36">
         <div className="flex items-baseline justify-between border-t-2 border-tinta pt-4">
           <p className="font-accent text-[11px] uppercase tracking-[0.28em]">
-            02 — Así se ve Cauce
+            02 — Así se ve la plataforma
           </p>
           <p className="font-accent hidden text-[11px] uppercase tracking-[0.28em] text-tinta/50 md:block">
-            {kpis.branch.name}
-            {source === "fallback" ? " · datos de ejemplo" : ""}
+            Datos de ejemplo
           </p>
         </div>
         <h2 className="mt-14 max-w-3xl font-heading text-[clamp(2.1rem,4.8vw,4.2rem)] font-bold leading-[1.02] tracking-[-0.02em]">
-          La misma interfaz que usa tu{" "}
-          <span className="text-azul">directiva.</span>
+          Así se ve Cauce{" "}
+          <span className="text-azul">por dentro</span>
         </h2>
         <p className="mt-4 max-w-xl text-sm leading-relaxed text-tinta/60 md:text-base">
-          KPIs del período {kpis.period}
-          {kpis.branch.commune ? ` · ${kpis.branch.commune}` : ""}
-          {kpis.branch.region ? `, ${kpis.branch.region}` : ""}. Componentes
-          reales de la app — no son capturas.
+          Una vista de la app con datos de ejemplo: lecturas, cobros y socios
+          tal como los vería tu directiva.
         </p>
 
         <div className="mt-12 grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6">
@@ -157,7 +159,7 @@ export function DemoShowcase() {
             {kpis.consumption_by_sector.map((row) => (
               <div key={row.sector} className="grid grid-cols-12 items-center gap-2">
                 <p className="col-span-3 truncate font-heading text-sm font-semibold md:col-span-2">
-                  {row.sector}
+                  {formatSectorLabel(row.sector)}
                 </p>
                 <div className="col-span-6 h-2 bg-tinta/10 md:col-span-7">
                   <div
@@ -177,7 +179,7 @@ export function DemoShowcase() {
           {/* Snippet tabla medidores/lecturas */}
           <div className="border border-tinta/15 bg-white/70 p-5 backdrop-blur-sm">
             <p className="font-accent text-[11px] uppercase tracking-[0.18em] text-tinta/50">
-              Lecturas del período
+              Lecturas de ejemplo
             </p>
             <table className="mt-4 w-full text-left text-sm">
               <thead className="font-accent text-[10px] uppercase tracking-[0.14em] text-tinta/45">
@@ -190,7 +192,7 @@ export function DemoShowcase() {
               <tbody className="divide-y divide-tinta/10">
                 {kpis.consumption_by_sector.slice(0, 4).map((row) => (
                   <tr key={row.sector}>
-                    <td className="py-2.5 font-medium">{row.sector}</td>
+                    <td className="py-2.5 font-medium">{formatSectorLabel(row.sector)}</td>
                     <td className="py-2.5 tabular-nums text-tinta/60">{row.socios}</td>
                     <td className="py-2.5 text-right tabular-nums">
                       {row.readings}/{row.socios}
@@ -201,23 +203,21 @@ export function DemoShowcase() {
             </table>
           </div>
 
-          {/* Card estilo POS de lectura — lectura real del demo (o seed) */}
+          {/* Card estilo POS de lectura — muestra de ejemplo */}
           <div className="border-2 border-azul/30 bg-white p-5 shadow-sm">
             <div className="flex items-center justify-between">
               <span className="rounded-full bg-azul/10 px-3 py-1 text-xs font-semibold text-azul">
                 {sample.meter_number}
               </span>
               <span className="font-accent text-[10px] uppercase tracking-[0.14em] text-tinta/45">
-                POS lectura · {sample.period}
+                POS lectura · ejemplo
               </span>
             </div>
             <p className="mt-4 font-heading text-2xl font-bold tracking-[-0.02em]">
-              {sample.client_name}
+              {sample.client_name || "Socio de ejemplo"}
             </p>
             <p className="mt-1 text-sm text-tinta/55">
-              {[sample.sector ? `Sector ${sample.sector}` : null, sample.address]
-                .filter(Boolean)
-                .join(" · ")}
+              {formatSectorLabel(sample.sector)}
             </p>
             <div className="mt-5 grid grid-cols-2 gap-3 text-center">
               <div className="bg-tinta/5 p-3">

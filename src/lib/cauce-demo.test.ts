@@ -73,7 +73,7 @@ describe("cauce-demo blocked actions", () => {
 });
 
 describe("cauce-demo sample reading (landing POS card)", () => {
-  it("usa la lectura real del endpoint cuando viene", () => {
+  it("usa la lectura del endpoint y neutraliza domicilio/período en el showcase", () => {
     const real = {
       meter_number: "M-017",
       client_name: "Pedro Ancamil Rivas",
@@ -84,7 +84,11 @@ describe("cauce-demo sample reading (landing POS card)", () => {
       current_reading: 225.1,
       consumed_m3: 14.7,
     };
-    expect(demoSampleReading({ sample_reading: real })).toEqual(real);
+    expect(demoSampleReading({ sample_reading: real })).toEqual({
+      ...real,
+      address: null,
+      period: "ejemplo",
+    });
   });
 
   it("cae al seed del demo si falta o viene incompleta", () => {
@@ -99,9 +103,14 @@ describe("cauce-demo sample reading (landing POS card)", () => {
     ).toBe(CAUCE_DEMO_SAMPLE_READING_FALLBACK);
   });
 
-  it("el fallback usa datos del demo APR Río Claro (no inventados)", () => {
+  it("el fallback es genérico: sin comuna, región ni APR con nombre propio", () => {
     expect(CAUCE_DEMO_SAMPLE_READING_FALLBACK.meter_number).toMatch(/^M-\d{3}$/);
-    expect(CAUCE_DEMO_KPI_FALLBACK.branch.commune).toBe("Lautaro");
+    expect(CAUCE_DEMO_SAMPLE_READING_FALLBACK.address).toBeNull();
+    expect(CAUCE_DEMO_SAMPLE_READING_FALLBACK.period).toBe("ejemplo");
+    expect(CAUCE_DEMO_KPI_FALLBACK.branch.commune).toBeNull();
+    expect(CAUCE_DEMO_KPI_FALLBACK.branch.region).toBeNull();
+    expect(CAUCE_DEMO_KPI_FALLBACK.branch.name).toBe("Datos de ejemplo");
+    expect(CAUCE_DEMO_KPI_FALLBACK.period).toBe("ejemplo");
     expect(CAUCE_DEMO_KPI_FALLBACK.socios).toBe(40);
   });
 });
