@@ -1271,7 +1271,7 @@ export default function CashRegisterPage() {
                               <thead className="bg-background text-left text-xs uppercase text-muted-foreground">
                                 <tr>
                                   <th className="px-4 py-2">Orden</th>
-                                  <th className="px-4 py-2">Cliente</th>
+                                  <th className="px-4 py-2">Socio</th>
                                   <th className="px-4 py-2">Hora</th>
                                   <th className="px-4 py-2">Método</th>
                                   <th className="px-4 py-2">Estado pago</th>
@@ -1284,7 +1284,7 @@ export default function CashRegisterPage() {
                                     <td className="px-4 py-2 font-medium">
                                       {order.order_number || order.id.slice(0, 8)}
                                     </td>
-                                    <td className="px-4 py-2">{order.client_name || "Sin cliente"}</td>
+                                    <td className="px-4 py-2">{order.client_name || "Sin socio"}</td>
                                     <td className="px-4 py-2">
                                       {new Date(order.date).toLocaleTimeString("es-CL", {
                                         hour: "2-digit",
@@ -1335,7 +1335,7 @@ export default function CashRegisterPage() {
                                     {order.order_number || order.id.slice(0, 8)}
                                   </p>
                                   <p className="text-xs text-muted-foreground">
-                                    {order.client_name || "Sin cliente"} ·{" "}
+                                    {order.client_name || "Sin socio"} ·{" "}
                                     {new Date(order.date).toLocaleTimeString("es-CL", {
                                       hour: "2-digit",
                                       minute: "2-digit",

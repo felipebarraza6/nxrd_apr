@@ -514,7 +514,7 @@ export default function QuickSaleModal({
     const newClientName = createClientData.name.trim();
     const newClientDni = createClientData.dni.trim();
     if (showCreateClient && newClientName && newClientDni && !isValidRUT(newClientDni)) {
-      setError("El RUT del cliente no es válido.");
+      setError("El RUT del socio no es válido.");
       return;
     }
     if (chargeNow && payments.some((p) => !isPositiveAmount(parseInt(p.amount || "0", 10)))) {
@@ -523,11 +523,11 @@ export default function QuickSaleModal({
     }
     const hasClient = Boolean(selectedClient || createClientData.name.trim());
     if (orderType === "ORDER" && !tableId && !hasClient) {
-      setError("Debes seleccionar o crear un cliente (o una mesa) para guardar la orden.");
+      setError("Debes seleccionar o crear un socio (o una mesa) para guardar la orden.");
       return;
     }
     if (!chargeNow && !hasClient) {
-      setError("Debes seleccionar o crear un cliente para dejar la venta pendiente.");
+      setError("Debes seleccionar o crear un socio para dejar la venta pendiente.");
       return;
     }
     if (chargeNow && activeMethods.length === 0) {
@@ -796,7 +796,7 @@ export default function QuickSaleModal({
           <div className="flex min-w-0 flex-col gap-3">
             <div className="flex flex-col gap-1.5">
               <label className="text-xs font-medium text-muted-foreground">
-                Cliente {orderType === "ORDER" ? "" : "(opcional)"}
+                Socio {orderType === "ORDER" ? "" : "(opcional)"}
               </label>
               {selectedClient ? (
                 <div className="flex items-center justify-between rounded-xl border border-border bg-background px-3 py-2">
@@ -811,7 +811,7 @@ export default function QuickSaleModal({
                       setClientQuery("");
                     }}
                     className="text-muted-foreground hover:text-foreground"
-                    aria-label="Quitar cliente"
+                    aria-label="Quitar socio"
                   >
                     <X className="h-4 w-4" />
                   </button>
@@ -826,7 +826,7 @@ export default function QuickSaleModal({
                       setShowClientResults(true);
                     }}
                     onFocus={() => setShowClientResults(true)}
-                    placeholder="Buscar cliente…"
+                    placeholder="Buscar socio…"
                     className="h-9 pl-8 text-sm"
                   />
                   {showClientResults && (
@@ -867,13 +867,13 @@ export default function QuickSaleModal({
                     onClick={() => setShowCreateClient(true)}
                     className="self-start text-xs font-medium text-primary hover:underline"
                   >
-                    + Crear cliente nuevo
+                    + Crear socio nuevo
                   </button>
                 ) : (
                   <div className="flex flex-col gap-2.5 rounded-xl border border-primary/20 bg-primary/[0.02] p-3">
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-semibold text-foreground">
-                        Nuevo cliente
+                        Nuevo socio
                       </span>
                       <button
                         type="button"

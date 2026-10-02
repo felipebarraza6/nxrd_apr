@@ -220,7 +220,7 @@ export function BranchForm({ branch, onClose, onSuccess }: BranchFormProps) {
                     required
                   />
                 </Field>
-                <Field label="Nombre de fantasía" hint="El nombre comercial que ven los clientes.">
+                <Field label="Nombre de fantasía" hint="El nombre comercial que ven los socios.">
                   <Input
                     id="fantasy_name"
                     value={fantasyName}
@@ -333,15 +333,15 @@ export function BranchForm({ branch, onClose, onSuccess }: BranchFormProps) {
                 </div>
                 <div className="flex items-center justify-between gap-3 rounded-xl border border-border px-3 py-2.5">
                   <div>
-                    <p className="text-sm font-medium">Registro público de clientes</p>
+                    <p className="text-sm font-medium">Registro público de socios</p>
                     <p className="text-xs text-muted-foreground">
-                      Los clientes finales pueden crear su cuenta solos en esta sucursal.
+                      Los socios finales pueden crear su cuenta solos en esta sucursal.
                     </p>
                   </div>
                   <Switch
                     checked={allowPublicSignup}
                     onCheckedChange={setAllowPublicSignup}
-                    label="Registro público de clientes"
+                    label="Registro público de socios"
                   />
                 </div>
               </div>

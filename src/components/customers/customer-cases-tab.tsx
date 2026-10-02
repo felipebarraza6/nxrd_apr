@@ -60,7 +60,7 @@ export function CustomerCasesTab({
 
   if (ticketsQuery.isError) {
     return (
-      <p className="text-sm text-danger">No se pudieron cargar los casos de este cliente.</p>
+      <p className="text-sm text-danger">No se pudieron cargar los casos de este socio.</p>
     );
   }
 
@@ -72,7 +72,7 @@ export function CustomerCasesTab({
         </span>
         <p className="mt-3 text-sm font-medium">Sin casos</p>
         <p className="mt-1 max-w-xs text-xs text-muted-foreground">
-          Los reclamos e incidencias vinculados a este cliente aparecen acá.
+          Los reclamos e incidencias vinculados a este socio aparecen acá.
         </p>
         <Button className="mt-4" size="sm" onClick={onCreateClaim}>
           <MessageSquareWarning className="mr-1.5 h-3.5 w-3.5" />

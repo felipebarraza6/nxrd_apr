@@ -162,10 +162,10 @@ export default function FollowUpsHubPage() {
   const createTask = useMutation({
     mutationFn: async () => {
       const text = description.trim();
-      if (!text) throw new Error("Escribí la acción");
+      if (!text) throw new Error("Escribe la acción");
       let opportunityId = "";
       if (targetKind === "prospect") {
-        if (!leadId) throw new Error("Elegí un prospecto");
+        if (!leadId) throw new Error("Elige un prospecto");
         const lead = (leadsQuery.data?.results ?? []).find((l) => l.id === leadId);
         const name = leadDisplayName(lead) || "Prospecto";
         const { opportunity } = await ensureLeadFollowUpOpportunity({
@@ -175,9 +175,9 @@ export default function FollowUpsHubPage() {
         opportunityId = opportunity.id;
       } else {
         const id = Number(clientId);
-        if (!Number.isFinite(id) || !clientId) throw new Error("Elegí un cliente");
+        if (!Number.isFinite(id) || !clientId) throw new Error("Elige un socio");
         const name =
-          clientsQuery.data?.find((c) => String(c.id) === clientId)?.name || "Cliente";
+          clientsQuery.data?.find((c) => String(c.id) === clientId)?.name || "Socio";
         const { opportunity } = await ensureClientFollowUpOpportunity({
           clientId: id,
           clientName: name,
@@ -478,7 +478,7 @@ export default function FollowUpsHubPage() {
               <Input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder={statusFilter === "open" ? "Buscar por cliente o acción…" : "Buscar completadas por cliente…"}
+                placeholder={statusFilter === "open" ? "Buscar por socio o acción…" : "Buscar completadas por socio…"}
                 className="pl-8 pr-7 text-xs h-8 rounded-xl bg-card"
               />
               {search && (
@@ -670,7 +670,7 @@ export default function FollowUpsHubPage() {
             <EmptyState
               icon={AlertCircle}
               title="Error al cargar seguimientos"
-              description="Hubo un problema al consultar las tareas y compromisos. Verificá tu conexión o reintentá."
+              description="Hubo un problema al consultar las tareas y compromisos. Verifica tu conexión o reintenta."
               action={
                 <Button size="sm" onClick={() => openQuery.refetch()}>
                   Reintentar
@@ -687,7 +687,7 @@ export default function FollowUpsHubPage() {
             <EmptyState
               icon={CheckCircle2}
               title="Al día en seguimientos"
-              description="No hay acciones pendientes con estos filtros. Planificá una nueva llamada o tarea."
+              description="No hay acciones pendientes con estos filtros. Planifica una nueva llamada o tarea."
               action={
                 <Button size="sm" onClick={() => setActionModalOpen(true)}>
                   Planificar acción
@@ -744,7 +744,7 @@ export default function FollowUpsHubPage() {
             <EmptyState
               icon={AlertCircle}
               title="Error al cargar actividades completadas"
-              description="Hubo un problema al consultar el historial de actividades. Verificá tu conexión o reintentá."
+              description="Hubo un problema al consultar el historial de actividades. Verifica tu conexión o reintenta."
               action={
                 <Button size="sm" onClick={() => doneQuery.refetch()}>
                   Reintentar
@@ -851,7 +851,7 @@ export default function FollowUpsHubPage() {
         <div className="w-full max-h-[90vh] overflow-y-auto rounded-t-2xl border border-border bg-background p-4 shadow-xl sm:max-w-md sm:rounded-2xl sm:p-6">
           <h2 className="text-base font-semibold">Planificar Acción Comercial</h2>
           <p className="mt-0.5 text-xs text-muted-foreground">
-            Agendá una llamada, visita, cotización o recordatorio para un cliente o un prospecto.
+            Agenda una llamada, visita, cotización o recordatorio para un socio o un prospecto.
           </p>
 
           <div className="mt-4 flex flex-col gap-3">
@@ -871,7 +871,7 @@ export default function FollowUpsHubPage() {
                       : "bg-background text-muted-foreground hover:bg-muted",
                   )}
                 >
-                  Cliente
+                  Socio
                 </button>
                 <button
                   type="button"
@@ -892,11 +892,11 @@ export default function FollowUpsHubPage() {
               <div className="mt-2">
                 {targetKind === "client" ? (
                   <SearchableSelect
-                    placeholder="Buscar cliente…"
+                    placeholder="Buscar socio…"
                     searchPlaceholder="Nombre o RUT…"
                     options={(clientsQuery.data ?? []).map((c) => ({
                       value: String(c.id),
-                      label: c.name || `Cliente #${c.id}`,
+                      label: c.name || `Socio #${c.id}`,
                     }))}
                     value={clientId}
                     onChange={setClientId}
@@ -1033,7 +1033,7 @@ export default function FollowUpsHubPage() {
         <div className="w-full max-h-[90vh] overflow-y-auto rounded-t-2xl border border-border bg-background p-4 shadow-xl sm:max-w-md sm:rounded-2xl sm:p-6">
           <h2 className="text-base font-semibold">Categorías de Seguimiento</h2>
           <p className="mt-0.5 text-xs text-muted-foreground">
-            Clasificá llamadas de cobranza, postventa, cotizaciones o reactivación.
+            Clasifica llamadas de cobranza, postventa, cotizaciones o reactivación.
           </p>
 
           <div className="mt-4 flex flex-col gap-3">

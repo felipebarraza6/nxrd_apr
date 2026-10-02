@@ -25,7 +25,7 @@ export const CAUCE_DEMO_ROLES: Array<{
   {
     role: "MEDIDOR",
     title: "Medidor en terreno",
-    description: "POS casa por casa: tomá lecturas medidor a medidor en la ruta.",
+    description: "POS casa por casa: toma lecturas medidor a medidor en la ruta.",
   },
   {
     role: "CAJERO",

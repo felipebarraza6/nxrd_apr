@@ -830,7 +830,7 @@ export default function PaymentsPage() {
               <div className="flex flex-wrap items-end gap-3">
                 <div className="relative w-full sm:w-56 sm:shrink-0">
                   <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  <Input value={pendingSearch} onChange={(e) => setPendingSearch(e.target.value)} placeholder="Buscar por N° orden, cliente, proveedor…" className="pl-9" aria-label="Buscar pendiente" />
+                  <Input value={pendingSearch} onChange={(e) => setPendingSearch(e.target.value)} placeholder="Buscar por N° orden, socio, proveedor…" className="pl-9" aria-label="Buscar pendiente" />
                 </div>
                 <div className="flex flex-col gap-1">
                   <label htmlFor="filter-pending-direction" className="text-xs text-muted-foreground">Dirección</label>
@@ -1634,7 +1634,7 @@ function CreatePaymentModal({ open, onClose, paymentMethods, orders, revenues, p
             <div className="flex flex-1 flex-col gap-3 overflow-hidden p-4">
               <div className="relative">
                 <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input autoFocus value={pickerSearch} onChange={(e) => setPickerSearch(e.target.value)} placeholder={entityType === "revenue" ? "Buscar por N° orden, cliente o título…" : "Buscar por N° OC, proveedor o gasto…"} className="pl-9" aria-label="Buscar pendiente" />
+                <Input autoFocus value={pickerSearch} onChange={(e) => setPickerSearch(e.target.value)} placeholder={entityType === "revenue" ? "Buscar por N° orden, socio o título…" : "Buscar por N° OC, proveedor o gasto…"} className="pl-9" aria-label="Buscar pendiente" />
               </div>
               {pickerList.length === 0 ? (
                 <div className="grid flex-1 place-items-center rounded-xl border border-dashed border-border p-6 text-center">

@@ -408,7 +408,7 @@ export default function CrmReportPage() {
               href="/customers"
               className="inline-flex h-9 items-center rounded-xl border border-border px-3 text-sm font-medium hover:bg-muted"
             >
-              Ir a clientes
+              Ir a socios
             </Link>
           </div>
         }
@@ -476,7 +476,7 @@ export default function CrmReportPage() {
                     icon={CheckCircle2}
                     tone="emerald"
                     delta={<DeltaChip curr={kpis.converted} prev={kpis.prevConverted} />}
-                    hint="Pasaron a cliente en el período"
+                    hint="Pasaron a socio en el período"
                   />
                   <ReportKpi
                     label="Oportunidades nuevas"
@@ -509,7 +509,7 @@ export default function CrmReportPage() {
                 </div>
                 <p className="text-sm text-muted-foreground">
                   {statsQuery.data
-                    ? `La sucursal tiene ${statsQuery.data.active_clients} clientes activos de ${statsQuery.data.total_clients}. `
+                    ? `La sucursal tiene ${statsQuery.data.active_clients} socios activos de ${statsQuery.data.total_clients}. `
                     : ""}
                   En este período entraron {kpis.newLeads} prospectos, se convirtieron{" "}
                   {kpis.converted} y se cerraron {kpis.done} acciones.

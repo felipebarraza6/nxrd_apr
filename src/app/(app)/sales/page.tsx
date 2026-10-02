@@ -341,7 +341,7 @@ export default function ChargesPage() {
             title={hasSearch ? "Sin resultados" : "Sin cargos"}
             description={
               hasSearch
-                ? "Probá con nombre, dirección, RUT o número de medidor."
+                ? "Prueba con nombre, dirección, RUT o número de medidor."
                 : "Genera una corrida en Cobros de agua para crear los cargos del período."
             }
             action={

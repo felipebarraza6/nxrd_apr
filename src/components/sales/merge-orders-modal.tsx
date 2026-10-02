@@ -93,7 +93,7 @@ export function MergeOrdersModal({
                         {o.order_number ?? id.slice(0, 8)}
                       </span>
                       <span className="block truncate text-xs text-muted-foreground">
-                        {(o as { client?: { name?: string } }).client?.name ?? "Sin cliente"}
+                        {(o as { client?: { name?: string } }).client?.name ?? "Sin socio"}
                       </span>
                     </span>
                     <span className="shrink-0 tabular-nums font-semibold">

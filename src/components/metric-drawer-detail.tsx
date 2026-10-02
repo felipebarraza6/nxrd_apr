@@ -72,7 +72,7 @@ function OrdersList({ orders, emptyMessage }: { orders: Order[]; emptyMessage: s
           <div className="flex items-center justify-between text-xs text-muted-foreground">
             <span>{formatDateTime(order.date)}</span>
             <span className="truncate">
-              {order.client?.name ?? "Sin cliente"}
+              {order.client?.name ?? "Sin socio"}
             </span>
           </div>
           <p className="text-xs text-muted-foreground">

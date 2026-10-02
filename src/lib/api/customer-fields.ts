@@ -125,7 +125,7 @@ export function formatFichaNotesForQuotation(
     list.push(`· ${r.fieldName}: ${val}`);
     byGroup.set(r.groupName, list);
   }
-  const parts: string[] = ["Levantamiento / ficha del cliente:"];
+  const parts: string[] = ["Levantamiento / ficha del socio:"];
   for (const [group, lines] of byGroup) {
     parts.push("", group, ...lines);
   }

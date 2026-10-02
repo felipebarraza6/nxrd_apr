@@ -161,7 +161,7 @@ export function CustomerProfilePanel({
       queryClient.invalidateQueries({ queryKey: ["customers"] });
     },
     onError: () =>
-      toast.error("No se pudo cambiar el estado del cliente"),
+      toast.error("No se pudo cambiar el estado del socio"),
   });
 
   const customer = customerQuery.data;
@@ -200,7 +200,7 @@ export function CustomerProfilePanel({
     return (
       <div className="flex h-full flex-col items-center justify-center gap-3 p-6 text-center">
         <UserCircle className="h-10 w-10 text-muted-foreground" />
-        <p className="text-sm font-medium">No se pudo cargar el cliente</p>
+        <p className="text-sm font-medium">No se pudo cargar el socio</p>
         <Button variant="outline" size="sm" onClick={onClose}>
           Volver al listado
         </Button>
@@ -267,8 +267,8 @@ export function CustomerProfilePanel({
         }
         subtitle={
           customer.created
-            ? `Cliente desde ${shortDate(customer.created)}`
-            : "Ficha del cliente"
+            ? `Socio desde ${shortDate(customer.created)}`
+            : "Ficha del socio"
         }
         actions={
           <>
@@ -460,7 +460,7 @@ export function CustomerProfilePanel({
           {section === "seguimientos" && (
             <CustomerFollowUpsTab
               clientId={customerId}
-              clientName={customer.name ?? "Cliente"}
+              clientName={customer.name ?? "Socio"}
               suggestDebtCall={kpis.pendingAmount > 0}
             />
           )}
@@ -468,7 +468,7 @@ export function CustomerProfilePanel({
           {section === "levantamientos" && (
             <CustomerLevantamientosTab
               customerId={customerId}
-              customerName={customer.name ?? "Cliente"}
+              customerName={customer.name ?? "Socio"}
               customerPhone={customer.phone_number}
             />
           )}
@@ -566,7 +566,7 @@ function ActivityTab({
         <ShoppingBag className="h-8 w-8 text-muted-foreground" />
         <p className="mt-3 text-sm font-medium">Sin compras registradas</p>
         <p className="mt-1 max-w-xs text-xs text-muted-foreground">
-          Cuando este cliente tenga ventas u órdenes asociadas, aparecerán aquí.
+          Cuando este socio tenga ventas u órdenes asociadas, aparecerán aquí.
         </p>
       </div>
     );
@@ -664,7 +664,7 @@ function PendingTab({
         <Banknote className="h-8 w-8 text-muted-foreground" />
         <p className="mt-3 text-sm font-medium">Sin montos por cobrar</p>
         <p className="mt-1 text-xs text-muted-foreground">
-          Este cliente no tiene órdenes pendientes o parciales.
+          Este socio no tiene órdenes pendientes o parciales.
         </p>
       </div>
     );

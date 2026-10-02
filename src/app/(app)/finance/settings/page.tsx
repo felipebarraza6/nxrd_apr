@@ -1333,7 +1333,7 @@ export function SiiSection({
                   </Field>
                   <Field label="Documento por defecto">
                     <Select value={docPref} onChange={(e) => setDocPref(e.target.value as typeof docPref)}>
-                      <option value="AUTO">Automático según el cliente</option>
+                      <option value="AUTO">Automático según el socio</option>
                       <option value="BOLETA">Siempre boleta</option>
                       <option value="FACTURA">Siempre factura</option>
                     </Select>

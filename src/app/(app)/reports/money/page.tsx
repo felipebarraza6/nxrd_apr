@@ -184,7 +184,7 @@ function clientNameFromOrder(order: {
   client?: { name?: string | null } | null;
 }): string {
   const name = order.client?.name?.trim();
-  return name || "Sin cliente";
+  return name || "Sin socio";
 }
 
 function orderTypeFromOrder(order: { order_type?: string | null }): string {
@@ -572,7 +572,7 @@ function resolveIncomeParty(
   }
   const rev = revenueLink(p, revenues);
   if (p.payment_source === "REVENUE") {
-    return rev?.clientName || "Sin cliente";
+    return rev?.clientName || "Sin socio";
   }
   if (p.payment_source === "REFUND") return SOURCE_LABEL.REFUND;
   if (p.payment_source === "OTHER" && !isSalesLinkedPayment(p)) return SOURCE_LABEL.OTHER;
@@ -709,7 +709,7 @@ function ClientMoneyList({
   selectedKey?: string | null;
 }) {
   const list = rows.slice(0, 8);
-  if (list.length === 0) return <EmptyState message="Sin clientes en el período." />;
+  if (list.length === 0) return <EmptyState message="Sin socios en el período." />;
 
   return (
     <ul className="flex flex-col">

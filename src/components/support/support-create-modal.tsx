@@ -57,7 +57,7 @@ const KIND_META: Record<
   },
   claim: {
     icon: MessageSquareWarning,
-    hint: "Queja o reclamo de un cliente.",
+    hint: "Queja o reclamo de un socio.",
     placeholder: "Ej: Pedido incompleto / demora en delivery",
   },
   feedback: {
@@ -168,7 +168,7 @@ export function SupportCreateModal({
     onSuccess: (ticket) => {
       toast.success(
         initialClientId
-          ? "Reclamo registrado en la ficha del cliente."
+          ? "Reclamo registrado en la ficha del socio."
           : "Solicitud enviada. Te responderemos aquí.",
       );
       queryClient.invalidateQueries({ queryKey: ["support-tickets"] });
@@ -221,7 +221,7 @@ export function SupportCreateModal({
       title={initialClientId ? "Nuevo reclamo" : "Nueva solicitud de soporte"}
       description={
         initialClientId
-          ? "Queda asociado a este cliente y aparece en su ficha (Casos)."
+          ? "Queda asociado a este socio y aparece en su ficha (Casos)."
           : `El equipo de ${productName} recibe tu mensaje y te responde en esta misma bandeja.`
       }
       size="md"
@@ -230,9 +230,9 @@ export function SupportCreateModal({
         <ModalBody className="flex flex-col gap-4">
           {initialClientId != null && (
             <div className="rounded-xl border border-border bg-muted/40 px-3 py-2 text-xs">
-              <span className="text-muted-foreground">Cliente · </span>
+              <span className="text-muted-foreground">Socio · </span>
               <span className="font-medium text-foreground">
-                {initialClientName?.trim() || `Cliente #${initialClientId}`}
+                {initialClientName?.trim() || `Socio #${initialClientId}`}
               </span>
             </div>
           )}

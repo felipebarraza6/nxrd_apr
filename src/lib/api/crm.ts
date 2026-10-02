@@ -258,7 +258,7 @@ export async function fetchOpportunityClientMap(): Promise<
     if (o.client) {
       map[o.id] = {
         clientId: o.client,
-        clientName: o.client_name || "Cliente",
+        clientName: o.client_name || "Socio",
         href: `/customers?id=${o.client}`,
       };
     } else if (o.lead) {
@@ -271,7 +271,7 @@ export async function fetchOpportunityClientMap(): Promise<
     } else {
       map[o.id] = {
         clientId: null,
-        clientName: o.client_name || "Sin cliente",
+        clientName: o.client_name || "Sin socio",
         href: null,
       };
     }
@@ -370,11 +370,11 @@ export async function ensureClientFollowUpOpportunity(input: {
   }
 
   const created = await createOpportunity({
-    title: `Seguimiento · ${input.clientName || "Cliente"}`,
+    title: `Seguimiento · ${input.clientName || "Socio"}`,
     stage_id: stage.id,
     client: input.clientId,
     estimated_value: 0,
-    description: "Seguimiento comercial del cliente",
+    description: "Seguimiento comercial del socio",
   });
 
   return {

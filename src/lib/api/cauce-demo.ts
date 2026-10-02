@@ -39,5 +39,5 @@ export function isDemoThrottleError(err: unknown): boolean {
 }
 
 export function demoThrottleMessage(): string {
-  return "Hay muchas personas probando la demo ahora. Esperá unos segundos e intentá de nuevo.";
+  return "Hay muchas personas probando la demo ahora. Espera unos segundos e intenta de nuevo.";
 }

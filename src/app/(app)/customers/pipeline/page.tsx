@@ -176,7 +176,7 @@ function PipelineInner() {
 
   const createMut = useMutation({
     mutationFn: async () => {
-      if (!newTitle.trim()) throw new Error("Ingresá un título para la oportunidad");
+      if (!newTitle.trim()) throw new Error("Ingresa un título para la oportunidad");
       const stageId = newStageId || stages[0]?.id;
       if (!stageId) throw new Error("No hay etapas disponibles");
 
@@ -271,7 +271,7 @@ function PipelineInner() {
   const addActivityMut = useMutation({
     mutationFn: () => {
       if (!selectedOpportunity) throw new Error("Sin oportunidad");
-      if (!newActDesc.trim()) throw new Error("Escribí la nota o acción");
+      if (!newActDesc.trim()) throw new Error("Escribe la nota o acción");
       return createOpportunityActivity({
         opportunity: selectedOpportunity.id,
         activity_type: newActType,
@@ -409,7 +409,7 @@ function PipelineInner() {
               <Input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="Buscar por trato o cliente…"
+                placeholder="Buscar por trato o socio…"
                 className="pl-8 pr-7 text-xs h-8 rounded-xl bg-card"
               />
               {search && (
@@ -451,7 +451,7 @@ function PipelineInner() {
           <EmptyState
             icon={AlertCircle}
             title="Error al cargar el pipeline"
-            description="No se pudieron consultar las etapas o tratos comerciales. Verificá tu conexión o reintentá."
+            description="No se pudieron consultar las etapas o tratos comerciales. Verifica tu conexión o reintenta."
             action={
               <Button size="sm" onClick={() => { stagesQuery.refetch(); opportunitiesQuery.refetch(); }}>
                 Reintentar
@@ -468,7 +468,7 @@ function PipelineInner() {
           <EmptyState
             icon={Kanban}
             title="Sin etapas configuradas"
-            description="Creá tus etapas comerciales para empezar a mover tratos."
+            description="Crea tus etapas comerciales para empezar a mover tratos."
           />
         ) : (
           <div
@@ -557,10 +557,10 @@ function PipelineInner() {
                                 router.push(`/customers?id=${opp.client}`);
                               }}
                               className="mt-1 flex items-center gap-1.5 text-xs text-primary hover:underline truncate"
-                              title="Ver ficha 360 del cliente"
+                              title="Ver ficha 360 del socio"
                             >
                               <User className="h-3 w-3 shrink-0" />
-                              <span className="truncate">{opp.client_name || `Cliente #${opp.client}`}</span>
+                              <span className="truncate">{opp.client_name || `Socio #${opp.client}`}</span>
                             </button>
                           ) : opp.client_name ? (
                             <p className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground truncate">
@@ -642,8 +642,8 @@ function PipelineInner() {
           </h2>
           <p className="mt-0.5 text-xs text-muted-foreground">
             {editingOpp
-              ? "Actualizá etapa, valor, cierre esperado o notas del trato."
-              : "Registrá una negociación o cotización para hacerle seguimiento en el embudo."}
+              ? "Actualiza etapa, valor, cierre esperado o notas del trato."
+              : "Registra una negociación o cotización para hacerle seguimiento en el embudo."}
           </p>
 
           <div className="mt-4 flex flex-col gap-3">
@@ -676,7 +676,7 @@ function PipelineInner() {
                       : "bg-background text-muted-foreground hover:bg-muted",
                   )}
                 >
-                  Cliente registrado
+                  Socio registrado
                 </button>
                 <button
                   type="button"
@@ -698,11 +698,11 @@ function PipelineInner() {
               <div className="mt-2">
                 {contactType === "client" ? (
                   <SearchableSelect
-                    placeholder="Seleccionar cliente…"
-                    searchPlaceholder="Buscar cliente…"
+                    placeholder="Seleccionar socio…"
+                    searchPlaceholder="Buscar socio…"
                     options={(clientsQuery.data ?? []).map((c) => ({
                       value: String(c.id),
-                      label: c.name || `Cliente #${c.id}`,
+                      label: c.name || `Socio #${c.id}`,
                     }))}
                     value={newClientId}
                     onChange={setNewClientId}
@@ -732,7 +732,7 @@ function PipelineInner() {
                 {editingOpp ? "Etapa" : "Etapa inicial"}
               </label>
               <p className="mt-0.5 text-[11px] text-muted-foreground">
-                Elegí en qué parte del embudo entra. La barra es la chance de cierre de esa etapa.
+                Elige en qué parte del embudo entra. La barra es la chance de cierre de esa etapa.
               </p>
               <StageRail
                 className="mt-2"
@@ -811,7 +811,7 @@ function PipelineInner() {
                   </span>
                 </div>
                 <p className="mt-0.5 text-xs text-muted-foreground">
-                  Cliente: <span className="font-medium text-foreground">{selectedOpportunity.client_name || "Sin asignar"}</span>
+                  Socio: <span className="font-medium text-foreground">{selectedOpportunity.client_name || "Sin asignar"}</span>
                   {" · "}
                   Etapa actual: <span className="font-medium text-foreground">{selectedOpportunity.stage_name}</span>
                 </p>
@@ -920,9 +920,9 @@ function PipelineInner() {
                 {selectedOpportunity.client ? (
                   <div className="rounded-xl border border-primary/30 bg-primary/5 p-3 sm:col-span-2 flex items-center justify-between">
                     <div>
-                      <span className="text-muted-foreground text-[11px]">Cliente vinculado</span>
+                      <span className="text-muted-foreground text-[11px]">Socio vinculado</span>
                       <p className="font-semibold text-sm text-foreground">
-                        {selectedOpportunity.client_name || `Cliente #${selectedOpportunity.client}`}
+                        {selectedOpportunity.client_name || `Socio #${selectedOpportunity.client}`}
                       </p>
                     </div>
                     <Button
@@ -1046,7 +1046,7 @@ function PipelineInner() {
                     <Input
                       value={newActDesc}
                       onChange={(e) => setNewActDesc(e.target.value)}
-                      placeholder="Registrá el resultado de la llamada, reunión o nota…"
+                      placeholder="Registra el resultado de la llamada, reunión o nota…"
                       className="flex-1 text-xs"
                     />
                     <Button

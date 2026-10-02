@@ -60,7 +60,7 @@ export function DemoBanner() {
     try {
       window.sessionStorage.setItem(
         CAUCE_DEMO_NOTICE_KEY,
-        "La demo de 60 minutos terminó. Creá tu APR gratis o volvé a probar.",
+        "La demo de 60 minutos terminó. Crea tu APR gratis o vuelve a probar.",
       );
     } catch {
       /* */

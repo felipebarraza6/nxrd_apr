@@ -50,7 +50,7 @@ export function DemoRolePicker({
             ? err.message
             : err instanceof Error
               ? err.message
-              : "No se pudo iniciar la demo. Intentá de nuevo.",
+              : "No se pudo iniciar la demo. Intenta de nuevo.",
         );
       }
       setLoadingRole(null);
@@ -78,7 +78,7 @@ export function DemoRolePicker({
               id="demo-picker-title"
               className="mt-2 font-heading text-xl font-bold tracking-[-0.02em]"
             >
-              ¿Cómo querés probar Cauce?
+              ¿Cómo quieres probar Cauce?
             </h2>
             <p className="mt-1 text-sm text-papel/60">
               Sesión de 60 minutos con datos reales de demostración.

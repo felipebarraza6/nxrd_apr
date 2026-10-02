@@ -90,7 +90,7 @@ const REVENUE_CATEGORY_TYPES: { value: string; label: string; hint: string }[] =
   {
     value: "REFUND",
     label: "Reembolso",
-    hint: "Devoluciones a clientes. Los ingresos reembolsados se clasifican con este tipo.",
+    hint: "Devoluciones a socios. Los ingresos reembolsados se clasifican con este tipo.",
   },
   {
     value: "OTHER",
@@ -1460,7 +1460,7 @@ export default function RevenuesPage() {
 
                     <div className="grid grid-cols-2 gap-3">
                       <div className="rounded-xl border border-border bg-background p-3">
-                        <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">Cliente</p>
+                        <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">Socio</p>
                         <p className="mt-1 truncate text-sm font-semibold">{orderDetail.client?.name ?? "—"}</p>
                         {orderDetail.client?.phone_number && (
                           <p className="mt-0.5 text-xs text-muted-foreground">{orderDetail.client.phone_number}</p>

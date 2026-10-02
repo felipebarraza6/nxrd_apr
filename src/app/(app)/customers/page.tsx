@@ -83,7 +83,7 @@ export default function CustomersPage() {
     <Suspense
       fallback={
         <PageShell>
-          <PageHeader title="Clientes" icon={<UserCircle className="h-5 w-5" />} />
+          <PageHeader title="Socios" icon={<UserCircle className="h-5 w-5" />} />
           <PageBody>
             <Skeleton className="h-40 w-full rounded-2xl" />
           </PageBody>
@@ -224,14 +224,14 @@ function CustomersInner() {
 
   async function handleExportExcel() {
     await downloadFile(() => exportCustomersExcel(filter), {
-      filename: exportFilename("clientes", "xlsx"),
+      filename: exportFilename("socios", "xlsx"),
       extension: "xlsx",
     });
   }
 
   async function handleExportPdf() {
     await downloadFile(() => exportCustomersPdf(filter), {
-      filename: exportFilename("reporte_clientes", "pdf"),
+      filename: exportFilename("reporte_socios", "pdf"),
       extension: "pdf",
     });
   }
@@ -261,7 +261,7 @@ function CustomersInner() {
       updateCustomer(id, { is_active: isActive }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["customers"] }),
     onError: () =>
-      toast.error("No se pudo cambiar el estado del cliente"),
+      toast.error("No se pudo cambiar el estado del socio"),
   });
 
   const remove = useMutation({
@@ -349,7 +349,7 @@ function CustomersInner() {
   }
 
   if (!canManage) {
-    return <CrmDenied title="Clientes" icon={<UserCircle className="h-5 w-5" />} />;
+    return <CrmDenied title="Socios" icon={<UserCircle className="h-5 w-5" />} />;
   }
 
   return (
@@ -365,9 +365,9 @@ function CustomersInner() {
       ) : (
         <>
           <PageHeader
-        title="Directorio de Clientes"
+        title="Directorio de Socios"
         icon={<UserCircle className="h-5 w-5" />}
-        subtitle="Gestión comercial 360, saldos por cobrar, historial y fidelización de clientes."
+        subtitle="Gestión comercial 360, saldos por cobrar, historial y fidelización de socios."
         actions={
           <div className="flex items-center gap-2">
             <Button
@@ -394,7 +394,7 @@ function CustomersInner() {
             </Button>
             <Button onClick={() => openModal()} className="h-9">
               <Plus className="h-4 w-4" />
-              <span>Nuevo cliente</span>
+              <span>Nuevo socio</span>
             </Button>
           </div>
         }
@@ -408,7 +408,7 @@ function CustomersInner() {
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
           <StatCard
             variant="compact"
-            label="Total Clientes"
+            label="Total Socios"
             value={statsQuery.data?.total_clients ?? totalCustomers}
             sub={`${statsQuery.data?.active_clients ?? "—"} activos`}
             icon={UserCircle}
@@ -458,7 +458,7 @@ function CustomersInner() {
                   setSearch(e.target.value);
                   setPageUrl({});
                 }}
-                placeholder="Buscar cliente (RUT, nombre, tel)…"
+                placeholder="Buscar socio (RUT, nombre, tel)…"
                 className="pl-8 pr-7 h-8 text-xs rounded-xl bg-card"
               />
               {search && (
@@ -628,8 +628,8 @@ function CustomersInner() {
         {error ? (
           <EmptyState
             icon={AlertCircle}
-            title="Error al cargar clientes"
-            description="Hubo un problema al consultar la lista de clientes. Verificá tu conexión o reintentá."
+            title="Error al cargar socios"
+            description="Hubo un problema al consultar la lista de socios. Verifica tu conexión o reintenta."
             action={
               <Button size="sm" onClick={() => queryClient.invalidateQueries({ queryKey: ["customers"] })}>
                 Reintentar
@@ -645,12 +645,12 @@ function CustomersInner() {
         ) : filteredCustomers.length === 0 ? (
           <EmptyState
             icon={UserCircle}
-            title={search || tagFilter || segment !== "all" ? "No hay clientes con estos filtros" : "Sin clientes registrados"}
-            description="Agregá tus clientes para gestionar pedidos, líneas de crédito y ficha 360."
+            title={search || tagFilter || segment !== "all" ? "No hay socios con estos filtros" : "Sin socios registrados"}
+            description="Agrega tus socios para gestionar cobros, deuda y ficha 360."
             action={
               <Button size="sm" onClick={() => openModal()}>
                 <Plus className="mr-1.5 h-4 w-4" />
-                Crear cliente
+                Crear socio
               </Button>
             }
           />
@@ -803,7 +803,7 @@ function CustomersInner() {
                         variant="ghost"
                         className="h-7 px-2"
                         onClick={() => openModal(c)}
-                        title="Editar cliente"
+                        title="Editar socio"
                       >
                         <Pencil className="h-3 w-3" />
                       </Button>
@@ -834,7 +834,7 @@ function CustomersInner() {
             <table className="w-full min-w-[56rem] text-left text-sm">
               <thead className="border-b border-border bg-muted/40 text-xs text-muted-foreground">
                 <tr>
-                  <th className="px-4 py-3 font-semibold">Cliente</th>
+                  <th className="px-4 py-3 font-semibold">Socio</th>
                   {invoicesEnabled && (
                     <th className="w-px whitespace-nowrap px-3 py-3 font-semibold">RUT</th>
                   )}
@@ -965,7 +965,7 @@ function CustomersInner() {
                               ? "bg-success/10 text-success hover:bg-success/20"
                               : "bg-muted text-muted-foreground hover:bg-muted/80",
                           )}
-                          title={c.is_active ? "Desactivar cliente" : "Activar cliente"}
+                          title={c.is_active ? "Desactivar socio" : "Activar socio"}
                         >
                           <Power className="h-3 w-3" />
                           <span>{c.is_active ? "Activo" : "Inactivo"}</span>
@@ -1008,7 +1008,7 @@ function CustomersInner() {
           <div className="flex items-center justify-between border-t border-border pt-3">
             <div className="flex items-center gap-2">
               <span className="text-xs text-muted-foreground">
-                Mostrando {filteredCustomers.length} de {totalCustomers} clientes
+                Mostrando {filteredCustomers.length} de {totalCustomers} socios
               </span>
               {isFetching && (
                 <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary animate-pulse">
@@ -1053,7 +1053,7 @@ function CustomersInner() {
           <div className="flex items-center justify-between border-b border-border pb-3">
             <div>
               <h2 className="text-base font-semibold">
-                {editing ? "Editar cliente" : "Nuevo cliente"}
+                {editing ? "Editar socio" : "Nuevo socio"}
               </h2>
               <p className="mt-0.5 text-xs text-muted-foreground">
                 Información comercial, datos de contacto y facturación.
@@ -1077,12 +1077,12 @@ function CustomersInner() {
           >
             <div className="flex items-center gap-3 rounded-xl border border-border bg-card p-3">
               <CustomerAvatar
-                name={form.name || "Cliente"}
+                name={form.name || "Socio"}
                 photo={clearPhoto ? null : photoPreview || editing?.photo}
                 className="h-14 w-14 rounded-2xl text-base"
               />
               <div className="min-w-0 flex-1">
-                <p className="text-xs font-medium">Foto del cliente</p>
+                <p className="text-xs font-medium">Foto del socio</p>
                 <p className="text-[11px] text-muted-foreground">
                   Se usa como avatar en el listado y en la ficha.
                 </p>
@@ -1229,7 +1229,7 @@ function CustomersInner() {
                       handleAddTag(tagInput);
                     }
                   }}
-                  placeholder="Escribí un tag y pulsá Enter…"
+                  placeholder="Escribe un tag y pulsa Enter…"
                   className="text-xs"
                 />
                 <Button
@@ -1283,7 +1283,7 @@ function CustomersInner() {
 
             {save.isError ? (
               <p className="text-xs text-danger">
-                No se pudo guardar el cliente. Si elegiste una foto, probá de nuevo.
+                No se pudo guardar el socio. Si elegiste una foto, prueba de nuevo.
               </p>
             ) : null}
             <div className="mt-2 flex justify-end gap-2 border-t border-border pt-3">
@@ -1296,7 +1296,7 @@ function CustomersInner() {
                 disabled={!form.name.trim() || save.isPending}
                 isLoading={save.isPending}
               >
-                {editing ? "Guardar cambios" : "Crear cliente"}
+                {editing ? "Guardar cambios" : "Crear socio"}
               </Button>
             </div>
           </form>
@@ -1315,7 +1315,7 @@ function CustomersInner() {
             <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-destructive/10 text-destructive">
               <Trash2 className="h-6 w-6" />
             </div>
-            <h3 className="mt-4 text-base font-semibold">¿Eliminar cliente?</h3>
+            <h3 className="mt-4 text-base font-semibold">¿Eliminar socio?</h3>
             <p className="mt-1 text-xs text-muted-foreground">
               Vas a eliminar a <strong>{confirmDelete.name}</strong>. Esta acción no se puede deshacer.
             </p>
