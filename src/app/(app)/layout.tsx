@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState, type ReactNode, ViewTransition } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
+import { useNormalizedPathname } from "@/lib/pathname";
 import { useQueryClient } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
 import {
@@ -59,7 +60,7 @@ function isAllowed(pathname: string, allowedPaths: string[]): boolean {
 }
 
 export default function AppLayout({ children }: { children: ReactNode }) {
-  const pathname = usePathname();
+  const pathname = useNormalizedPathname();
   const router = useRouter();
   const shouldHideSidebar = HIDDEN_SIDEBAR_PATHS.includes(pathname);
   const hasHydrated = useSessionStore((s) => s.hasHydrated);

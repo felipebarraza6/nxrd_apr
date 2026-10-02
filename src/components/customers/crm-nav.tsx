@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { useNormalizedPathname } from "@/lib/pathname";
 import {
   ClipboardList,
   FileText,
@@ -26,7 +26,7 @@ export function CrmNav({
   pipelineCount: propPipeline,
   className,
 }: CrmNavProps) {
-  const pathname = usePathname();
+  const pathname = useNormalizedPathname();
 
   // Contadores compartidos con el hub y los informes (misma query key).
   const counts = useCrmNavCounts(

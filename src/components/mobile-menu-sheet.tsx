@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { useNormalizedPathname } from "@/lib/pathname";
 import { useQueryClient } from "@tanstack/react-query";
 import { motion, AnimatePresence, useDragControls, type PanInfo } from "framer-motion";
 import {
@@ -43,7 +43,7 @@ interface MobileMenuSheetProps {
 const QUICK_ACCESS_LIMIT = MAX_NAV_FAVORITES;
 
 export function MobileMenuSheet({ open, onClose }: MobileMenuSheetProps) {
-  const pathname = usePathname();
+  const pathname = useNormalizedPathname();
   const queryClient = useQueryClient();
   const dragControls = useDragControls();
   const sheetRef = useRef<HTMLDivElement>(null);

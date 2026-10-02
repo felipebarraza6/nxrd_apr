@@ -72,9 +72,17 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
       el?.scrollIntoView({ block: "nearest" });
     }, [open, activeIndex]);
 
-    // Al cerrar, el foco vuelve al trigger.
+    // Al cerrar, el foco vuelve al trigger (solo tras haber estado abierto:
+    // en el montaje no debe robar el foco ni hacer scroll hasta el select).
+    const wasOpenRef = useRef(false);
     useEffect(() => {
-      if (!open) triggerRef.current?.focus();
+      if (open) {
+        wasOpenRef.current = true;
+        return;
+      }
+      if (!wasOpenRef.current) return;
+      wasOpenRef.current = false;
+      triggerRef.current?.focus();
     }, [open]);
 
     // Teclado en fase capture: consume las teclas antes de que otros

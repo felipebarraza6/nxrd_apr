@@ -2,7 +2,8 @@
 
 import { Children, useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
+import { useNormalizedPathname } from "@/lib/pathname";
 import { useQueryClient } from "@tanstack/react-query";
 import { m, AnimatePresence } from "framer-motion";
 import {
@@ -49,7 +50,7 @@ interface AppSidebarProps {
 }
 
 export function AppSidebar({ onNavigate, forceExpanded, defaultOpenGroups }: AppSidebarProps) {
-  const pathname = usePathname();
+  const pathname = useNormalizedPathname();
   const _router = useRouter();
   const queryClient = useQueryClient();
   const storeExpanded = useSidebarStore((s) => s.expanded);

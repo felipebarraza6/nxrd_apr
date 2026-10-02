@@ -12,7 +12,7 @@
  * período (se muestran marcados y se puede corregir la lectura).
  */
 
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -64,6 +64,12 @@ function periodFromQuery(): string {
   return q && /^\d{4}-\d{2}$/.test(q) ? q : currentPeriod();
 }
 
+/** Teclado físico + puntero fino (escritorio): ahí sí conviene enfocar al abrir. */
+function prefersKeyboardEntry(): boolean {
+  if (typeof window === "undefined" || typeof window.matchMedia !== "function") return false;
+  return window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+}
+
 type ClientBrief = { address?: string | null; dni?: string | null; name?: string | null };
 
 export default function ReadingPosPage() {
@@ -79,6 +85,30 @@ export default function ReadingPosPage() {
   const [search, setSearch] = useState("");
   const [pinnedId, setPinnedId] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
+  // Foco del input de lectura: sin autoFocus (en móvil abría el teclado y
+  // hacía scroll hasta la tarjeta, ocultando header y búsqueda). En escritorio
+  // se enfoca una vez al abrir, sin desplazar; en el resto solo tras una acción
+  // explícita (corregir / elegir un resultado).
+  const initialFocusDoneRef = useRef(false);
+  const focusRequestedRef = useRef(false);
+  useEffect(() => {
+    const input = inputRef.current;
+    if (!input) {
+      focusRequestedRef.current = false;
+      return;
+    }
+    if (focusRequestedRef.current) {
+      focusRequestedRef.current = false;
+      input.focus();
+      return;
+    }
+    if (initialFocusDoneRef.current) return;
+    initialFocusDoneRef.current = true;
+    const active = document.activeElement;
+    if (prefersKeyboardEntry() && (!active || active === document.body)) {
+      input.focus({ preventScroll: true });
+    }
+  });
   const debouncedSearch = useDebouncedValue(search, 250);
   const hasSearch = Boolean(normalizeSearchText(debouncedSearch));
 
@@ -448,6 +478,7 @@ export default function ReadingPosPage() {
                       size="lg"
                       className="flex-1"
                       onClick={() => {
+                        focusRequestedRef.current = true;
                         setEditingId(current.id);
                         setValue(String(Number(currentReading.current_reading)));
                       }}
@@ -494,7 +525,6 @@ export default function ReadingPosPage() {
                 </label>
                 <Input
                   ref={inputRef}
-                  autoFocus
                   type="number"
                   step="0.01"
                   inputMode="decimal"
@@ -574,6 +604,7 @@ export default function ReadingPosPage() {
                       key={m.id}
                       type="button"
                       onClick={() => {
+                        focusRequestedRef.current = true;
                         setPinnedId(m.id);
                         setEditingId(null);
                         setValue("");

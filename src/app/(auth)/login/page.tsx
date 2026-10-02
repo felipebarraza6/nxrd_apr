@@ -28,6 +28,7 @@ import {
   AuthWaterBackdrop,
 } from "@/components/auth/auth-water-shell";
 import type { LoginCompleteResponse } from "@/lib/types";
+import { normalizePathname } from "@/lib/pathname";
 
 if (typeof window !== "undefined") {
   migrateFrigStorageKeys();
@@ -153,7 +154,7 @@ export default function LoginPage() {
     // una recarga dura a mitad de carga (doble render y parpadeo).
     window.setTimeout(callback, 700);
     window.setTimeout(() => {
-      if (window.location.pathname === "/login") {
+      if (normalizePathname(window.location.pathname) === "/login") {
         window.location.href = window.location.origin + safetyPath;
       }
     }, 8000);

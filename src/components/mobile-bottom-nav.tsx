@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { memo, useEffect, useMemo, useRef } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
+import { useNormalizedPathname } from "@/lib/pathname";
 import { motion, useReducedMotion } from "framer-motion";
 import { LayoutGrid, LineChart, CreditCard, LifeBuoy, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -41,7 +42,7 @@ interface MobileBottomNavProps {
 export const MobileBottomNav = memo(function MobileBottomNav({
   onMenuClick,
 }: MobileBottomNavProps) {
-  const pathname = usePathname();
+  const pathname = useNormalizedPathname();
   const router = useRouter();
   const reduceMotion = useReducedMotion();
   const isCashier = useIsCashier();

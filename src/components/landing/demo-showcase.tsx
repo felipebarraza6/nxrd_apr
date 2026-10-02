@@ -34,16 +34,20 @@ function formatM3(value: number | string | null | undefined): string {
 }
 
 export function DemoShowcase() {
-  const [kpis, setKpis] = useState<CauceDemoKpis>(
-    () => readDemoKpiCache() ?? CAUCE_DEMO_KPI_FALLBACK,
-  );
-  const [source, setSource] = useState<"live" | "cache" | "fallback">(() =>
-    readDemoKpiCache() ? "cache" : "fallback",
-  );
+  // El HTML estático se genera con el fallback: el primer render del cliente
+  // debe coincidir (si no, React #418). La cache de sessionStorage se lee
+  // recién después del montaje.
+  const [kpis, setKpis] = useState<CauceDemoKpis>(CAUCE_DEMO_KPI_FALLBACK);
+  const [source, setSource] = useState<"live" | "cache" | "fallback">("fallback");
 
   useEffect(() => {
     let cancelled = false;
     const cached = readDemoKpiCache();
+    if (cached) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- cache sessionStorage solo tras montar (hidratación sin mismatch)
+      setKpis(cached);
+      setSource("cache");
+    }
     fetchCauceDemoKpis()
       .then((data) => {
         if (cancelled) return;
