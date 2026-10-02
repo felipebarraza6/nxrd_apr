@@ -34,6 +34,18 @@ export const CAUCE_DEMO_ROLES: Array<{
   },
 ];
 
+/** Lectura real del demo para la tarjeta POS de la landing (KPIs públicos). */
+export type CauceDemoSampleReading = {
+  meter_number: string;
+  client_name: string | null;
+  sector: string | null;
+  address: string | null;
+  period: string;
+  previous_reading: number;
+  current_reading: number;
+  consumed_m3: number;
+};
+
 export type CauceDemoKpis = {
   branch: {
     id: number;
@@ -55,8 +67,31 @@ export type CauceDemoKpis = {
     m3: number;
     readings: number;
   }>;
+  /** Backend ≥ PR demo-fixes; puede faltar en cache vieja o si el BE no lo envía. */
+  sample_reading?: CauceDemoSampleReading | null;
   demo: true;
 };
+
+/** Misma data que siembra setup_cauce_demo (APR Río Claro, socio M-001). */
+export const CAUCE_DEMO_SAMPLE_READING_FALLBACK: CauceDemoSampleReading = {
+  meter_number: "M-001",
+  client_name: "María Pérez Soto",
+  sector: "Alto",
+  address: "Alto, sitio 1",
+  period: "2026-10",
+  previous_reading: 210.5,
+  current_reading: 240.9,
+  consumed_m3: 30.4,
+};
+
+/** Lectura de muestra: la real del endpoint o el fallback del seed. */
+export function demoSampleReading(
+  kpis: Pick<CauceDemoKpis, "sample_reading"> | null | undefined,
+): CauceDemoSampleReading {
+  const s = kpis?.sample_reading;
+  if (s && s.meter_number && s.client_name) return s;
+  return CAUCE_DEMO_SAMPLE_READING_FALLBACK;
+}
 
 /** Dataset estático (misma forma) si el endpoint falla o hace 429. */
 export const CAUCE_DEMO_KPI_FALLBACK: CauceDemoKpis = {
@@ -64,22 +99,22 @@ export const CAUCE_DEMO_KPI_FALLBACK: CauceDemoKpis = {
     id: 0,
     name: CAUCE_DEMO_BRANCH_NAME,
     login_slug: CAUCE_DEMO_LOGIN_SLUG,
-    commune: "San Carlos",
-    region: "Ñuble",
+    commune: "Lautaro",
+    region: "Región de La Araucanía",
   },
   period: "2026-10",
-  socios: 128,
-  meters: 134,
-  readings_this_month: 119,
-  m3_this_month: 1842.5,
-  collected: { count: 96, amount_clp: 2_880_000 },
-  pending: { count: 23, amount_clp: 690_000 },
+  socios: 40,
+  meters: 40,
+  readings_this_month: 24,
+  m3_this_month: 358.9,
+  collected: { count: 132, amount_clp: 1_174_770 },
+  pending: { count: 108, amount_clp: 950_865 },
   consumption_by_sector: [
-    { sector: "Centro", socios: 42, m3: 610.2, readings: 40 },
-    { sector: "Norte", socios: 38, m3: 520.0, readings: 35 },
-    { sector: "Sur", socios: 31, m3: 412.8, readings: 28 },
-    { sector: "Alto", socios: 17, m3: 299.5, readings: 16 },
+    { sector: "Alto", socios: 14, m3: 221.3, readings: 14 },
+    { sector: "Centro", socios: 13, m3: 137.6, readings: 10 },
+    { sector: "Bajo", socios: 13, m3: 0, readings: 0 },
   ],
+  sample_reading: CAUCE_DEMO_SAMPLE_READING_FALLBACK,
   demo: true,
 };
 

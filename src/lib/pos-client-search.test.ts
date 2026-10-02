@@ -5,6 +5,7 @@ import {
   normalizeRutDigits,
   normalizeSearchText,
   POS_CLIENT_SEARCH_PLACEHOLDER,
+  orderPosSearchResults,
 } from "@/lib/pos-client-search";
 
 describe("pos-client-search", () => {
@@ -69,5 +70,30 @@ describe("pos-client-search", () => {
 
   it("placeholder estable", () => {
     expect(POS_CLIENT_SEARCH_PLACEHOLDER).toContain("dirección");
+  });
+});
+
+describe("orderPosSearchResults", () => {
+  const meters = [
+    { id: "1", number: "M-001" },
+    { id: "2", number: "M-002" },
+    { id: "3", number: "M-003" },
+  ];
+  const read = new Set(["1"]);
+
+  it("incluye medidores ya leídos (al final) en vez de ocultarlos", () => {
+    const out = orderPosSearchResults(meters, (m) => read.has(m.id));
+    expect(out.map((m) => m.number)).toEqual(["M-002", "M-003", "M-001"]);
+  });
+
+  it("si el único resultado ya fue leído, igual se devuelve", () => {
+    const out = orderPosSearchResults([meters[0]], (m) => read.has(m.id));
+    expect(out.map((m) => m.number)).toEqual(["M-001"]);
+  });
+
+  it("respeta el medidor fijado aunque esté leído", () => {
+    const out = orderPosSearchResults(meters, (m) => read.has(m.id), "1");
+    expect(out[0].number).toBe("M-001");
+    expect(out).toHaveLength(3);
   });
 });

@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest";
 import {
   CAUCE_DEMO_EMAIL_SUFFIX,
   CAUCE_DEMO_KPI_FALLBACK,
+  CAUCE_DEMO_SAMPLE_READING_FALLBACK,
+  demoSampleReading,
   demoSecondsRemaining,
   formatDemoBlockedMessage,
   formatDemoCountdown,
@@ -67,5 +69,39 @@ describe("cauce-demo blocked actions", () => {
     expect(looksLikeDemoBlockedError(new Error("Flow not allowed in demo"))).toBe(
       true,
     );
+  });
+});
+
+describe("cauce-demo sample reading (landing POS card)", () => {
+  it("usa la lectura real del endpoint cuando viene", () => {
+    const real = {
+      meter_number: "M-017",
+      client_name: "Pedro Ancamil Rivas",
+      sector: "Centro",
+      address: "Centro, sitio 17",
+      period: "2026-10",
+      previous_reading: 210.4,
+      current_reading: 225.1,
+      consumed_m3: 14.7,
+    };
+    expect(demoSampleReading({ sample_reading: real })).toEqual(real);
+  });
+
+  it("cae al seed del demo si falta o viene incompleta", () => {
+    expect(demoSampleReading(undefined)).toBe(CAUCE_DEMO_SAMPLE_READING_FALLBACK);
+    expect(demoSampleReading({ sample_reading: null })).toBe(
+      CAUCE_DEMO_SAMPLE_READING_FALLBACK,
+    );
+    expect(
+      demoSampleReading({
+        sample_reading: { ...CAUCE_DEMO_SAMPLE_READING_FALLBACK, client_name: null },
+      }),
+    ).toBe(CAUCE_DEMO_SAMPLE_READING_FALLBACK);
+  });
+
+  it("el fallback usa datos del demo APR Río Claro (no inventados)", () => {
+    expect(CAUCE_DEMO_SAMPLE_READING_FALLBACK.meter_number).toMatch(/^M-\d{3}$/);
+    expect(CAUCE_DEMO_KPI_FALLBACK.branch.commune).toBe("Lautaro");
+    expect(CAUCE_DEMO_KPI_FALLBACK.socios).toBe(40);
   });
 });

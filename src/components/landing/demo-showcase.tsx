@@ -13,6 +13,7 @@ import { StatCard } from "@/components/ui/stat-card";
 import { fetchCauceDemoKpis } from "@/lib/api/cauce-demo";
 import {
   CAUCE_DEMO_KPI_FALLBACK,
+  demoSampleReading,
   readDemoKpiCache,
   resolveDemoKpis,
   writeDemoKpiCache,
@@ -24,6 +25,14 @@ import { formatCLP, cn } from "@/lib/utils";
  * Showcase "Así se ve Cauce" con componentes reales (StatCard) y KPIs públicos.
  * Un fetch por carga de página; cache sessionStorage; fallback estático.
  */
+function formatM3(value: number | string | null | undefined): string {
+  const n = Number(value ?? 0);
+  return (Number.isFinite(n) ? n : 0).toLocaleString("es-CL", {
+    minimumFractionDigits: 1,
+    maximumFractionDigits: 1,
+  });
+}
+
 export function DemoShowcase() {
   const [kpis, setKpis] = useState<CauceDemoKpis>(
     () => readDemoKpiCache() ?? CAUCE_DEMO_KPI_FALLBACK,
@@ -54,6 +63,7 @@ export function DemoShowcase() {
     };
   }, []);
 
+  const sample = demoSampleReading(kpis);
   const maxM3 = useMemo(
     () =>
       Math.max(
@@ -187,41 +197,44 @@ export function DemoShowcase() {
             </table>
           </div>
 
-          {/* Card estilo POS de lectura */}
+          {/* Card estilo POS de lectura — lectura real del demo (o seed) */}
           <div className="border-2 border-azul/30 bg-white p-5 shadow-sm">
             <div className="flex items-center justify-between">
               <span className="rounded-full bg-azul/10 px-3 py-1 text-xs font-semibold text-azul">
-                M-0042
+                {sample.meter_number}
               </span>
               <span className="font-accent text-[10px] uppercase tracking-[0.14em] text-tinta/45">
-                POS lectura
+                POS lectura · {sample.period}
               </span>
             </div>
             <p className="mt-4 font-heading text-2xl font-bold tracking-[-0.02em]">
-              Familia Contreras
+              {sample.client_name}
             </p>
             <p className="mt-1 text-sm text-tinta/55">
-              Sector {kpis.consumption_by_sector[0]?.sector ?? "Centro"} · Camino
-              Los Álamos 18
+              {[sample.sector ? `Sector ${sample.sector}` : null, sample.address]
+                .filter(Boolean)
+                .join(" · ")}
             </p>
             <div className="mt-5 grid grid-cols-2 gap-3 text-center">
               <div className="bg-tinta/5 p-3">
                 <p className="font-accent text-[10px] uppercase tracking-[0.14em] text-tinta/45">
                   Anterior
                 </p>
-                <p className="mt-1 text-2xl font-bold tabular-nums">128.4</p>
+                <p className="mt-1 text-2xl font-bold tabular-nums">
+                  {formatM3(sample.previous_reading)}
+                </p>
               </div>
               <div className={cn("bg-azul/10 p-3")}>
                 <p className="font-accent text-[10px] uppercase tracking-[0.14em] text-azul">
                   Consumo
                 </p>
                 <p className="mt-1 text-2xl font-bold tabular-nums text-azul">
-                  12.6
+                  {formatM3(sample.consumed_m3)}
                 </p>
               </div>
             </div>
             <div className="mt-4 h-12 border border-tinta/15 bg-papel text-center font-heading text-2xl font-bold leading-[3rem] tabular-nums text-tinta/30">
-              141.0
+              {formatM3(sample.current_reading)}
             </div>
           </div>
         </div>
