@@ -90,8 +90,20 @@ export default function DashboardPage() {
 
   const nutritionEnabled = useIsNutritionEnabled();
   const canManageCrm = useCanManageCustomers();
-  const metersQuery = useQuery({ queryKey: ["water", "meters", "dash"], queryFn: () => fetchMeters(), staleTime: 60_000 });
-  const metersCount = (metersQuery.data ?? []).length;
+  // Medidores activos de la sucursal actual. Mientras carga se muestra "…"
+  // (antes se pintaba "0 medidores activos" hasta que llegaba la respuesta).
+  const metersQuery = useQuery({
+    queryKey: ["water", "meters", "dash", branchId],
+    queryFn: () => fetchMeters({ status: "ACTIVE" }),
+    enabled: !!branch,
+    staleTime: 60_000,
+  });
+  const activeMetersCount = (metersQuery.data ?? []).filter((m) => m.status === "ACTIVE").length;
+  const metersCountLabel = metersQuery.isSuccess
+    ? String(activeMetersCount)
+    : metersQuery.isError
+      ? "—"
+      : "…";
   const crmCounts = useCrmNavCounts();
 
   const { data: ingredientConsumption, isLoading: loadingIngredients } = useQuery({
@@ -381,7 +393,7 @@ export default function DashboardPage() {
           label="Socios"
           value={customers}
           icon={Users}
-          sub={`${metersCount} medidores activos`}
+          sub={`${metersCountLabel} medidores activos`}
           tone="primary"
           href="/customers"
 
@@ -395,7 +407,7 @@ export default function DashboardPage() {
                 description: "Socios del APR con su punto de medición asignado.",
                 sections: [
                   { label: "Total socios", value: String(customers) },
-                  { label: "Medidores", value: String(metersCount) },
+                  { label: "Medidores activos", value: metersCountLabel },
                 ],
                 children: (
                                       <CustomersMetricDetail

@@ -114,3 +114,19 @@ export function filterByPosSearch<T>(
 /** Placeholder unificado del buscador POS. */
 export const POS_CLIENT_SEARCH_PLACEHOLDER =
   "buscar por nombre, dirección o medidor";
+
+/**
+ * Orden de resultados del POS con búsqueda activa: pendientes primero, luego
+ * los ya leídos en el período (siguen visibles), con el fijado (pinned) arriba.
+ */
+export function orderPosSearchResults<T extends { id: string }>(
+  matches: readonly T[],
+  isRead: (item: T) => boolean,
+  pinnedId?: string | null,
+): T[] {
+  const pending = matches.filter((m) => !isRead(m));
+  const read = matches.filter((m) => isRead(m));
+  const list = [...pending, ...read];
+  const pinned = pinnedId ? list.find((m) => m.id === pinnedId) : undefined;
+  return pinned ? [pinned, ...list.filter((m) => m.id !== pinnedId)] : list;
+}

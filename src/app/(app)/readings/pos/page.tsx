@@ -8,6 +8,8 @@
  * la ruta muestra el resumen y deja ir directo a facturar el período.
  *
  * Búsqueda versátil: nombre, dirección, medidor o RUT (backend + client-side).
+ * Con búsqueda activa, los resultados incluyen medidores ya leídos en el
+ * período (se muestran marcados y se puede corregir la lectura).
  */
 
 import { useMemo, useRef, useState } from "react";
@@ -18,6 +20,7 @@ import {
   CheckCircle2,
   ChevronsRight,
   Gauge,
+  Pencil,
   SkipForward,
   User,
 } from "lucide-react";
@@ -34,12 +37,19 @@ import {
 } from "@/components/pos/pos-client-search";
 import { useToast } from "@/lib/store/toast";
 import { useDebouncedValue } from "@/lib/hooks/useDebouncedValue";
-import { createReading, fetchMeters, fetchReadings, type WaterMeter } from "@/lib/api/water";
+import {
+  createReading,
+  fetchMeters,
+  fetchReadings,
+  updateReading,
+  type WaterMeter,
+} from "@/lib/api/water";
 import { fetchCustomers } from "@/lib/api/customers";
 import {
   filterByPosSearch,
   matchPosSearch,
   normalizeSearchText,
+  orderPosSearchResults,
   type PosSearchMatch,
 } from "@/lib/pos-client-search";
 
@@ -68,6 +78,7 @@ export default function ReadingPosPage() {
   const [done, setDone] = useState(false);
   const [search, setSearch] = useState("");
   const [pinnedId, setPinnedId] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const debouncedSearch = useDebouncedValue(search, 250);
   const hasSearch = Boolean(normalizeSearchText(debouncedSearch));
 
@@ -166,8 +177,21 @@ export default function ReadingPosPage() {
     return [pinned, ...pending.filter((m) => m.id !== pinnedId)];
   }, [pending, pinnedId]);
 
-  const current = orderedPending[0] ?? null;
+  // Con búsqueda: todos los medidores coincidentes (pendientes primero, luego
+  // los ya leídos en el período) para que un medidor leído siga visible.
+  const searchResults = useMemo(() => {
+    if (!hasSearch) return [] as WaterMeter[];
+    return orderPosSearchResults(routeMeters, (m) => readingByMeter.has(m.id), pinnedId);
+  }, [hasSearch, routeMeters, readingByMeter, pinnedId]);
+
+  const queue = hasSearch ? searchResults : orderedPending;
+  const current = queue[0] ?? null;
   const currentMatch = current ? matchById.get(current.id) : undefined;
+  const currentReading = current ? readingByMeter.get(current.id) : undefined;
+  const isEditing = Boolean(current && currentReading && editingId === current.id);
+  const baseReading = currentReading
+    ? Number(currentReading.previous_reading ?? 0)
+    : Number(current?.last_reading?.current_reading ?? current?.initial_reading ?? 0);
   const completed = routeMeters.length - pending.length;
   const totalConsumed = routeMeters.reduce(
     (sum, m) => sum + Number(readingByMeter.get(m.id)?.consumed_m3 ?? 0),
@@ -190,6 +214,20 @@ export default function ReadingPosPage() {
     },
     onError: (err) =>
       toast.error(err instanceof Error ? err.message : "No se pudo registrar la lectura"),
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: (vars: { readingId: string; value: string }) =>
+      updateReading(vars.readingId, { current_reading: vars.value }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["water", "readings"] });
+      queryClient.invalidateQueries({ queryKey: ["water", "meters"] });
+      setEditingId(null);
+      setValue("");
+      toast.success("Lectura corregida");
+    },
+    onError: (err) =>
+      toast.error(err instanceof Error ? err.message : "No se pudo corregir la lectura"),
   });
 
   const sectorsLoading = metersQuery.isLoading;
@@ -216,9 +254,12 @@ export default function ReadingPosPage() {
       <PageBody className="gap-4">
         <PosClientSearchInput
           value={search}
+          className="flex-none"
           onChange={(v) => {
             setSearch(v);
             setPinnedId(null);
+            setEditingId(null);
+            setValue("");
             setDone(false);
           }}
         />
@@ -328,11 +369,21 @@ export default function ReadingPosPage() {
           <div className="mx-auto w-full max-w-xl">
             <div className="rounded-2xl border-2 border-primary/30 bg-card p-6 shadow-sm">
               <div className="flex items-center justify-between gap-2">
-                <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
-                  {current.number}
-                </span>
-                <span className="text-xs text-muted-foreground tabular-nums">
-                  {completed + 1} de {routeMeters.length}
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+                    {current.number}
+                  </span>
+                  {currentReading ? (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2.5 py-1 text-[11px] font-semibold text-emerald-600">
+                      <CheckCircle2 className="h-3.5 w-3.5" />
+                      Leído en {period}
+                    </span>
+                  ) : null}
+                </div>
+                <span className="shrink-0 whitespace-nowrap text-xs text-muted-foreground tabular-nums">
+                  {hasSearch
+                    ? `1 de ${searchResults.length} resultado${searchResults.length === 1 ? "" : "s"}`
+                    : `${completed + 1} de ${routeMeters.length}`}
                 </span>
               </div>
 
@@ -365,35 +416,81 @@ export default function ReadingPosPage() {
                   <p className="text-[10px] uppercase tracking-wide text-muted-foreground">
                     Lectura anterior
                   </p>
-                  <p className="mt-1 text-2xl font-bold tabular-nums">
-                    {Number(
-                      readingByMeter.get(current.id)?.previous_reading ??
-                        current.last_reading?.current_reading ??
-                        current.initial_reading ??
-                        0,
-                    )}
-                  </p>
+                  <p className="mt-1 text-2xl font-bold tabular-nums">{baseReading}</p>
                 </div>
                 <div className="rounded-xl bg-primary/10 p-3">
                   <p className="text-[10px] uppercase tracking-wide text-primary">Consumo</p>
                   <p className="mt-1 text-2xl font-bold tabular-nums text-primary">
                     {value !== "" && Number(value) >= 0
-                      ? Math.max(0, Number(value) - Number(current.last_reading?.current_reading ?? current.initial_reading ?? 0))
-                      : "—"}
+                      ? Math.max(0, Number(value) - baseReading)
+                      : currentReading
+                        ? Number(currentReading.consumed_m3 ?? 0)
+                        : "—"}
                   </p>
                 </div>
               </div>
+
+              {currentReading && !isEditing ? (
+                /* ── Ya leído en el período: ver y corregir ── */
+                <div className="mt-5 flex flex-col gap-3">
+                  <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/5 p-3 text-center">
+                    <p className="text-[10px] uppercase tracking-wide text-emerald-600">
+                      Lectura registrada ({period})
+                    </p>
+                    <p className="mt-1 text-3xl font-bold tabular-nums">
+                      {Number(currentReading.current_reading)}
+                    </p>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="lg"
+                      className="flex-1"
+                      onClick={() => {
+                        setEditingId(current.id);
+                        setValue(String(Number(currentReading.current_reading)));
+                      }}
+                    >
+                      <Pencil className="h-4 w-4" />
+                      Corregir lectura
+                    </Button>
+                    {queue.length > 1 ? (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="lg"
+                        title="Siguiente resultado"
+                        onClick={() => {
+                          setPinnedId(queue[1].id);
+                          setValue("");
+                        }}
+                      >
+                        <SkipForward className="h-4 w-4" />
+                      </Button>
+                    ) : null}
+                  </div>
+                </div>
+              ) : (
 
               <form
                 className="mt-5 flex flex-col gap-2"
                 onSubmit={(e) => {
                   e.preventDefault();
-                  if (value === "" || saveMutation.isPending) return;
+                  if (value === "") return;
+                  if (isEditing && currentReading) {
+                    if (updateMutation.isPending) return;
+                    updateMutation.mutate({ readingId: currentReading.id, value });
+                    return;
+                  }
+                  if (saveMutation.isPending) return;
                   saveMutation.mutate({ meterId: current.id, value });
                 }}
               >
                 <label className="text-xs font-medium text-muted-foreground">
-                  Lectura actual (m³) — Enter para registrar y avanzar
+                  {isEditing
+                    ? `Corregir lectura de ${period} (m³) — Enter para guardar`
+                    : "Lectura actual (m³) — Enter para registrar y avanzar"}
                 </label>
                 <Input
                   ref={inputRef}
@@ -406,52 +503,79 @@ export default function ReadingPosPage() {
                   placeholder="0"
                   className="h-16 text-center text-4xl font-bold tabular-nums"
                 />
-                {value !== "" && Number(value) < Number(current.last_reading?.current_reading ?? current.initial_reading ?? 0) && (
+                {value !== "" && Number(value) < baseReading && (
                   <p className="text-xs font-medium text-destructive">
                     La lectura es menor que la anterior — revisá el número.
                   </p>
                 )}
-                <div className="mt-2 flex gap-2">
-                  <Button
-                    type="submit"
-                    size="lg"
-                    className="flex-1"
-                    disabled={value === "" || saveMutation.isPending}
-                    isLoading={saveMutation.isPending}
-                  >
-                    Registrar y siguiente
-                    <ArrowRight className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="lg"
-                    title="Saltar y volver al final"
-                    onClick={() => {
-                      setSkipped((prev) => new Set(prev).add(current.id));
-                      setValue("");
-                      if (pinnedId === current.id) setPinnedId(null);
-                    }}
-                  >
-                    <SkipForward className="h-4 w-4" />
-                  </Button>
-                </div>
+                {isEditing ? (
+                  <div className="mt-2 flex gap-2">
+                    <Button
+                      type="submit"
+                      size="lg"
+                      className="flex-1"
+                      disabled={value === "" || updateMutation.isPending}
+                      isLoading={updateMutation.isPending}
+                    >
+                      Guardar corrección
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="lg"
+                      onClick={() => {
+                        setEditingId(null);
+                        setValue("");
+                      }}
+                    >
+                      Cancelar
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="mt-2 flex gap-2">
+                    <Button
+                      type="submit"
+                      size="lg"
+                      className="flex-1"
+                      disabled={value === "" || saveMutation.isPending}
+                      isLoading={saveMutation.isPending}
+                    >
+                      Registrar y siguiente
+                      <ArrowRight className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="lg"
+                      title="Saltar y volver al final"
+                      onClick={() => {
+                        setSkipped((prev) => new Set(prev).add(current.id));
+                        setValue("");
+                        if (pinnedId === current.id) setPinnedId(null);
+                      }}
+                    >
+                      <SkipForward className="h-4 w-4" />
+                    </Button>
+                  </div>
+                )}
               </form>
+              )}
             </div>
 
             {/* Cola / resultados de búsqueda */}
-            {orderedPending.length > 1 && (
+            {queue.length > 1 && (
               <div className="mt-4 flex flex-col gap-1.5">
                 <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
                   {hasSearch ? "Otros resultados" : "Siguientes en la ruta"}
                 </p>
                 <div className="flex flex-wrap gap-1.5">
-                  {orderedPending.slice(1, hasSearch ? 12 : 8).map((m) => (
+                  {queue.slice(1, hasSearch ? 12 : 8).map((m) => (
                     <button
                       key={m.id}
                       type="button"
                       onClick={() => {
                         setPinnedId(m.id);
+                        setEditingId(null);
                         setValue("");
                         setDone(false);
                       }}
@@ -460,6 +584,11 @@ export default function ReadingPosPage() {
                       <span className="font-semibold text-foreground">{m.number}</span>
                       {" · "}
                       {m.client_name}
+                      {readingByMeter.has(m.id) ? (
+                        <span className="ml-1 font-semibold text-emerald-600" title={`Leído en ${period}`}>
+                          ✓ leído
+                        </span>
+                      ) : null}
                       {matchById.get(m.id) ? (
                         <span className="mt-0.5 block">
                           <PosSearchMatchBadge match={matchById.get(m.id)} />
@@ -467,9 +596,9 @@ export default function ReadingPosPage() {
                       ) : null}
                     </button>
                   ))}
-                  {orderedPending.length > (hasSearch ? 12 : 8) && (
+                  {queue.length > (hasSearch ? 12 : 8) && (
                     <span className="rounded-full px-2.5 py-1 text-[11px] text-muted-foreground">
-                      +{orderedPending.length - (hasSearch ? 12 : 8)} más
+                      +{queue.length - (hasSearch ? 12 : 8)} más
                     </span>
                   )}
                 </div>

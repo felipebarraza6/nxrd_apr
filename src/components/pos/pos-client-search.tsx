@@ -42,22 +42,29 @@ export function PosClientSearchInput({
   inputClassName?: string;
   autoFocus?: boolean;
 }) {
+  // El ícono se posiciona contra un wrapper que mide exactamente lo que el
+  // input (no contra el contenedor flex, que en columnas puede estirarse).
   return (
-    <div className={cn("relative min-w-0 flex-1", className)}>
-      <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-      <Input
-        type="search"
-        enterKeyHint="search"
-        autoComplete="off"
-        autoCorrect="off"
-        spellCheck={false}
-        autoFocus={autoFocus}
-        className={cn("h-10 pl-9 text-base md:h-9 md:text-sm", inputClassName)}
-        placeholder={POS_CLIENT_SEARCH_PLACEHOLDER}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        aria-label={POS_CLIENT_SEARCH_PLACEHOLDER}
-      />
+    <div className={cn("min-w-[12rem] flex-1", className)}>
+      <div className="relative">
+        <Search
+          aria-hidden="true"
+          className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+        />
+        <Input
+          type="search"
+          enterKeyHint="search"
+          autoComplete="off"
+          autoCorrect="off"
+          spellCheck={false}
+          autoFocus={autoFocus}
+          className={cn("h-10 pl-9 text-base md:h-9 md:text-sm", inputClassName)}
+          placeholder={POS_CLIENT_SEARCH_PLACEHOLDER}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          aria-label={POS_CLIENT_SEARCH_PLACEHOLDER}
+        />
+      </div>
     </div>
   );
 }
