@@ -59,3 +59,11 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# El cierre de dependencias es package-lock.json
+/bun.lock
+
+# Oferta e informe. No forman parte del producto versionado.
+/docs/pdf-build/
+/docs/pdf-assets/
+/docs/*.pdf
+

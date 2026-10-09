@@ -1,8 +1,6 @@
-# FRIG — Sistema de diseño (app)
+# Cauce — sistema visual de la aplicación
 
-Referencia práctica del sistema real de la aplicación (POS/ERP multi-sucursal,
-Next.js + Tailwind 4). La landing pública tiene su propio lenguaje decorativo
-(hero `frig-*`, sprites pixel); este documento cubre la app.
+Referencia de tokens y kit de la aplicación (Next.js + Tailwind 4). La marca vigente es Cauce: `--tinta`, `--papel` y `--azul` en `src/app/globals.css`. El caudal está en `src/components/water`. Parte de las secciones siguientes conserva nombres del cliente compartido; no describen otro producto.
 
 ## 1. Tokens de color (multi-tenant)
 

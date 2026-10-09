@@ -1,40 +1,75 @@
-# nxrd_apr — Gestión de Agua Potable Rural
+# Cauce
 
-Sistema para comités y cooperativas de **Agua Potable Rural (APR)**: socios,
-puntos de medición, lecturas de medidores, tarifarios por tramo, cobros
-mensuales con **boleta electrónica SII**, caja de oficina e informes.
+Cliente web del registro operativo de un servicio de agua potable rural.
 
-Clon vertical de [frig](https://github.com/felipebarraza6/frig) (POS gastronómico):
-comparte backend (Yggdra) e infraestructura — auth multi-sucursal, finanzas,
-pagos, SII/DTE, CRM, soporte — pero reemplaza la operación gastronómica por la
-gestión de agua.
+La unidad de trabajo es el socio, el medidor y el metro cúbico. Cada comité o cooperativa es una sucursal. El mes cierra cuando la lectura, la tarifa vigente y el cobro del período coinciden.
 
-## Módulos propios del vertical (app `water` en el backend)
+Sitio: [cauce.smartapr.cl](https://cauce.smartapr.cl)
 
-| Módulo | Qué hace |
-|---|---|
-| **Medidores** (`/meters`) | Puntos de medición por socio y sector, último consumo |
-| **Lecturas** (`/readings`) | Captura por medidor + carga masiva CSV con validación |
-| **Tarifarios** (`/tariffs`) | Cargo fijo mensual + tramos acumulativos por m³, con vigencias |
-| **Cobros de agua** (`/billing`) | Corrida idempotente por período → cargos por socio + boletas SII en lote |
+## Ciclo
 
-La corrida de cobro genera órdenes de venta por socio: los pagos, la morosidad,
-las cuotas y la emisión SII (proveedor + CAF) reusan el flujo existente sin
-cambios.
+```mermaid
+flowchart LR
+  socio[Socio] --> medidor[Medidor]
+  medidor --> lectura[Lectura]
+  lectura --> tarifa[Tarifa vigente]
+  tarifa --> cobro[Cobro del período]
+  cobro --> pago[Pago en caja]
+  cobro --> dte[Documento tributario]
+```
+
+La lectura anota el consumo del medidor. La tarifa vigente aplica un cargo fijo y después el ancho de cada tramo de m³, en orden, sobre el consumo que queda. El cobro del período produce un cargo por socio. El pago se registra en caja. El documento tributario se emite por el servicio del SII cuando la sucursal tiene folios y resolución configurados.
+
+Tres puestos de trabajo usan el mismo registro:
+
+| Puesto | Entra en | Hace |
+| --- | --- | --- |
+| Administración | `/dashboard` | Padrón, medidores, tarifa y corrida del mes |
+| Medición | `/readings/pos` | Lectura en terreno |
+| Caja | `/payments` | Pago del cargo |
+
+## Límite del sistema
+
+```mermaid
+flowchart TB
+  operador[Operador]
+  cauce[Cauce · este repositorio]
+  api[API]
+  sii[SII]
+  operador --> cauce --> api
+  api --> sii
+```
+
+Este repositorio es el cliente. No guarda el padrón ni firma documentos: eso ocurre en la API. El cliente se publica como sitio estático. En ejecución habla con la API por `Authorization: Token` y `X-Branch-ID`.
+
+## Repositorio
+
+```
+src/app            rutas
+src/components     interfaz; el caudal está en components/water
+src/lib            cliente HTTP, sesión y reglas de tarifa
+public/brand       marca
+docs               índice, contrato y registros de revisión
+```
+
+El mapa de `src/` está en [src/README.md](src/README.md). El índice de `docs/` está en [docs/README.md](docs/README.md). Cómo copiar el fondo de agua está en [src/components/water/README.md](src/components/water/README.md).
 
 ## Desarrollo
 
+El gestor es npm. El archivo de cierre es `package-lock.json`.
+
 ```bash
-bun install
-bun run dev            # frontend contra localhost:8000
-bun run sync-contract  # regenerar tipos desde el freeze OpenAPI del backend
-bun run lint && bun run type-check && bun run build
+npm ci
+npm run dev
 ```
 
-Backend: repositorio `yggdra_infra` (app `api/apps/water`). Cada APR es una
-sucursal (`X-Branch-ID`).
+Sin `NEXT_PUBLIC_YGGDRA_API_BASE`, el modo desarrollo usa `http://localhost:8000/api`. Un build de producción usa `https://api.yggdra.cl/api`.
 
-## Branding
+```bash
+npm test
+npm run lint
+npm run type-check
+npm run build
+```
 
-Placeholder `nxrd_apr` — identidad renombrable: `src/app/page.tsx` (landing),
-`public/manifest.webmanifest`, `public/brand/` y `src/lib/frig-identity.ts`.
+La rama `production` compila el export estático y lo publica en cauce.smartapr.cl. La rama de trabajo es `dev`.
