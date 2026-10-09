@@ -38,8 +38,10 @@ export default function MetersPage() {
   const clientsQuery = useQuery({
     queryKey: ["customers", "meter-picker"],
     queryFn: async () => {
-      const { searchCustomers } = await import("@/lib/api/customers");
-      return searchCustomers("");
+      // Padrón completo (activos + inactivos): searchCustomers("") devuelve solo
+      // la primera página (20) y dejaba fuera a la mayoría de los socios del APR.
+      const { fetchAllCustomers } = await import("@/lib/api/customers");
+      return fetchAllCustomers({ status: "" });
     },
     staleTime: 60_000,
   });

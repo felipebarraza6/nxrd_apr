@@ -138,8 +138,8 @@ export const LANDING_FEATURES: LandingFeature[] = [
 ];
 
 export const DEMO_CONTACTS = {
-  to: "frig@yggdra.cl",
-  subject: "Solicito una demo de FRIG",
+  to: "contacto@smartapr.cl",
+  subject: "Solicito una demo de CAUCE",
 } as const;
 
 // ── Planes de precio ─────────────────────────────────────────────────────────

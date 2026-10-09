@@ -2,83 +2,77 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Política de Privacidad — FRIG",
+  title: "Política de Privacidad — CAUCE",
   description:
-    "Cómo FRIG trata tus datos: Ley 19.628, no divulgación a terceros, transparencia como producto de código abierto y estado del servicio.",
+    "Cómo CAUCE trata los datos de tu APR: Ley 19.628, no divulgación a terceros, transparencia y estado del servicio.",
 };
 
 const SECTIONS = [
   {
     h: "1 · Responsable del tratamiento",
     body: [
-      "El responsable del tratamiento de los datos personales recolectados a través de FRIG es su desarrollador y operador (contacto: frig@yggdra.cl, Chile).",
-      "Esta política aplica a la plataforma web FRIG (punto de venta, cocina, inventario, finanzas y menú QR) y a sus sitios públicos (landing, demos y login).",
+      "El responsable del tratamiento de los datos personales recolectados a través de CAUCE es Smart APR SpA (contacto: contacto@smartapr.cl, Chile).",
+      "Esta política aplica a la plataforma web CAUCE (socios, medidores, lecturas, tarifas, cobros, boletas electrónicas SII y finanzas del APR) y a sus sitios públicos (landing, demo y login).",
     ],
   },
   {
     h: "2 · Datos que recolectamos",
     body: [
-      "Registro y contratación: nombre, correo electrónico, nombre del negocio y datos necesarios para emitir la integración (UF única).",
-      "Datos operacionales: productos, precios, ventas, inventarios, usuarios y configuración que cada negocio carga en su propia cuenta. Esos datos pertenecen al negocio, no a FRIG.",
+      "Registro y contratación: nombre, correo electrónico, nombre de la APR y datos necesarios para habilitar tu servicio.",
+      "Datos operacionales: socios, medidores, lecturas, consumos, cobros, pagos y configuración que cada APR carga en su propia cuenta. Esos datos pertenecen a tu APR, no a Smart APR.",
       "Técnicos: dirección IP, navegador y registros de uso mínimos necesarios para operar y proteger el servicio.",
     ],
   },
   {
     h: "3 · Finalidad",
     body: [
-      "Usamos los datos exclusivamente para operar la plataforma, autenticar usuarios, prestar soporte, mejorar el servicio y cumplir obligaciones legales.",
-      "No elaboramos perfiles publicitarios ni utilizamos los datos operacionales de tu negocio para fines ajenos a la prestación del servicio.",
+      "Usamos los datos exclusivamente para operar la plataforma, autenticar usuarios, emitir boletas electrónicas ante el SII cuando tu APR lo solicita, prestar soporte, mejorar el servicio y cumplir obligaciones legales.",
+      "No elaboramos perfiles publicitarios ni utilizamos los datos operacionales de tu APR para fines ajenos a la prestación del servicio.",
     ],
   },
   {
     h: "4 · Conservación y seguridad",
     body: [
       "Los datos se conservan mientras la cuenta esté activa y durante los plazos exigidos por la normativa chilena.",
-      "Aplicamos medidas técnicas y administrativas razonables: conexión cifrada (HTTPS/TLS), contraseñas con hash, accesos por rol y separación por sucursal/tenant.",
+      "Si dejas el servicio, te entregamos tu base completa en Excel y eliminamos los datos según los plazos legales.",
+      "Aplicamos medidas técnicas y administrativas razonables: conexión cifrada (HTTPS/TLS), contraseñas con hash, accesos por rol y separación por APR/tenant.",
     ],
   },
   {
     h: "5 · No divulgación a terceros",
     body: [
       "No vendemos, cedemos ni compartimos datos personales con terceros para fines comerciales. Punto.",
-      "Solo se revelarán datos cuando exista obligación legal o requerimiento de autoridad competente, notificándolo al titular cuando la ley lo permita.",
+      "Solo se revelarán datos cuando exista obligación legal o requerimiento de autoridad competente (por ejemplo, del SII en materias tributarias), notificándolo al titular cuando la ley lo permita.",
     ],
   },
   {
     h: "6 · Derechos del titular (Ley 19.628)",
     body: [
       "Conforme a la Ley 19.628 de protección de la vida privada, todo titular puede solicitar en cualquier momento: información sobre sus datos, rectificación, cancelación o bloqueo (oposición).",
-      "Para ejercerlos escríbenos a frig@yggdra.cl desde el correo asociado a tu cuenta. Respondemos dentro de los plazos legales vigentes.",
+      "Para ejercerlos escríbenos a contacto@smartapr.cl desde el correo asociado a tu cuenta. Respondemos dentro de los plazos legales vigentes.",
     ],
   },
   {
     h: "7 · Cookies y almacenamiento local",
     body: [
-      "Usamos solo cookies y almacenamiento local estrictamente necesarios: sesión de autenticación, preferencias de tema y moneda. No usamos cookies de terceros ni de publicidad.",
+      "Usamos solo cookies y almacenamiento local estrictamente necesarios: sesión de autenticación y preferencias de la aplicación. No usamos cookies de terceros ni de publicidad.",
     ],
   },
   {
     h: "8 · Menores de edad",
     body: [
-      "FRIG es un servicio de gestión comercial dirigido a empresas. No está dirigido a menores de 14 años y no recolectamos intencionalmente datos de menores.",
+      "CAUCE es un servicio de gestión dirigido a comités y cooperativas de agua potable rural. No está dirigido a menores de 14 años y no recolectamos intencionalmente datos de menores.",
     ],
   },
   {
-    h: "9 · Código abierto y transparencia",
+    h: "9 · Servicio en desarrollo activo",
     body: [
-      "FRIG es un producto de código abierto: cualquiera puede auditar qué hace el software con los datos. Creemos que la transparencia no es un trámite, es parte del producto.",
-      "La sección Plataforma (infraestructura, despliegues y estado del servicio) se mantiene pública y documentada para nuestros clientes.",
-    ],
-  },
-  {
-    h: "10 · Servicio en desarrollo activo",
-    body: [
-      "FRIG es un trabajo en progreso: se despliegan mejoras y nuevas funciones de forma continua. La disponibilidad es esfuerzo razonable y los cortes programados se comunican con anticipación.",
+      "CAUCE se mejora de forma continua: se despliegan mejoras y nuevas funciones regularmente. La disponibilidad es esfuerzo razonable y los cortes programados se comunican con anticipación.",
       "Mientras un módulo se encuentre en desarrollo puede estar marcado como beta y cambiar sin previo aviso. Esta política también se actualiza a medida que el producto madura.",
     ],
   },
   {
-    h: "11 · Modificaciones a esta política",
+    h: "10 · Modificaciones a esta política",
     body: [
       "Cualquier cambio se publicará en esta misma página con su fecha de actualización. Si el cambio es sustancial, lo comunicaremos por correo a las cuentas registradas.",
     ],
@@ -109,7 +103,7 @@ export default function PoliticasPage() {
           <Link href="/" className="flex items-center gap-2">
             <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/brand/frig-symbol.png" alt="Frig" className="h-5 w-5" />
+              <img src="/brand/cauce-symbol.svg" alt="Cauce" className="h-5 w-5" />
             </span>
             <span className="text-base font-semibold tracking-[0.2em] text-white">CAUCE</span>
           </Link>
@@ -122,14 +116,14 @@ export default function PoliticasPage() {
         </div>
       </header>
 
-      {/* Encabezado con el resplandor cálido de Frig */}
+      {/* Encabezado */}
       <div className="relative overflow-hidden border-b border-white/10">
         <div
           aria-hidden
           className="pointer-events-none absolute inset-x-0 bottom-0 h-56"
           style={{
             background:
-              "radial-gradient(120% 100% at 50% 120%, rgba(240,162,106,0.22) 0%, rgba(240,162,106,0.06) 50%, transparent 75%)",
+              "radial-gradient(120% 100% at 50% 120%, rgba(48,60,240,0.22) 0%, rgba(48,60,240,0.06) 50%, transparent 75%)",
           }}
         />
         <div className="relative mx-auto max-w-4xl px-4 pt-14 pb-10 sm:px-6">
@@ -141,7 +135,7 @@ export default function PoliticasPage() {
           </h1>
           <p className="mt-3 max-w-2xl text-sm leading-relaxed text-zinc-400 sm:text-base">
             Qué datos recolectamos, para qué, y lo que jamás haremos con ellos. Conforme a la
-            Ley 19.628 (Chile). Última actualización: septiembre de 2026.
+            Ley 19.628 (Chile). Última actualización: octubre de 2026.
           </p>
         </div>
       </div>
@@ -152,12 +146,15 @@ export default function PoliticasPage() {
         ))}
 
         <section className="rounded-xl border border-primary/40 bg-white/[0.03] p-5 sm:p-6">
-          <h2 className="text-sm font-semibold tracking-wide text-primary">12 · Contacto</h2>
+          <h2 className="text-sm font-semibold tracking-wide text-primary">11 · Contacto</h2>
           <p className="mt-3 text-sm leading-relaxed text-zinc-300">
             Para ejercer tus derechos, resolver dudas sobre esta política o reportar un problema
             de seguridad:{" "}
-            <a href="mailto:frig@yggdra.cl" className="font-semibold text-primary hover:underline">
-              frig@yggdra.cl
+            <a
+              href="mailto:contacto@smartapr.cl"
+              className="font-semibold text-primary hover:underline"
+            >
+              contacto@smartapr.cl
             </a>
             . Los reportes de seguridad se responden con prioridad.
           </p>
@@ -168,11 +165,11 @@ export default function PoliticasPage() {
         <div className="mx-auto flex max-w-4xl flex-col items-center justify-between gap-3 px-4 py-8 text-xs text-zinc-500 sm:flex-row sm:px-6">
           <span className="flex items-center gap-2">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/brand/frig-symbol.png" alt="Frig" className="h-4 w-4" />
-            FRIG — Gestión comercial y gastronómica
+            <img src="/brand/cauce-symbol.svg" alt="Cauce" className="h-4 w-4" />
+            CAUCE — Gestión de agua potable rural por Smart APR SpA
           </span>
-          <a href="mailto:frig@yggdra.cl" className="transition-colors hover:text-white">
-            Contacto: frig@yggdra.cl
+          <a href="mailto:contacto@smartapr.cl" className="transition-colors hover:text-white">
+            Contacto: contacto@smartapr.cl
           </a>
         </div>
       </footer>

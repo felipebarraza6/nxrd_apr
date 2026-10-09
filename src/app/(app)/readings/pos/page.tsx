@@ -44,7 +44,7 @@ import {
   updateReading,
   type WaterMeter,
 } from "@/lib/api/water";
-import { fetchCustomers } from "@/lib/api/customers";
+import { fetchAllCustomers } from "@/lib/api/customers";
 import {
   filterByPosSearch,
   matchPosSearch,
@@ -113,11 +113,8 @@ export default function ReadingPosPage() {
   const hasSearch = Boolean(normalizeSearchText(debouncedSearch));
 
   const metersQuery = useQuery({
-    queryKey: ["water", "meters", "pos", hasSearch ? debouncedSearch : ""],
-    queryFn: () =>
-      fetchMeters(
-        hasSearch ? { search: debouncedSearch.trim() } : undefined,
-      ),
+    queryKey: ["water", "meters", "pos"],
+    queryFn: () => fetchMeters(),
     staleTime: 30_000,
     placeholderData: keepPreviousData,
   });
@@ -129,13 +126,13 @@ export default function ReadingPosPage() {
   // Clientes para dirección/RUT (el MeterViewSet no busca address ni dni).
   const clientsQuery = useQuery({
     queryKey: ["customers", "pos-enrich"],
-    queryFn: () => fetchCustomers({ status: "active", page_size: 1000 }),
+    queryFn: () => fetchAllCustomers({ status: "active" }),
     staleTime: 5 * 60_000,
   });
 
   const clientById = useMemo(() => {
     const map = new Map<string, ClientBrief>();
-    for (const c of clientsQuery.data?.results ?? []) {
+    for (const c of clientsQuery.data ?? []) {
       map.set(String(c.id), {
         address: c.address ?? null,
         dni: c.dni ?? null,
@@ -180,7 +177,9 @@ export default function ReadingPosPage() {
         (!sector || m.sector === sector),
     );
     if (!hasSearch) return base;
-    // Complemento client-side (dirección/RUT) + refuerzo de lo que ya vino del BE.
+    // Búsqueda 100% client-side sobre la ruta completa: el SearchFilter del
+    // backend no indexa dirección ni RUT y no tolera tildes, así que filtrar
+    // allá arriba esconde resultados válidos del medidor en terreno.
     return filterByPosSearch(base, debouncedSearch, toSearchable).map((h) => h.item);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- toSearchable closes over clientById
   }, [meters, sector, hasSearch, debouncedSearch, clientById]);
@@ -454,7 +453,9 @@ export default function ReadingPosPage() {
                   <p className="text-[10px] uppercase tracking-wide text-primary">Consumo</p>
                   <p className="mt-1 text-2xl font-bold tabular-nums text-primary">
                     {value !== "" && Number(value) >= 0
-                      ? Math.max(0, Number(value) - baseReading)
+                      ? Number(value) < baseReading
+                        ? "—"
+                        : Number(value) - baseReading
                       : currentReading
                         ? Number(currentReading.consumed_m3 ?? 0)
                         : "—"}
@@ -510,7 +511,7 @@ export default function ReadingPosPage() {
                 className="mt-5 flex flex-col gap-2"
                 onSubmit={(e) => {
                   e.preventDefault();
-                  if (value === "") return;
+                  if (value === "" || Number(value) < baseReading) return;
                   if (isEditing && currentReading) {
                     if (updateMutation.isPending) return;
                     updateMutation.mutate({ readingId: currentReading.id, value });
@@ -546,7 +547,7 @@ export default function ReadingPosPage() {
                       type="submit"
                       size="lg"
                       className="flex-1"
-                      disabled={value === "" || updateMutation.isPending}
+                      disabled={value === "" || Number(value) < baseReading || updateMutation.isPending}
                       isLoading={updateMutation.isPending}
                     >
                       Guardar corrección
@@ -569,7 +570,7 @@ export default function ReadingPosPage() {
                       type="submit"
                       size="lg"
                       className="flex-1"
-                      disabled={value === "" || saveMutation.isPending}
+                      disabled={value === "" || Number(value) < baseReading || saveMutation.isPending}
                       isLoading={saveMutation.isPending}
                     >
                       Registrar y siguiente

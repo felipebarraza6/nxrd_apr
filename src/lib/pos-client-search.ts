@@ -50,6 +50,13 @@ export function normalizeRutDigits(input: string): string {
   return input.replace(/[.\-\s]/g, "").toLowerCase();
 }
 
+/** Teléfono solo con dígitos, sin el 56 de Chile si viene como prefijo. */
+export function normalizePhoneDigits(input: string): string {
+  const digits = input.replace(/\D/g, "");
+  if (digits.startsWith("56") && digits.length > 9) return digits.slice(2);
+  return digits;
+}
+
 function includesFolded(haystack: string | null | undefined, needle: string): boolean {
   if (!haystack || !needle) return false;
   return normalizeSearchText(haystack).includes(needle);

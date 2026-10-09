@@ -214,6 +214,28 @@ export default function LoginPage() {
     };
   }, []);
 
+  // Traduce mensajes DRF crudos (posible inglés) a es-CL para usuarios no técnicos.
+  function mapLoginError(message: string): string {
+    const m = message.trim();
+    if (
+      /unable to log in with provided credentials|invalid credentials|credenciales inv?[áa]lidas/i.test(
+        m,
+      )
+    ) {
+      return "Correo o contraseña incorrectos. Revisa e inténtalo de nuevo.";
+    }
+    if (/user account is disabled|cuenta deshabilitada/i.test(m)) {
+      return "Tu cuenta está desactivada. Escríbenos a contacto@smartapr.cl.";
+    }
+    if (/invalid token|token inv?[áa]lido|expired|expirad/i.test(m)) {
+      return "Tu enlace o sesión expiró. Vuelve a iniciar sesión.";
+    }
+    if (/too many attempts|demasiados intentos/i.test(m)) {
+      return "Demasiados intentos seguidos. Espera un minuto y vuelve a probar.";
+    }
+    return m || "Error al iniciar sesión";
+  }
+
   // Pulso de energía al intentar ingresar: la fogata responde.
   const [pulse, setPulse] = useState(false);
   function firePulse() {
@@ -230,7 +252,7 @@ export default function LoginPage() {
       const res = await loginComplete({ email, password });
       await completeLogin(res);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Error al iniciar sesión");
+      setError(mapLoginError(err instanceof Error ? err.message : ""));
       setErrorKey((k) => k + 1);
     } finally {
       setLoading(false);

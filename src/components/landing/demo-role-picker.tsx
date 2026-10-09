@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2, X } from "lucide-react";
 import { completeLoginSession } from "@/lib/complete-login";
+import { STORAGE } from "@/lib/storage-keys";
 import {
   demoThrottleMessage,
   fetchCauceDemoLogin,
@@ -11,6 +12,7 @@ import {
 } from "@/lib/api/cauce-demo";
 import {
   CAUCE_DEMO_ROLES,
+  isCauceDemoSession,
   type CauceDemoLoginRole,
 } from "@/lib/cauce-demo";
 import { ApiError } from "@/lib/api/client";
@@ -36,6 +38,18 @@ export function DemoRolePicker({
     setError(null);
     setLoadingRole(role);
     try {
+      const token = window.localStorage.getItem(STORAGE.token);
+      const demoExpiresAt = window.localStorage.getItem(STORAGE.demoExpiresAt);
+      const realSession = Boolean(token) && !isCauceDemoSession({ demoExpiresAt });
+      if (
+        realSession &&
+        !window.confirm(
+          "Ya tienes una sesión iniciada. Entrar a la demo cierra esa sesión. ¿Continuar?",
+        )
+      ) {
+        setLoadingRole(null);
+        return;
+      }
       const res = await fetchCauceDemoLogin(role);
       await completeLoginSession(res, (path) => {
         onClose();

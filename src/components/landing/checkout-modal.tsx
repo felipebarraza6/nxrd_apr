@@ -184,7 +184,7 @@ export function CheckoutModal({
         `Correo: ${payload.email}`,
       ].join("\n");
       window.location.href =
-        `mailto:${contactEmail}?subject=${encodeURIComponent(`Contratación FRIG — ${plan!.name}`)}` +
+        `mailto:${contactEmail}?subject=${encodeURIComponent(`Contratación CAUCE — ${plan!.name}`)}` +
         `&body=${encodeURIComponent(body)}`;
     }
     setState("done");
@@ -236,7 +236,7 @@ export function CheckoutModal({
             <p className="mt-1 text-sm text-muted-foreground">
               {existingBranchId
                 ? "El pago quedó confirmado. El plan de esta sucursal ya está activo."
-                : `Una vez confirmado tu pago, te enviaremos a ${email} un correo con tu código de acceso para entrar a FRIG.`}
+                : `Una vez confirmado tu pago, te enviaremos a ${email} un correo con tu código de acceso para entrar a CAUCE.`}
             </p>
           </div>
           <Button variant="outline" onClick={onClose}>

@@ -8,6 +8,7 @@ import {
   AuthWaterShell,
 } from "@/components/auth/auth-water-shell";
 import { fetchCheckoutStatus } from "@/lib/api/checkout";
+import { ApiError } from "@/lib/api/client";
 import { CAUCE_GROUP } from "@/lib/cauce-checkout";
 
 const STORAGE_PREFIX = "cauce.checkout_id.";
@@ -101,8 +102,14 @@ export default function CheckoutResultPage() {
             : "Procesando… confirmando el pago o la activación del trial.",
         );
         timer = window.setTimeout(tick, POLL_MS);
-      } catch {
+      } catch (err) {
         if (cancelled) return;
+        if (err instanceof ApiError && err.status === 404) {
+          clearStored();
+          setPhase("missing");
+          setMessage("No encontramos ese pago. Vuelve al registro e inténtalo de nuevo.");
+          return;
+        }
         if (attempts >= POLL_MAX) {
           setPhase("timeout");
           setMessage(

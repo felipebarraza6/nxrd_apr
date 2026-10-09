@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { resetPasswordConfirm } from "@/lib/api/auth";
 import { fetchPublicLoginThemeByHost, applyThemeConfig } from "@/lib/api/branches";
 import { BrandLogo } from "@/components/brand-logo";
-import { FRIG_IDENTITY_STYLE, FRIG_REPO_URL, setTenantFavicon } from "@/lib/frig-identity";
+import { FRIG_IDENTITY_STYLE, setTenantFavicon } from "@/lib/frig-identity";
 import type { BranchThemeConfig } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -39,11 +39,10 @@ export default function ResetPasswordPage() {
 
   useEffect(() => {
     let cancelled = false;
-    document.title = "FRIG — Nueva contraseña";
+    document.title = "Cauce — Nueva contraseña";
     (async () => {
       const theme = await fetchPublicLoginThemeByHost();
-      // Branding del propio Frig = identidad Frig (logo propio, cobre).
-      if (cancelled || !theme || (theme.app_name ?? "").toLowerCase().includes("frig")) return;
+      if (cancelled || !theme) return;
       setBrandTheme(theme);
       applyThemeConfig(theme);
       // Favicon del tenant; sin favicon propio usa su logo del header.
@@ -89,15 +88,15 @@ export default function ResetPasswordPage() {
     }
   }
 
-  const isFrigIdentity = !brandTheme;
+  const isCauceIdentity = !brandTheme;
 
   return (
     <div
       className={cn(
         "flex min-h-dvh flex-1 flex-col",
-        isFrigIdentity ? "bg-[#0a0a0a]" : "bg-background text-foreground",
+        isCauceIdentity ? "bg-[#0a0a0a]" : "bg-background text-foreground",
       )}
-      style={isFrigIdentity ? FRIG_IDENTITY_STYLE : undefined}
+      style={isCauceIdentity ? FRIG_IDENTITY_STYLE : undefined}
     >
       <section className="flex flex-1 flex-col items-center justify-center bg-background px-4 py-10">
         <motion.div
@@ -118,7 +117,7 @@ export default function ResetPasswordPage() {
             ) : (
               <div className="flex h-14 w-14 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-sm">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/brand/frig-symbol.png" alt="Frig" className="h-9 w-9" />
+                <img src="/brand/cauce-symbol.svg" alt="Cauce" className="h-9 w-9" />
               </div>
             )}
             <div>
@@ -207,20 +206,10 @@ export default function ResetPasswordPage() {
 
           {brandTheme ? (
             <div className="mt-8 flex flex-col items-center gap-1.5 text-xs text-muted-foreground">
-              <p>
-                powered by{" "}
-                <a
-                  href={FRIG_REPO_URL}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="font-medium underline-offset-4 transition-colors hover:text-foreground hover:underline"
-                >
-                  FRIG
-                </a>
-              </p>
+              <p>operado por Smart APR SpA</p>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src="/brand/frig-symbol.png"
+                src="/brand/cauce-symbol.svg"
                 alt=""
                 aria-hidden
                 className="h-4 w-auto opacity-60"
@@ -228,7 +217,7 @@ export default function ResetPasswordPage() {
             </div>
           ) : (
             <p className={cn("mt-8 text-center text-xs text-muted-foreground")}>
-              Gestión comercial y gastronómica por FRIG
+              Gestión de agua potable rural por Smart APR
             </p>
           )}
         </motion.div>

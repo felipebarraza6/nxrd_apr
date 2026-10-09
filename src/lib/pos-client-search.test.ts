@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   filterByPosSearch,
   matchPosSearch,
+  normalizePhoneDigits,
   normalizeRutDigits,
   normalizeSearchText,
   POS_CLIENT_SEARCH_PLACEHOLDER,
@@ -16,6 +17,11 @@ describe("pos-client-search", () => {
 
   it("normaliza RUT quitando puntos y guión", () => {
     expect(normalizeRutDigits("12.345.678-9")).toBe("123456789");
+  });
+
+  it("normaliza teléfono con +56 y espacios", () => {
+    expect(normalizePhoneDigits("+56 9 4000 0039")).toBe("940000039");
+    expect(normalizePhoneDigits("9 4000 0039")).toBe("940000039");
   });
 
   it("encuentra por nombre sin tilde", () => {

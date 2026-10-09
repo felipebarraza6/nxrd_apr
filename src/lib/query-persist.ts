@@ -93,8 +93,37 @@ export const QUERY_PERSIST_BUSTER = APP_BUILD;
 /** Borra el blob persistido de RQ (llamar en logout). */
 export async function clearQueryPersist(
   userId?: string | number | null,
-  branchId?: string | null,
+  _branchId?: string | null,
 ): Promise<void> {
-  const key = queryPersistStorageKey(userId, branchId);
-  await del(key);
+  // Borrar TODAS las sucursales del usuario: el blob es por `cauce.rq.<uid>.<branch>`
+  // y en logout el usuario ya no tiene currentBranchId válido; limpiar solo la
+  // sucursal activa dejaría datos (socios, usuarios) en dispositivos compartidos.
+  await clearQueryPersistByUser(userId);
+}
+
+/** Borra todos los blobs persistidos de un usuario, cualquiera sea su sucursal. */
+export async function clearQueryPersistByUser(
+  userId?: string | number | null,
+): Promise<void> {
+  const prefix = `cauce.rq.${userId != null && String(userId) !== "" ? String(userId) : "anon"}.`;
+  await clearQueryPersistByPrefix(prefix);
+}
+
+/** Borra todos los blobs persistidos (todos los usuarios). */
+export async function clearAllQueryPersist(): Promise<void> {
+  await clearQueryPersistByPrefix("cauce.rq.");
+}
+
+async function clearQueryPersistByPrefix(prefix: string): Promise<void> {
+  const keys = await keysWithPrefix(prefix);
+  await Promise.all(keys.map((k) => del(k)));
+}
+
+async function keysWithPrefix(prefix: string): Promise<string[]> {
+  // idb-keyval expone stores()/keys() en navegadores con getAllKeys/keys.
+  const mod = await import("idb-keyval");
+  const all = await (mod as { keys: () => Promise<IDBValidKey[]> }).keys();
+  return all
+    .filter((k): k is string => typeof k === "string" && k.startsWith(prefix))
+    .map((k) => k as string);
 }

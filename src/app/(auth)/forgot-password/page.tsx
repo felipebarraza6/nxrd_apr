@@ -102,9 +102,9 @@ export default function ForgotPasswordPage() {
               <>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  src="/brand/frig-wordmark.png"
-                  alt="Frig"
-                  className="frig-flame h-10 w-auto"
+                  src="/brand/cauce-wordmark-light.svg"
+                  alt="Cauce"
+                  className="h-10 w-auto"
                 />
               </>
             )}

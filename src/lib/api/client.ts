@@ -92,6 +92,14 @@ function redirectToLogin(): void {
   ]) {
     window.localStorage.removeItem(key);
   }
+  // Purga best-effort de los blobs RQ persistidos (sin usuario conocido tras
+  // limpiar la sesión, se borran todos): sin token, quedarse con datos en
+  // IndexedDB solo posibilita que se muestren a quien abra el equipo después.
+  void import("@/lib/query-persist")
+    .then((m) => m.clearAllQueryPersist())
+    .catch(() => {
+      /* idb opcional */
+    });
   // eslint-disable-next-line @next/next/no-location-assign-relative-destination
   window.location.assign(`${window.location.origin}/login`);
 }

@@ -15,14 +15,18 @@ import { formatCLP } from "@/lib/utils";
 import {
   createTariff,
   fetchTariffs,
+  updateTariff,
+  type TariffWritePayload,
   type WaterTariff,
   type WaterTariffBlock,
 } from "@/lib/api/water";
+import { pickVigenteTariff } from "@/lib/water-tariff";
 
 export default function TariffsPage() {
   const toast = useToast();
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
+  const [editing, setEditing] = useState<WaterTariff | null>(null);
 
   const tariffsQuery = useQuery({
     queryKey: ["water", "tariffs"],
@@ -32,15 +36,17 @@ export default function TariffsPage() {
   const tariffs = [...(tariffsQuery.data ?? [])].sort((a, b) =>
     b.effective_from.localeCompare(a.effective_from),
   );
+  const vigente = pickVigenteTariff(tariffs);
+  const vigenteIdx = vigente ? tariffs.findIndex((t) => t.id === vigente.id) : -1;
 
   return (
     <PageShell>
       <PageHeader
         title="Tarifarios"
         icon={<ScrollText className="h-5 w-5" />}
-        subtitle="Cargo fijo mensual + tramos por m³ (solo lectura). El más reciente según su vigencia es el que aplica."
+        subtitle="Cargo fijo mensual + tramos por m³. Aplica el de vigencia más reciente que ya empezó."
         actions={
-          <Button className="h-9" onClick={() => setOpen(true)}>
+          <Button className="h-9" onClick={() => { setEditing(null); setOpen(true); }}>
             <Plus className="h-4 w-4" />
             Nuevo tarifario
           </Button>
@@ -54,9 +60,9 @@ export default function TariffsPage() {
           <EmptyState
             icon={ScrollText}
             title="Sin tarifarios"
-            description="Crea el tarifario del APR (nombre, cargo fijo y vigencia). Los tramos por m³ hoy solo se configuran en backend."
+            description="Crea el tarifario del APR: nombre, cargo fijo, vigencia y tramos por m³."
             action={
-              <Button size="sm" onClick={() => setOpen(true)}>
+              <Button size="sm" onClick={() => { setEditing(null); setOpen(true); }}>
                 Crear tarifario
               </Button>
             }
@@ -67,7 +73,7 @@ export default function TariffsPage() {
               <div
                 key={tariff.id}
                 className={`rounded-2xl border p-4 ${
-                  idx === 0
+                  idx === vigenteIdx
                     ? "border-primary/40 bg-primary/[0.03]"
                     : "border-border bg-card"
                 }`}
@@ -76,9 +82,14 @@ export default function TariffsPage() {
                   <div>
                     <div className="flex items-center gap-2">
                       <h3 className="text-sm font-semibold">{tariff.name}</h3>
-                      {idx === 0 && (
+                      {idx === vigenteIdx && (
                         <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary">
                           Vigente
+                        </span>
+                      )}
+                      {idx === 0 && idx !== vigenteIdx && (
+                        <span className="rounded-full bg-amber-500/10 px-2 py-0.5 text-[10px] font-semibold text-amber-600">
+                          Vigencia futura
                         </span>
                       )}
                     </div>
@@ -87,9 +98,23 @@ export default function TariffsPage() {
                       {new Date(tariff.effective_from).toLocaleDateString("es-CL")}
                     </p>
                   </div>
-                  <p className="text-sm font-semibold tabular-nums">
-                    Fijo: {formatCLP(Number(tariff.fixed_charge))}
-                  </p>
+                  <div className="flex items-center gap-2">
+                    <p className="text-sm font-semibold tabular-nums">
+                      Fijo: {formatCLP(Number(tariff.fixed_charge))}
+                    </p>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="h-8"
+                      onClick={() => {
+                        setEditing(tariff);
+                        setOpen(true);
+                      }}
+                    >
+                      Editar
+                    </Button>
+                  </div>
                 </div>
 
                 {(tariff.blocks?.length ?? 0) > 0 ? (
@@ -97,7 +122,7 @@ export default function TariffsPage() {
                     <table className="w-full text-left text-xs">
                       <thead className="bg-muted/40 text-muted-foreground">
                         <tr>
-                          <th className="px-3 py-2 font-medium">Tramo (solo lectura)</th>
+                          <th className="px-3 py-2 font-medium">Tramo</th>
                           <th className="px-3 py-2 text-right font-medium">Precio por m³</th>
                         </tr>
                       </thead>
@@ -117,8 +142,7 @@ export default function TariffsPage() {
                   </div>
                 ) : (
                   <p className="mt-3 text-[11px] text-muted-foreground">
-                    Sin tramos configurados. Los bloques son de solo lectura en la API;
-                    hay que cargarlos desde el backend.
+                    Sin tramos. Edita el tarifario y carga los bloques por m³: si no, la corrida cobra solo el cargo fijo.
                   </p>
                 )}
 
@@ -141,16 +165,27 @@ export default function TariffsPage() {
       </PageBody>
 
       <TariffModal
+        key={editing?.id ?? "new"}
         open={open}
-        onClose={() => setOpen(false)}
+        initial={editing}
+        onClose={() => {
+          setOpen(false);
+          setEditing(null);
+        }}
         onSave={async (payload) => {
           try {
-            await createTariff(payload);
+            if (editing) {
+              await updateTariff(editing.id, payload);
+              toast.success("Tarifario actualizado");
+            } else {
+              await createTariff(payload);
+              toast.success("Tarifario creado");
+            }
             queryClient.invalidateQueries({ queryKey: ["water", "tariffs"] });
             setOpen(false);
-            toast.success("Tarifario creado");
+            setEditing(null);
           } catch (err) {
-            toast.error(err instanceof Error ? err.message : "No se pudo crear");
+            toast.error(err instanceof Error ? err.message : "No se pudo guardar");
           }
         }}
       />
@@ -176,22 +211,49 @@ function calcExample(tariff: WaterTariff, consumption: number): number {
   return total;
 }
 
+type BlockDraft = { from: string; to: string; price: string };
+
+function draftsFrom(tariff: WaterTariff | null): BlockDraft[] {
+  if (!tariff || (tariff.blocks ?? []).length === 0) {
+    return [
+      { from: "0", to: "10", price: "" },
+      { from: "10", to: "", price: "" },
+    ];
+  }
+  return [...tariff.blocks]
+    .sort((a, b) => Number(a.from_m3) - Number(b.from_m3))
+    .map((block) => ({
+      from: String(block.from_m3),
+      to: block.to_m3 == null ? "" : String(block.to_m3),
+      price: String(block.price_per_m3),
+    }));
+}
+
 function TariffModal({
   open,
+  initial,
   onClose,
   onSave,
 }: {
   open: boolean;
+  initial: WaterTariff | null;
   onClose: () => void;
-  onSave: (payload: Parameters<typeof createTariff>[0]) => Promise<void>;
+  onSave: (payload: TariffWritePayload) => Promise<void>;
 }) {
-  const [name, setName] = useState("");
-  const [fixed, setFixed] = useState("2000");
+  const [name, setName] = useState(initial?.name ?? "");
+  const [fixed, setFixed] = useState(initial ? String(initial.fixed_charge) : "2000");
   const [effective, setEffective] = useState(() => {
+    if (initial?.effective_from) return initial.effective_from.slice(0, 10);
     const d = new Date();
-    return d.toISOString().slice(0, 10);
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
   });
+  const [blocks, setBlocks] = useState<BlockDraft[]>(() => draftsFrom(initial));
   const [saving, setSaving] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
+
+  function updateBlock(index: number, patch: Partial<BlockDraft>) {
+    setBlocks((rows) => rows.map((row, i) => (i === index ? { ...row, ...patch } : row)));
+  }
 
   return (
     <AnimatedOverlay
@@ -201,22 +263,36 @@ function TariffModal({
       panelClassName="flex items-end justify-center p-0 sm:items-center sm:p-4"
     >
       <div className="max-h-[90vh] w-full overflow-y-auto rounded-t-2xl border border-border bg-background p-4 shadow-xl sm:max-w-lg sm:rounded-2xl sm:p-6">
-        <h2 className="text-base font-semibold">Nuevo tarifario</h2>
+        <h2 className="text-base font-semibold">{initial ? "Editar tarifario" : "Nuevo tarifario"}</h2>
         <p className="mt-1 text-xs text-muted-foreground">
-          Nombre, cargo fijo y vigencia. Los tramos por m³ son de solo lectura en
-          la API actual; se muestran si el backend los tiene cargados.
+          Cargo fijo más tramos continuos desde 0 m³. El último puede quedar sin tope.
+          Deja los precios vacíos si este tarifario es solo cargo fijo.
         </p>
 
         <form
           onSubmit={async (e) => {
             e.preventDefault();
             if (!name.trim()) return;
+            const priced = blocks.filter((row) => row.price.trim() !== "");
+            const half = blocks.some(
+              (row) => row.price.trim() === "" && (row.from.trim() !== "" || row.to.trim() !== "") && priced.length > 0,
+            );
+            if (half && priced.length !== blocks.length) {
+              setFormError("Completa el precio de cada tramo, o borra el que no uses.");
+              return;
+            }
+            setFormError(null);
             setSaving(true);
             try {
               await onSave({
                 name: name.trim(),
                 fixed_charge: Number(fixed) || 0,
                 effective_from: effective,
+                blocks: priced.map((row) => ({
+                  from_m3: row.from,
+                  to_m3: row.to.trim() === "" ? null : row.to,
+                  price_per_m3: row.price,
+                })),
               });
             } finally {
               setSaving(false);
@@ -239,12 +315,63 @@ function TariffModal({
             </div>
           </div>
 
+          <div className="flex flex-col gap-2">
+            <p className="text-xs font-medium text-muted-foreground">Tramos por m³</p>
+            {blocks.map((row, index) => (
+              <div key={index} className="grid grid-cols-[1fr_1fr_1fr_auto] gap-2">
+                <Input
+                  type="number"
+                  value={row.from}
+                  onChange={(e) => updateBlock(index, { from: e.target.value })}
+                  placeholder="Desde"
+                  aria-label={`Tramo ${index + 1} desde m³`}
+                />
+                <Input
+                  type="number"
+                  value={row.to}
+                  onChange={(e) => updateBlock(index, { to: e.target.value })}
+                  placeholder="Hasta"
+                  aria-label={`Tramo ${index + 1} hasta m³`}
+                />
+                <Input
+                  type="number"
+                  value={row.price}
+                  onChange={(e) => updateBlock(index, { price: e.target.value })}
+                  placeholder="$ / m³"
+                  aria-label={`Tramo ${index + 1} precio`}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setBlocks((rows) => rows.filter((_, i) => i !== index))}
+                >
+                  Quitar
+                </Button>
+              </div>
+            ))}
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="self-start"
+              onClick={() => {
+                const last = blocks[blocks.length - 1];
+                setBlocks((rows) => [...rows, { from: last?.to ?? "0", to: "", price: "" }]);
+              }}
+            >
+              Agregar tramo
+            </Button>
+          </div>
+
+          {formError ? <p className="text-xs text-destructive">{formError}</p> : null}
+
           <div className="mt-2 flex justify-end gap-2 border-t border-border pt-3">
             <Button type="button" variant="outline" size="sm" onClick={onClose}>
               Cancelar
             </Button>
             <Button type="submit" size="sm" isLoading={saving}>
-              Crear tarifario
+              {initial ? "Guardar" : "Crear tarifario"}
             </Button>
           </div>
         </form>

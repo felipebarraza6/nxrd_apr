@@ -37,7 +37,7 @@ import {
   generateOrdersExcel,
   type OrdersFilter,
 } from "@/lib/api/orders";
-import { fetchCustomers } from "@/lib/api/customers";
+import { fetchAllCustomers } from "@/lib/api/customers";
 import { fetchMeters } from "@/lib/api/water";
 import { formatCLP, cn, paymentStatusLabel } from "@/lib/utils";
 import {
@@ -113,7 +113,7 @@ export default function ChargesPage() {
 
   const clientsQuery = useQuery({
     queryKey: ["customers", "pos-enrich"],
-    queryFn: () => fetchCustomers({ status: "active", page_size: 1000 }),
+    queryFn: () => fetchAllCustomers({ status: "active" }),
     staleTime: 5 * 60_000,
   });
 
@@ -128,7 +128,7 @@ export default function ChargesPage() {
       string,
       { address?: string | null; dni?: string | null; name?: string | null }
     >();
-    for (const c of clientsQuery.data?.results ?? []) {
+    for (const c of clientsQuery.data ?? []) {
       map.set(String(c.id), {
         address: c.address ?? null,
         dni: c.dni ?? null,

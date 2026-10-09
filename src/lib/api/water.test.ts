@@ -12,6 +12,7 @@ import { apiFetch } from "@/lib/api/client";
 import {
   createBillingRun,
   createTariff,
+  voidBillingRun,
   fetchBillingRuns,
   fetchMeters,
   fetchReadings,
@@ -114,7 +115,7 @@ describe("water API client", () => {
     });
   });
 
-  it("createTariff NO envía blocks (read-only en TariffSerializer)", async () => {
+  it("createTariff envía blocks cuando vienen, y no inventa campos de inventario", async () => {
     mockedFetch.mockResolvedValueOnce({
       id: "t1",
       name: "Comunidad",
@@ -136,6 +137,31 @@ describe("water API client", () => {
     expect(opts?.body).not.toHaveProperty("blocks");
     expect(opts?.body).not.toHaveProperty("fixed_tariff");
     expect(opts?.body).not.toHaveProperty("product");
+
+    mockedFetch.mockResolvedValueOnce({
+      id: "t2",
+      name: "Con tramos",
+      fixed_charge: "1500",
+      effective_from: "2026-10-01",
+      blocks: [],
+    });
+    await createTariff({
+      name: "Con tramos",
+      fixed_charge: 1500,
+      effective_from: "2026-10-01",
+      blocks: [{ from_m3: "0", to_m3: null, price_per_m3: "400" }],
+    });
+    expect(mockedFetch.mock.calls[1][1]?.body).toMatchObject({
+      blocks: [{ from_m3: "0", to_m3: null, price_per_m3: "400" }],
+    });
+  });
+
+  it("voidBillingRun pega al endpoint de anulación", async () => {
+    mockedFetch.mockResolvedValueOnce({ voided: true, period: "2026-10" });
+    await voidBillingRun("15");
+    expect(mockedFetch).toHaveBeenCalledWith("/water/billing-runs/15/void/", {
+      method: "POST",
+    });
   });
 
   it("importReadingsCsv manda FormData a import-csv", async () => {

@@ -294,9 +294,19 @@ export default function ReadingsPage() {
                 </p>
               )}
               {importResult.skipped.length > 0 && (
-                <p className="text-muted-foreground">
-                  {importResult.skipped.length} filas saltadas (ya leídas o medidor inactivo).
-                </p>
+                <div className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-3">
+                  <p className="font-medium text-amber-600">
+                    {importResult.skipped.length} filas saltadas
+                  </p>
+                  <ul className="mt-1.5 max-h-32 overflow-y-auto pr-2 text-muted-foreground">
+                    {importResult.skipped.map((s, i) => (
+                      <li key={i}>
+                        {s.meter ? `${s.meter}: ` : ""}
+                        {s.reason}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               )}
               {importResult.errors.length > 0 && (
                 <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-3">

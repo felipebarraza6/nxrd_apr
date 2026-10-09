@@ -53,6 +53,43 @@ function buildCustomersUrl(filter: CustomersFilter): string {
   return `/customers/clients/${q ? `?${q}` : ""}`;
 }
 
+const CUSTOMER_PAGE_SIZE = 200;
+const CUSTOMER_MAX_PAGES = 50;
+
+async function fetchCustomerPages(filter: CustomersFilter): Promise<Client[]> {
+  const out: Client[] = [];
+  for (let page = 1; page <= CUSTOMER_MAX_PAGES; page++) {
+    const qs = buildCustomersQueryString({ ...filter, page_size: CUSTOMER_PAGE_SIZE });
+    qs.set("page", String(page));
+    // El mixin del listado esconde inactivos salvo este flag.
+    if (filter.status === "inactive") qs.set("show_inactive", "true");
+    const data = await apiFetch<PaginatedClientList>(`/customers/clients/?${qs.toString()}`);
+    const rows = data.results ?? [];
+    out.push(...rows);
+    if (!data.next || rows.length === 0) break;
+  }
+  return out;
+}
+
+/**
+ * Recorre el padrón completo. `status: ""` junta activos e inactivos.
+ * El listado de la pantalla sigue paginado en el servidor.
+ */
+export async function fetchAllCustomers(filter: CustomersFilter = {}): Promise<Client[]> {
+  if (filter.status === "active" || filter.status === "inactive") {
+    return fetchCustomerPages(filter);
+  }
+  const [active, inactive] = await Promise.all([
+    fetchCustomerPages({ ...filter, status: "active" }),
+    fetchCustomerPages({ ...filter, status: "inactive" }),
+  ]);
+  const byId = new Map<string, Client>();
+  for (const customer of [...active, ...inactive]) {
+    byId.set(String(customer.id), customer);
+  }
+  return Array.from(byId.values());
+}
+
 export async function fetchCustomers(filter: CustomersFilter = {}): Promise<PaginatedClientList> {
   // El backend filtra por activos por defecto. Para mostrar todos, combinamos
   // dos listados: activos e inactivos. Si el backend ignora el filtro de

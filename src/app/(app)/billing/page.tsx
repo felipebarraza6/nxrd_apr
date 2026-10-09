@@ -20,9 +20,11 @@ import {
   emitBillingRunDtes,
   fetchBillingRuns,
   fetchTariffs,
+  voidBillingRun,
   type BillingRunRow,
   type DteEmitResult,
 } from "@/lib/api/water";
+import { pickVigenteTariff } from "@/lib/water-tariff";
 
 function currentPeriod(): string {
   const d = new Date();
@@ -39,6 +41,11 @@ export default function BillingPage() {
     run: BillingRunRow;
     result: DteEmitResult;
   } | null>(null);
+  /** Medidores saltados por la última corrida generada (sin cargo). */
+  const [skippedResult, setSkippedResult] = useState<{
+    period: string;
+    skipped: Array<{ meter: string; reason: string }>;
+  } | null>(null);
 
   const runsQuery = useQuery({
     queryKey: ["water", "billing-runs"],
@@ -53,6 +60,12 @@ export default function BillingPage() {
   const tariffs = [...(tariffsQuery.data ?? [])].sort((a, b) =>
     b.effective_from.localeCompare(a.effective_from),
   );
+  const autoTariff = pickVigenteTariff(tariffs);
+  const selectedTariff = tariffId
+    ? tariffs.find((t) => t.id === tariffId) ?? null
+    : autoTariff;
+  const selectedHasNoBlocks =
+    selectedTariff != null && (selectedTariff.blocks ?? []).length === 0;
   const runs = runsQuery.data ?? [];
 
   const generateMutation = useMutation({
@@ -63,9 +76,20 @@ export default function BillingPage() {
       }),
     onSuccess: (run) => {
       queryClient.invalidateQueries({ queryKey: ["water", "billing-runs"] });
-      toast.success(
-        `Corrida generada: ${run.orders_created} cargos por ${formatCLP(Number(run.total_amount))}`,
-      );
+      const skipped = run.skipped ?? [];
+      const base = `Corrida generada: ${run.orders_created} cargos por ${formatCLP(Number(run.total_amount))}`;
+      if (skipped.length > 0) {
+        // Los saltados son socios que NO quedaron facturados: avisarlos en el
+        // toast es la diferencia entre "mes cerrado" y "mes cerrado a medias".
+        toast.warning(
+          `${base} · ${skipped.length} medidores quedaron fuera (revisa el detalle)`,
+          8000,
+        );
+        setSkippedResult({ period: run.period, skipped });
+      } else {
+        toast.success(base);
+        setSkippedResult(null);
+      }
     },
     onError: (err) =>
       toast.error(err instanceof Error ? err.message : "No se pudo generar la corrida"),
@@ -86,6 +110,16 @@ export default function BillingPage() {
     },
     onError: (err) =>
       toast.error(err instanceof Error ? err.message : "Error al emitir boletas"),
+  });
+
+  const voidMutation = useMutation({
+    mutationFn: (run: BillingRunRow) => voidBillingRun(run.id),
+    onSuccess: (result) => {
+      queryClient.invalidateQueries({ queryKey: ["water", "billing-runs"] });
+      toast.success(`Corrida ${result.period} anulada. Puedes generarla de nuevo.`);
+    },
+    onError: (err) =>
+      toast.error(err instanceof Error ? err.message : "No se pudo anular la corrida"),
   });
 
   const totalBilled = runs.reduce((sum, r) => sum + Number(r.total_amount || 0), 0);
@@ -126,10 +160,17 @@ export default function BillingPage() {
               {tariffs.map((t) => (
                 <option key={t.id} value={t.id}>
                   {t.name} · desde {t.effective_from}
+                  {(t.blocks ?? []).length === 0 ? " · sin tramos (solo cargo fijo)" : ""}
                 </option>
               ))}
             </Select>
           </div>
+          {selectedHasNoBlocks && (
+            <p className="w-full rounded-lg border border-amber-500/30 bg-amber-500/5 px-3 py-2 text-xs text-amber-600">
+              El tarifario seleccionado no tiene tramos por m³: la corrida cobrará
+              solo el cargo fijo. Configura los tramos antes de facturar el período.
+            </p>
+          )}
           <Button
             className="h-9"
             disabled={generateMutation.isPending}
@@ -204,6 +245,28 @@ export default function BillingPage() {
                     <p className="text-base font-semibold tabular-nums">
                       {formatCLP(Number(run.total_amount))}
                     </p>
+                    {run.items.every(
+                      (item) =>
+                        !item.order_payment_status || item.order_payment_status === "PENDING",
+                    ) && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="h-8"
+                        disabled={voidMutation.isPending}
+                        onClick={() => {
+                          if (
+                            window.confirm(
+                              `¿Anular la corrida de ${run.period}? Se cancelan los cargos impagos y podrás generarla de nuevo. Si alguien ya pagó o hay boleta, no se anula.`,
+                            )
+                          ) {
+                            voidMutation.mutate(run);
+                          }
+                        }}
+                      >
+                        Anular corrida
+                      </Button>
+                    )}
                     <Button
                       size="sm"
                       variant="outline"
@@ -274,6 +337,43 @@ export default function BillingPage() {
           </div>
         )}
       </PageBody>
+
+      {/* Medidores que quedaron fuera de la corrida */}
+      {skippedResult && (
+        <AnimatedOverlay
+          open
+          onClose={() => setSkippedResult(null)}
+          zIndex="z-[80]"
+          panelClassName="flex items-center justify-center p-4"
+        >
+          <div className="max-h-[80vh] w-full max-w-md overflow-y-auto rounded-2xl border border-border bg-background p-6 shadow-xl">
+            <h3 className="text-base font-semibold">
+              Medidores fuera de la corrida · período {skippedResult.period}
+            </h3>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Estos medidores no generaron cargo este período. Regulariza la causa
+              (lectura faltante, socio o medidor inactivo) y vuelve a correr el
+              período: la corrida es idempotente y solo agregará los que falten.
+            </p>
+            <ul className="mt-3 max-h-64 overflow-y-auto text-xs">
+              {skippedResult.skipped.map((s, i) => (
+                <li
+                  key={i}
+                  className="flex items-center justify-between gap-3 border-b border-border/60 py-1.5 last:border-0"
+                >
+                  <span className="font-medium">{s.meter}</span>
+                  <span className="text-muted-foreground">{s.reason}</span>
+                </li>
+              ))}
+            </ul>
+            <div className="mt-4 flex justify-end">
+              <Button size="sm" onClick={() => setSkippedResult(null)}>
+                Entendido
+              </Button>
+            </div>
+          </div>
+        </AnimatedOverlay>
+      )}
 
       {/* Resultado de emisión */}
       {dteResult && (

@@ -8,8 +8,6 @@
  * confunde Tariff con el tarifario de inventario y tipa last_reading mal.
  *
  * Gaps de backend a follow-up:
- * - Tariff.blocks es READ-ONLY; no hay endpoint tariff-blocks → la UI no
- *   puede crear/editar tramos vía API.
  * - ViewSets water usan module_name="water_management" (yggdra_infra#39).
  * - Header X-Yggdra-Schema-Sha requiere CORS Access-Control-Expose-Headers
  *   para leerse cross-origin.
@@ -66,9 +64,9 @@ export interface WaterReading {
 }
 
 /**
- * Bloque de tramo nested en Tariff. READ-ONLY en TariffSerializer;
- * no hay endpoint para crear/editar blocks.
+ * Bloque de tramo nested en Tariff. Se escribe en el mismo POST/PATCH.
  */
+
 export interface WaterTariffBlock {
   id: string;
   tariff: string;
@@ -82,7 +80,6 @@ export interface WaterTariff {
   name: string;
   fixed_charge: number | string;
   effective_from: string;
-  /** Read-only nested. La UI no debe enviar blocks en create/update. */
   blocks: WaterTariffBlock[];
   created?: string;
   modified?: string;
@@ -154,6 +151,32 @@ export interface MeterFilters {
   client?: number | string;
 }
 
+/** El API corta en 200 por página. 50 páginas cubren 10.000 registros. */
+const MAX_PAGES = 50;
+const PAGE_SIZE = 200;
+
+/**
+ * Recorre todas las páginas de un listado paginado.
+ * Medidores y lecturas tienen que verse completos: si la primera página
+ * parece la última, la ruta y la corrida quedan cortadas.
+ */
+async function fetchAllPages<T>(path: string, baseQs: URLSearchParams): Promise<T[]> {
+  const out: T[] = [];
+  const qs = new URLSearchParams(baseQs);
+  qs.set("page_size", String(PAGE_SIZE));
+  for (let page = 1; page <= MAX_PAGES; page++) {
+    qs.set("page", String(page));
+    const data = await apiFetch<{ results?: T[]; count?: number } | T[]>(
+      `${path}?${qs.toString()}`,
+    );
+    const rows = asList<T>(data);
+    out.push(...rows);
+    const count = !Array.isArray(data) && typeof data.count === "number" ? data.count : null;
+    if (rows.length < PAGE_SIZE || (count != null && out.length >= count)) break;
+  }
+  return out;
+}
+
 export async function fetchMeters(filters: MeterFilters = {}): Promise<WaterMeter[]> {
   const qs = new URLSearchParams();
   if (filters.search) qs.set("search", filters.search);
@@ -162,11 +185,7 @@ export async function fetchMeters(filters: MeterFilters = {}): Promise<WaterMete
   if (filters.client != null && filters.client !== "") {
     qs.set("client", String(filters.client));
   }
-  qs.set("page_size", "500");
-  const data = await apiFetch<{ results?: WaterMeter[] } | WaterMeter[]>(
-    `/water/meters/?${qs.toString()}`,
-  );
-  return asList(data);
+  return fetchAllPages<WaterMeter>("/water/meters/", qs);
 }
 
 export type MeterWritePayload = {
@@ -214,11 +233,7 @@ export async function fetchReadings(
   if (filters.period) qs.set("period", filters.period);
   if (filters.source) qs.set("source", filters.source);
   if (filters.search) qs.set("search", filters.search);
-  qs.set("page_size", "500");
-  const data = await apiFetch<{ results?: WaterReading[] } | WaterReading[]>(
-    `/water/readings/?${qs.toString()}`,
-  );
-  return asList(data);
+  return fetchAllPages<WaterReading>("/water/readings/", qs);
 }
 
 export async function createReading(payload: {
@@ -270,22 +285,26 @@ export async function fetchTariffs(): Promise<WaterTariff[]> {
   return asList(data);
 }
 
-/** Create sin blocks: blocks son read-only en TariffSerializer. */
-export async function createTariff(payload: {
+export type TariffBlockWrite = {
+  from_m3: number | string;
+  to_m3: number | string | null;
+  price_per_m3: number | string;
+};
+
+export type TariffWritePayload = {
   name: string;
   fixed_charge: number | string;
   effective_from: string;
-}): Promise<WaterTariff> {
+  blocks?: TariffBlockWrite[];
+};
+
+export async function createTariff(payload: TariffWritePayload): Promise<WaterTariff> {
   return apiFetch<WaterTariff>("/water/tariffs/", { method: "POST", body: payload });
 }
 
 export async function updateTariff(
   id: string,
-  payload: Partial<{
-    name: string;
-    fixed_charge: number | string;
-    effective_from: string;
-  }>,
+  payload: Partial<TariffWritePayload>,
 ): Promise<WaterTariff> {
   return apiFetch<WaterTariff>(`/water/tariffs/${id}/`, {
     method: "PATCH",
@@ -333,6 +352,13 @@ export async function emitBillingRunDtes(runId: string): Promise<DteEmitResult> 
   return apiFetch<DteEmitResult>(`/water/billing-runs/${runId}/emit-dtes/`, {
     method: "POST",
   });
+}
+
+/** POST /water/billing-runs/{id}/void/ — solo si todo está impago y sin boleta. */
+export async function voidBillingRun(
+  runId: string,
+): Promise<{ voided: boolean; period: string }> {
+  return apiFetch(`/water/billing-runs/${runId}/void/`, { method: "POST" });
 }
 
 // ── Plantilla CSV ─────────────────────────────────────────────────────────────

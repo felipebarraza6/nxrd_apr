@@ -742,7 +742,15 @@ export default function PaymentsPage() {
   const { download: downloadFile, isLoading: isDownloadingExcel } = useDownloadFile();
   async function handleExportExcel() {
     try {
-      await downloadFile(() => exportPaymentsExcel(), {
+      await downloadFile(() => exportPaymentsExcel({
+        ...(direction === "INCOME" || direction === "EXPENSE"
+          ? { payment_direction: direction }
+          : {}),
+        ...(source ? { payment_source: source } : {}),
+        ...(dateFrom ? { payment_date__gte: dateFrom } : {}),
+        ...(dateTo ? { payment_date__lte: dateTo } : {}),
+        ...(debouncedSearch ? { search: debouncedSearch } : {}),
+      }), {
         filename: exportFilename("pagos", "xlsx"),
         extension: "xlsx",
       });
@@ -1606,6 +1614,15 @@ function CreatePaymentModal({ open, onClose, paymentMethods, orders, revenues, p
     if (!selectedEntity || !paymentMethodId || !amount) return;
     if (!isPositiveAmount(Number(amount))) {
       toast.error("Ingresa un monto mayor a cero");
+      return;
+    }
+    if (
+      selectedEntity.pending != null &&
+      Number(amount) > selectedEntity.pending &&
+      !window.confirm(
+        `El monto es mayor al saldo (${formatCLP(selectedEntity.pending)}). ¿Registrar el pago igual?`,
+      )
+    ) {
       return;
     }
     // Orden con crédito: se paga la cuota seleccionada, no la orden completa.

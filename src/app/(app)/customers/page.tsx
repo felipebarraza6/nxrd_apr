@@ -47,6 +47,7 @@ import { CrmNav } from "@/components/customers/crm-nav";
 import { EmptyState } from "@/components/ui/empty-state";
 import { CustomerAvatar } from "@/components/customers/customer-avatar";
 import {
+  fetchAllCustomers,
   fetchCustomers,
   createCustomer,
   updateCustomer,
@@ -64,6 +65,7 @@ import {
   type CustomerPayload,
 } from "@/lib/api/customers";
 import { useCrmNavCounts } from "@/lib/hooks/useCrm";
+import { normalizePhoneDigits, normalizeRutDigits, normalizeSearchText } from "@/lib/pos-client-search";
 import { useCanManageCustomers, useIsModuleEnabledFromConfig } from "@/lib/store/session";
 import { useToast } from "@/lib/store/toast";
 import { useDownloadFile, exportFilename } from "@/lib/hooks/useDownloadFile";
@@ -237,7 +239,46 @@ function CustomersInner() {
   }
 
   // Segmentos/tags ya filtrados por el backend: el listado se usa directo.
-  const filteredCustomers = useMemo(() => page?.results ?? [], [page]);
+  const serverCustomers = useMemo(() => page?.results ?? [], [page]);
+
+  // El SearchFilter del backend no indexa RUT ni tolera tildes: cuando el
+  // servidor no encuentra nada y hay texto, reintentamos en cliente sobre el
+  // padrón completo (mismo matching del POS: nombre/dirección/RUT normalizados).
+  const searchTerm = search.trim();
+  const needsFallback =
+    canManage && searchTerm.length > 0 && !isLoading && serverCustomers.length === 0;
+
+  const fallbackQuery = useQuery({
+    queryKey: ["customers", "fallback-search", segment, tagFilter],
+    queryFn: () =>
+      fetchAllCustomers({
+        status: segment === "inactive" ? "inactive" : segment === "all" ? "" : "active",
+        receiver_type:
+          segment === "companies" ? "EMPRESA" : segment === "people" ? "PERSONA_NATURAL" : undefined,
+        has_pending: segment === "debt" ? true : undefined,
+        tag: tagFilter.trim() || undefined,
+      }),
+    enabled: needsFallback,
+    staleTime: 60_000,
+  });
+
+  const filteredCustomers = useMemo(() => {
+    if (!needsFallback) return serverCustomers;
+    const needle = normalizeSearchText(searchTerm);
+    const rutNeedle = normalizeRutDigits(searchTerm);
+    const phoneNeedle = normalizePhoneDigits(searchTerm);
+    if (!needle && !rutNeedle && !phoneNeedle) return serverCustomers;
+    return (fallbackQuery.data ?? []).filter((c) => {
+      const n = normalizeSearchText(c.name ?? "");
+      if (needle && n.includes(needle)) return true;
+      if (rutNeedle && normalizeRutDigits(c.dni ?? "").includes(rutNeedle)) return true;
+      const phone = normalizePhoneDigits(c.phone_number ?? "");
+      if (phoneNeedle.length >= 6 && phone.includes(phoneNeedle)) return true;
+      return false;
+    }) as typeof serverCustomers;
+  }, [needsFallback, searchTerm, serverCustomers, fallbackQuery.data]);
+
+  const searchingFallback = needsFallback && fallbackQuery.isFetching;
 
   const save = useMutation({
     mutationFn: async () => {
@@ -645,8 +686,18 @@ function CustomersInner() {
         ) : filteredCustomers.length === 0 ? (
           <EmptyState
             icon={UserCircle}
-            title={search || tagFilter || segment !== "all" ? "No hay socios con estos filtros" : "Sin socios registrados"}
-            description="Agrega tus socios para gestionar cobros, deuda y ficha 360."
+            title={
+              searchingFallback
+                ? "Buscando en todo el padrón…"
+                : search || tagFilter || segment !== "all"
+                  ? "No hay socios con estos filtros"
+                  : "Sin socios registrados"
+            }
+            description={
+              searchingFallback
+                ? "Probando también por RUT y nombre sin tilde."
+                : "Agrega tus socios para gestionar cobros, deuda y ficha 360."
+            }
             action={
               <Button size="sm" onClick={() => openModal()}>
                 <Plus className="mr-1.5 h-4 w-4" />

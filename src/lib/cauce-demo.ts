@@ -135,16 +135,18 @@ export type DemoSessionHints = {
   demoExpiresAt?: string | null;
 };
 
-/** True si la sesión actual es la demo de Cauce. */
+/**
+ * True si la sesión actual es la demo de Cauce.
+ * Solo señales explícitas del backend (email demo, demo_expires_at, slug demo):
+ * nunca el nombre de la sucursal, porque una APR cliente real puede llamarse
+ * igual que la demo (p. ej. "APR Río Claro").
+ */
 export function isCauceDemoSession(hints: DemoSessionHints): boolean {
   const email = (hints.email ?? "").toLowerCase();
   if (email.endsWith(CAUCE_DEMO_EMAIL_SUFFIX)) return true;
   if (hints.demoExpiresAt) return true;
   const slug = (hints.loginSlug ?? "").toLowerCase();
   if (slug === CAUCE_DEMO_LOGIN_SLUG) return true;
-  const branch = (hints.branchName ?? "").toLowerCase();
-  if (branch.includes("río claro") || branch.includes("rio claro")) return true;
-  if (branch.includes("(demo)")) return true;
   return false;
 }
 

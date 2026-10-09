@@ -35,6 +35,26 @@ import { ApiError } from "@/lib/api/client";
 
 const HIDDEN_SIDEBAR_PATHS = ["/readings/pos"];
 
+function OfflineBanner() {
+  const [offline, setOffline] = useState(false);
+  useEffect(() => {
+    const sync = () => setOffline(!window.navigator.onLine);
+    sync();
+    window.addEventListener("online", sync);
+    window.addEventListener("offline", sync);
+    return () => {
+      window.removeEventListener("online", sync);
+      window.removeEventListener("offline", sync);
+    };
+  }, []);
+  if (!offline) return null;
+  return (
+    <div className="bg-amber-500/15 px-4 py-2 text-center text-xs font-medium text-amber-800">
+      Sin conexión. Lo que ves puede ser lo último guardado en este equipo.
+    </div>
+  );
+}
+
 /** Tras un 5xx de frontend-config, no martillar el API: reintento mínimo. */
 const FRONTEND_CONFIG_RETRY_MS = 30_000;
 
@@ -189,6 +209,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
         activatingBranchRef.current = true;
         activateBranch(target, queryClient).catch((err) => {
           console.error("[layout] failed to activate default branch:", err);
+          activatingBranchRef.current = false;
         });
       }
       return;
@@ -293,6 +314,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
             ],
           )}
         >
+          <OfflineBanner />
           {isCauceDemo ? <DemoBanner /> : null}
           {showChrome && !trialBlocked && !isCauceDemo ? <TrialBanner /> : null}
           {blockPageContent ? (

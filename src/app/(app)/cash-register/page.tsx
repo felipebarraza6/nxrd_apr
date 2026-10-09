@@ -788,7 +788,19 @@ export default function CashRegisterPage() {
                         className="tabular-nums sm:max-w-[180px]"
                       />
                       <Button
-                        onClick={() => closeMutation.mutate(toDecimal(closeAmount))}
+                        onClick={() => {
+                          const counted = Number(toDecimal(closeAmount));
+                          const diff = expected != null ? counted - expected : 0;
+                          if (
+                            diff !== 0 &&
+                            !window.confirm(
+                              `El cierre no cuadra (${formatCLP(diff)}). ¿Cerrar la caja igual?`,
+                            )
+                          ) {
+                            return;
+                          }
+                          closeMutation.mutate(toDecimal(closeAmount));
+                        }}
                         disabled={!isRegisterController || !closeAmount || closeMutation.isPending}
                         isLoading={closeMutation.isPending}
                         variant="outline"

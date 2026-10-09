@@ -39,6 +39,9 @@ ${dynamicRules}
 RewriteCond %{DOCUMENT_ROOT}/$1.html -f
 RewriteRule ^(.+?)/?$ /$1.html [L]
 
+# 3) 404 amigable: Next exporta 404.html; sin esto Apache sirve su página por defecto
+ErrorDocument 404 /404.html
+
 # Seguridad (equivalente a los headers que Next servía antes del export estático)
 <IfModule mod_headers.c>
   Header set X-Content-Type-Options "nosniff"

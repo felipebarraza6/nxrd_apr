@@ -220,6 +220,13 @@ function toSpanish(field: string, message: string): string {
   if (/valid email|correo electr[oó]nico v[aá]lid[oa]/i.test(m)) {
     return "Correo inválido. Revisa que esté bien escrito.";
   }
+  if (/already exists|ya existe|must be unique|duplicate/i.test(m)) {
+    // DRF puede responder el duplicado como 400 de campo en vez de 409.
+    if (field === "email" || field === "user" || field === "business_name") {
+      return "No pudimos registrar este correo. Si ya creaste tu APR, inicia sesión.";
+    }
+    return "Ya existe un registro con estos datos. Si ya creaste tu APR, inicia sesión.";
+  }
   if (/may not be blank|no puede estar en blanco/i.test(m)) {
     return "Este campo no puede quedar vacío.";
   }
