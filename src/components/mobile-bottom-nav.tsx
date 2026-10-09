@@ -158,7 +158,7 @@ export const MobileBottomNav = memo(function MobileBottomNav({
       aria-label="Navegación principal"
       className="fixed bottom-0 left-0 right-0 z-50 md:hidden pb-[max(0.5rem,env(safe-area-inset-bottom))] pointer-events-none"
     >
-      <div className="glass-strong pointer-events-auto mx-3 flex min-h-[58px] items-center justify-around rounded-2xl border border-primary/25 px-1.5 py-1 shadow-[0_8px_32px_rgba(0,0,0,0.18)]">
+      <div className="glass-strong pointer-events-auto flex min-h-[58px] items-center justify-around border-t border-azul/30 px-1.5 py-1">
         {items.map((item) => {
           const isActive =
             !!item.href &&

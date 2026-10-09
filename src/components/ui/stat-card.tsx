@@ -42,14 +42,6 @@ const TONE_CHIP: Record<StatTone, string> = {
   muted: "bg-muted text-muted-foreground",
 };
 
-const TONE_ACCENT: Record<StatTone, string> = {
-  success: "border-l-success/45",
-  danger: "border-l-danger/45",
-  warning: "border-l-warning/45",
-  primary: "border-l-primary/45",
-  muted: "border-l-border",
-};
-
 const TONE_VALUE: Record<StatTone, string> = {
   success: "text-success",
   danger: "text-danger",
@@ -94,14 +86,14 @@ export function StatCard({
   ) : (
     <>
       <div className="flex items-start justify-between gap-2">
-        <span className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+        <span className="font-accent text-[10px] font-medium uppercase tracking-[0.18em] text-tinta/50">
           {label}
         </span>
         {Icon && (
           <span
             className={cn(
-              "flex shrink-0 items-center justify-center rounded-lg",
-              compact ? "h-7 w-7" : "h-8 w-8",
+              "flex shrink-0 items-center justify-center",
+              compact ? "h-6 w-6" : "h-7 w-7",
               TONE_CHIP[tone],
             )}
           >
@@ -112,16 +104,20 @@ export function StatCard({
       <div className="flex items-end justify-between gap-2">
         <span
           className={cn(
-            "font-semibold tabular-nums tracking-tight",
+            "font-heading font-bold tabular-nums tracking-[-0.03em]",
             TONE_VALUE[tone],
-            compact ? "text-xl" : "text-2xl",
+            compact ? "text-2xl" : "text-[clamp(1.6rem,2.4vw,2.15rem)] leading-none",
           )}
         >
           {value}
         </span>
         {delta}
       </div>
-      {sub && <span className="text-[11px] text-muted-foreground">{sub}</span>}
+      {sub && <span className="text-xs text-tinta/55">{sub}</span>}
+      <span
+        aria-hidden
+        className="mt-auto h-px w-8 bg-azul/50 transition-all duration-300 group-hover:w-16"
+      />
     </>
   );
 
@@ -129,10 +125,9 @@ export function StatCard({
     embedded
       ? "flex h-full flex-col gap-2 p-4 sm:p-5"
       : cn(
-          "group relative flex h-full flex-col overflow-hidden rounded-2xl border-l-[3px] glass transition-colors",
-          "hover:brightness-[1.02]",
-          TONE_ACCENT[tone],
-          compact ? "gap-1.5 p-3.5" : "gap-2 p-5",
+          "group relative flex h-full flex-col overflow-hidden bg-transparent transition-colors",
+          "hover:bg-white/35 dark:hover:bg-white/5",
+          compact ? "gap-1.5 p-3.5" : "gap-3 px-5 py-6",
         ),
     className,
   );

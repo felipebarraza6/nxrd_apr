@@ -55,7 +55,7 @@ export default function TariffsPage() {
 
       <PageBody className="gap-4">
         {tariffsQuery.isLoading ? (
-          <Skeleton className="h-40 rounded-2xl" />
+          <Skeleton className="h-40" />
         ) : tariffs.length === 0 ? (
           <EmptyState
             icon={ScrollText}
@@ -72,10 +72,8 @@ export default function TariffsPage() {
             {tariffs.map((tariff, idx) => (
               <div
                 key={tariff.id}
-                className={`rounded-2xl border p-4 ${
-                  idx === vigenteIdx
-                    ? "border-primary/40 bg-primary/[0.03]"
-                    : "border-border bg-card"
+                className={`cauce-sheet p-4 sm:px-8 ${
+                  idx === vigenteIdx ? "bg-azul/[0.06]" : ""
                 }`}
               >
                 <div className="flex flex-wrap items-center justify-between gap-2">

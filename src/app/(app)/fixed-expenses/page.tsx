@@ -144,7 +144,7 @@ export default function FixedExpensesPage() {
   const openEdit = (e: FixedExpense) => { setEditing(e); setModalOpen(true); };
 
   return (
-    <div className="mx-auto flex min-h-full w-full min-w-0 max-w-7xl flex-col">
+    <div className="cauce-page flex min-h-full w-full min-w-0 flex-col">
       <PageHeader
         title="Gastos"
         icon={<TrendingDown className="h-5 w-5" />}

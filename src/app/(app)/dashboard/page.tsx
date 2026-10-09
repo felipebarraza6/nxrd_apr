@@ -17,7 +17,6 @@ import {
   FlaskConical,
   ArrowRight,
   UserPlus,
-  ShoppingBag,
   type LucideIcon,
   LayoutDashboard,
 } from "lucide-react";
@@ -184,12 +183,11 @@ export default function DashboardPage() {
   const expensesTotal = counts?.expenses_by_supplier?.reduce((sum, e) => sum + e.total, 0) ?? 0;
 
   return (
-    <div className="mx-auto flex min-h-full w-full min-w-0 max-w-7xl flex-col">
+    <div className="cauce-page flex min-h-full w-full min-w-0 flex-col">
       <PageHeader
         title="Dashboard"
         icon={<LayoutDashboard className="h-5 w-5" />}
-        subtitle="Resumen general del negocio"
-        className="sticky top-0 z-20 glass-strong border-b"
+        subtitle="Caudal del período: cobros, socios y lo que falta por pagar."
         actions={
           <div className="glass-chip inline-flex items-center justify-center gap-2 rounded-xl px-3 py-2">
             <input
@@ -219,15 +217,15 @@ export default function DashboardPage() {
         }
       />
 
-      <div className="flex flex-1 flex-col gap-6 p-4 sm:p-6">
+      <div className="flex flex-1 flex-col gap-8 py-2">
 
       {/* Stats principales */}
-      <motion.section variants={container} initial="hidden" animate="show" className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+      <motion.section variants={container} initial="hidden" animate="show" className="cauce-band grid grid-cols-2 lg:grid-cols-4">
         <SharedStatCard
-          label="Ventas del período"
+          label="Cobros del período"
           value={formatCLP(salesTotal)}
           icon={TrendingUp}
-          sub={`${salesCount} ventas`}
+          sub={`${salesCount} cobros`}
           tone="success"
           href="/sales"
 
@@ -294,10 +292,10 @@ export default function DashboardPage() {
           }
         />
         <SharedStatCard
-          label="Órdenes del período"
+          label="Cargos del período"
           value={formatCLP(ordersTotal)}
           icon={Receipt}
-          sub={`${ordersCount} órdenes`}
+          sub={`${ordersCount} cargos`}
           tone="primary"
           href="/sales"
 
@@ -437,13 +435,13 @@ export default function DashboardPage() {
         variants={container}
         initial="hidden"
         animate="show"
-        className={cn("grid grid-cols-2 gap-3", nutritionEnabled ? "lg:grid-cols-5" : "lg:grid-cols-4")}
+        className={cn("cauce-band grid grid-cols-2", nutritionEnabled ? "lg:grid-cols-5" : "lg:grid-cols-4")}
       >
         <SharedStatCard
           label="Ingresos"
           value={formatCLP(totalRevenue)}
           icon={ArrowDownLeft}
-          sub="ventas + órdenes"
+          sub="cobros del período"
           tone="success"
           href="/sales"
 
@@ -707,20 +705,19 @@ export default function DashboardPage() {
       </motion.section>
 
       {/* Últimas órdenes creadas + pendientes por pagar */}
-      <motion.section variants={container} initial="hidden" animate="show" className="grid grid-cols-1 gap-3 lg:grid-cols-2">
-        <motion.div variants={item} className="glass rounded-2xl p-5">
+      <motion.section variants={container} initial="hidden" animate="show" className="cauce-band grid grid-cols-1 lg:grid-cols-2">
+        <motion.div variants={item} className="p-5 sm:p-6">
           <div className="mb-3 flex items-center justify-between">
-            <h2 className="flex items-center gap-2 text-sm font-semibold">
-              <ShoppingBag className="h-4 w-4 text-primary" />
-              Últimas órdenes creadas
+            <h2 className="font-heading text-lg font-semibold tracking-[-0.02em]">
+              Últimos cobros
             </h2>
             <Link href="/sales" className="text-xs font-medium text-primary transition-colors hover:underline">
               Ver todas
             </Link>
           </div>
           {recentOrders.length === 0 ? (
-            <p className="py-4 text-center text-xs text-muted-foreground">
-              No hay órdenes creadas todavía.
+            <p className="py-4 text-sm text-muted-foreground">
+              Todavía no hay cobros.
             </p>
           ) : (
             <ul className="divide-y divide-border">
@@ -749,19 +746,18 @@ export default function DashboardPage() {
           )}
         </motion.div>
 
-        <motion.div variants={item} className="glass rounded-2xl p-5">
+        <motion.div variants={item} className="p-5 sm:p-6">
           <div className="mb-3 flex items-center justify-between">
-            <h2 className="flex items-center gap-2 text-sm font-semibold">
-              <Wallet className="h-4 w-4 text-primary" />
-              Últimos pendientes por pagar
+            <h2 className="font-heading text-lg font-semibold tracking-[-0.02em]">
+              Por cobrar
             </h2>
             <Link href="/payments" className="text-xs font-medium text-primary transition-colors hover:underline">
               Ver todas
             </Link>
           </div>
           {pendingPayment.length === 0 ? (
-            <p className="py-4 text-center text-xs text-muted-foreground">
-              No hay cuentas pendientes de pago.
+            <p className="py-4 text-sm text-muted-foreground">
+              No hay cargos pendientes.
             </p>
           ) : (
             <ul className="divide-y divide-border">
@@ -1145,7 +1141,7 @@ function RadarChart({ metrics }: { metrics: { label: string; value: number }[] }
 
 function DashboardSkeleton() {
   return (
-    <div className="mx-auto flex min-h-full w-full min-w-0 max-w-7xl flex-col">
+    <div className="cauce-page flex min-h-full w-full min-w-0 flex-col">
       <header className="flex flex-col gap-3 border-b border-border px-4 py-3 sm:flex-row sm:items-start sm:justify-between sm:px-6">
         <div className="space-y-2">
           <Skeleton className="h-5 w-32" />
@@ -1153,12 +1149,12 @@ function DashboardSkeleton() {
         </div>
         <Skeleton className="h-10 w-full sm:w-64" />
       </header>
-      <div className="flex flex-1 flex-col gap-6 p-4 sm:p-6">
+      <div className="flex flex-1 flex-col gap-8 py-2">
 
       {/* Stats principales */}
-      <section className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+      <section className="cauce-band grid grid-cols-2 lg:grid-cols-4">
         {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className="glass rounded-2xl p-4">
+          <div key={i} className="p-4">
             <div className="mb-2 flex items-center gap-1.5">
               <Skeleton className="h-3.5 w-3.5 rounded-sm" />
               <Skeleton className="h-3 w-20" />
@@ -1170,9 +1166,9 @@ function DashboardSkeleton() {
       </section>
 
       {/* Stats secundarias */}
-      <section className="grid grid-cols-2 gap-3 lg:grid-cols-5">
+      <section className="cauce-band grid grid-cols-2 lg:grid-cols-5">
         {Array.from({ length: 5 }).map((_, i) => (
-          <div key={i} className="glass rounded-2xl p-4">
+          <div key={i} className="p-4">
             <div className="mb-2 flex items-center gap-1.5">
               <Skeleton className="h-3.5 w-3.5 rounded-sm" />
               <Skeleton className="h-3 w-20" />
@@ -1185,11 +1181,11 @@ function DashboardSkeleton() {
 
       {/* Pendientes / resumen */}
       <section className="grid gap-3 lg:grid-cols-2">
-        <div className="glass rounded-2xl p-4">
+        <div className="p-4">
           <Skeleton className="mb-2 h-4 w-48" />
           <Skeleton className="h-28 w-full" />
         </div>
-        <div className="glass rounded-2xl p-4">
+        <div className="p-4">
           <Skeleton className="mb-2 h-4 w-40" />
           <Skeleton className="h-28 w-full" />
         </div>

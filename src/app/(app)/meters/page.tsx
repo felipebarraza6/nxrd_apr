@@ -157,7 +157,7 @@ export default function MetersPage() {
               .map((meter) => (
                 <div
                   key={meter.id}
-                  className="group flex flex-col justify-between rounded-2xl border border-border bg-card p-4 transition-all hover:border-primary/40 hover:shadow-xs"
+                  className="cauce-sheet group flex flex-col justify-between p-4 transition-colors hover:bg-white/70"
                 >
                   <div>
                     <div className="flex items-start justify-between gap-2">

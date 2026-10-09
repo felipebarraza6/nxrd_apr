@@ -259,16 +259,15 @@ export function AppSidebar({ onNavigate, forceExpanded, defaultOpenGroups }: App
       <CommandPalette items={allItems} open={searchOpen} onClose={() => setSearchOpen(false)} />
       <aside
         className={cn(
-          "app-sidebar fixed inset-y-0 left-0 z-30 flex flex-col overflow-hidden bg-tinta text-papel transition-[width,box-shadow] duration-300 ease-out",
+          "app-sidebar fixed inset-y-0 left-0 z-30 flex flex-col overflow-hidden bg-transparent text-papel transition-[width,box-shadow] duration-300 ease-out",
           widthClass,
-          isSuperAdmin && "bg-azul-deep",
         )}
         onMouseEnter={() => setHovering(true)}
         onMouseLeave={() => setHovering(false)}
       >
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-0 bg-gradient-to-b from-azul/20 via-transparent to-transparent opacity-80"
+          className="pointer-events-none absolute inset-0 bg-gradient-to-b from-tinta/25 via-transparent to-tinta/40"
         />
         <div className="relative z-10 flex shrink-0 items-center gap-2 px-3 py-2">
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -316,7 +315,7 @@ export function AppSidebar({ onNavigate, forceExpanded, defaultOpenGroups }: App
             type="button"
             onClick={() => setSearchOpen(true)}
             className={cn(
-              "flex items-center gap-2 rounded-lg border border-white/20 bg-white/10 px-3 py-1.5 text-sm text-white/80 transition-colors hover:bg-white/15 hover:text-white",
+              "flex items-center gap-2 border border-papel/20 bg-papel/5 px-3 py-2 font-accent text-[11px] uppercase tracking-[0.16em] text-papel/80 transition-colors hover:border-papel/50 hover:bg-papel/10 hover:text-papel",
               !effectivelyExpanded && "justify-center px-0"
             )}
           >
@@ -550,13 +549,11 @@ function NavItem({
         href={href}
         onClick={onClick}
         className={cn(
-          "relative flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200",
+          "relative flex items-center gap-2.5 px-3 py-2 text-sm font-medium transition-colors duration-200",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40",
           active
-            ? // Glass translúcido + glow de marca: activo con energía, deja
-              // ver la textura del fondo y se siente ligero.
-              "energy-nav bg-white/[0.16] text-white shadow-sm shadow-black/25 ring-1 ring-inset ring-white/25 backdrop-blur-sm"
-            : "text-white/80 hover:bg-white/10 hover:text-white hover:shadow-[0_0_18px_-6px_var(--color-primary)]",
+            ? "bg-azul text-white"
+            : "text-papel/75 hover:bg-papel/10 hover:text-papel",
           !expanded && "h-9 w-9 justify-center p-0"
         )}
         title={!expanded ? label : undefined}

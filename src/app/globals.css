@@ -76,6 +76,60 @@
     var(--papel);
 }
 
+/* Banda de métricas: una sola superficie, no una pila de cards. */
+.cauce-band {
+  display: grid;
+  border-block: 1px solid color-mix(in srgb, var(--tinta) 12%, transparent);
+  background: color-mix(in srgb, var(--card) 46%, transparent);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+
+.cauce-band > * {
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  border-left-width: 0 !important;
+  border-bottom: 1px solid color-mix(in srgb, var(--tinta) 8%, transparent);
+}
+
+.cauce-band > *:last-child {
+  border-bottom: 0;
+}
+
+@media (min-width: 1024px) {
+  .cauce-band > * {
+    border-bottom: 0;
+    border-right: 1px solid color-mix(in srgb, var(--tinta) 8%, transparent);
+  }
+
+  .cauce-band > *:last-child {
+    border-right: 0;
+  }
+}
+
+.cauce-sheet {
+  background: color-mix(in srgb, var(--card) 62%, transparent);
+  border-top: 1px solid color-mix(in srgb, var(--tinta) 10%, transparent);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+}
+
+.cauce-page {
+  animation: cauce-rise 460ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes cauce-rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
 .puntos {
   background-image: radial-gradient(rgba(243, 243, 243, 0.13) 1px, transparent 1.5px);
   background-size: 28px 28px;
@@ -88,7 +142,8 @@
 
 @media (prefers-reduced-motion: reduce) {
   .fondo-agua canvas,
-  .fondo-agua-light canvas {
+  .fondo-agua-light canvas,
+  .cauce-page {
     animation: none !important;
   }
 }
@@ -224,19 +279,21 @@
 
 /* Crossfade suave entre rutas del shell autenticado (ViewTransition update). */
 ::view-transition-old(.nav-fade) {
-  animation: 140ms ease-in both nav-fade-out;
+  animation: 180ms ease-in both nav-fade-out;
 }
 ::view-transition-new(.nav-fade) {
-  animation: 180ms ease-out 60ms both nav-fade-in;
+  animation: 320ms cubic-bezier(0.22, 1, 0.36, 1) 40ms both nav-fade-in;
 }
 @keyframes nav-fade-out {
   to {
     opacity: 0;
+    transform: translateY(-8px);
   }
 }
 @keyframes nav-fade-in {
   from {
     opacity: 0;
+    transform: translateY(12px);
   }
 }
 ::view-transition {
@@ -333,26 +390,11 @@ a {
    gradiente que respira lentamente. Todo se re-teñe solo al cambiar
    --brand-primary (multi-tenant). */
 .app-sidebar {
-  background-color: color-mix(in srgb, var(--brand-primary) 88%, #000);
-  background-image:
-    /* Dither fino (4px): grano casi imperceptible, acompaña al gradiente. */
-    repeating-conic-gradient(rgba(255, 255, 255, 0.025) 0% 25%, transparent 0% 50%),
-    /* Dither grueso (16px) teñido de marca: textura pixel que solo se nota
-       donde el fondo es más claro (varía con el gradiente, no uniforme). */
-    repeating-conic-gradient(color-mix(in srgb, var(--brand-primary) 12%, transparent) 0% 25%, transparent 0% 50%),
-    /* Gradiente principal en diagonal: es lo que manda; el pixel es grano. */
-    radial-gradient(140% 100% at -10% -10%, color-mix(in srgb, var(--brand-primary) 70%, transparent) 0%, transparent 60%),
-    /* Segundo foco abajo-derecha: profundidad orgánica en diagonal. */
-    radial-gradient(130% 90% at 110% 110%, color-mix(in srgb, var(--brand-primary) 55%, transparent) 0%, transparent 65%),
-    /* Capa que respira (animada con sidebar-breathe). */
-    linear-gradient(165deg, color-mix(in srgb, var(--brand-primary) 50%, transparent) 0%, transparent 40%, color-mix(in srgb, var(--brand-primary) 65%, transparent) 100%);
-  background-size: 4px 4px, 16px 16px, 100% 100%, 100% 100%, 200% 200%;
-  background-position: 0 0, 0 0, 0 0, 0 0, 0% 0%;
-  animation: sidebar-breathe 18s ease-in-out infinite;
-  border-right: 1px solid color-mix(in srgb, var(--brand-primary) 68%, #000);
+  background-color: transparent;
+  border-right: 1px solid rgba(243, 243, 243, 0.14);
 }
 .dark .app-sidebar {
-  background-color: color-mix(in srgb, var(--brand-primary) 76%, #000);
+  background-color: transparent;
 }
 
 /* Respiración del gradiente: solo se mueve la última capa; las texturas
@@ -623,7 +665,7 @@ a {
   background: linear-gradient(
     90deg,
     transparent,
-    rgba(240, 162, 106, 0.14),
+    rgba(56, 52, 255, 0.45),
     transparent
   );
   overflow: hidden;
@@ -637,7 +679,7 @@ a {
   width: 160px;
   background: radial-gradient(
     closest-side,
-    rgba(240, 162, 106, 0.5),
+    rgba(165, 161, 255, 0.9),
     transparent
   );
   filter: blur(1px);

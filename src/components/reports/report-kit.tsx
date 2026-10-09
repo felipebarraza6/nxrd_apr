@@ -120,7 +120,7 @@ export function ReportKpi({ label, value, icon: Icon, tone = "slate", hint, delt
   return (
     <div
       className={cn(
-        "group relative flex h-full flex-col gap-2 overflow-hidden rounded-2xl glass p-5 transition-colors hover:brightness-[1.02]",
+        "group relative flex h-full flex-col gap-2 overflow-hidden bg-transparent px-5 py-6 transition-colors hover:bg-white/35",
         KPI_TONE_ACCENT[tone],
       )}
     >
@@ -312,7 +312,7 @@ export function GroupPanel({
     <section
       className={cn(
         "min-w-0",
-        !full && "glass overflow-hidden rounded-2xl",
+        !full && "cauce-sheet overflow-hidden",
       )}
     >
       <div className={cn("flex items-center gap-2.5", full ? "px-4 pt-4 pb-3 sm:px-5" : "p-4 pb-3")}>

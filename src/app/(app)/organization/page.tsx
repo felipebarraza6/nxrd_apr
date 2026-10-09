@@ -81,7 +81,7 @@ export default function OrganizationPage() {
   const totalOrgs = visibleOrgs?.length ?? 0;
 
   return (
-    <div className="mx-auto flex min-h-full w-full min-w-0 max-w-7xl flex-col">
+    <div className="cauce-page flex min-h-full w-full min-w-0 flex-col">
       <PageHeader
         title="Organizaciones"
         icon={<Building2 className="h-5 w-5" />}

@@ -414,7 +414,7 @@ export default function SuppliersPage() {
   const inactiveCount = Math.max(0, (stats?.total_suppliers ?? 0) - (stats?.active_suppliers ?? 0));
 
   return (
-    <div className="mx-auto flex min-h-full w-full max-w-7xl flex-col overflow-x-clip">
+    <div className="cauce-page flex min-h-full w-full flex-col overflow-x-clip">
       <PageHeader
         title="Proveedores"
         icon={<Truck className="h-5 w-5" />}

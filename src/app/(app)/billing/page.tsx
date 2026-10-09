@@ -135,7 +135,7 @@ export default function BillingPage() {
 
       <PageBody className="gap-4">
         {/* Generar corrida */}
-        <div className="flex flex-wrap items-end gap-3 rounded-2xl border border-border bg-card p-4">
+        <div className="cauce-sheet flex flex-wrap items-end gap-3 p-4 sm:px-8">
           <div className="flex flex-col gap-1">
             <label className="text-xs font-medium text-muted-foreground">
               Período a facturar
@@ -194,7 +194,7 @@ export default function BillingPage() {
         </div>
 
         {/* KPIs */}
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+        <div className="cauce-band grid grid-cols-2 sm:grid-cols-3">
           <StatCard variant="compact" label="Corridas" value={runs.length} icon={Receipt} tone="primary" />
           <StatCard variant="compact" label="Cargos totales" value={totalCharges} icon={FileText} tone="muted" />
           <StatCard
@@ -207,7 +207,7 @@ export default function BillingPage() {
         </div>
 
         {runsQuery.isLoading ? (
-          <Skeleton className="h-40 rounded-2xl" />
+          <Skeleton className="h-40" />
         ) : runs.length === 0 ? (
           <EmptyState
             icon={Receipt}
@@ -233,7 +233,7 @@ export default function BillingPage() {
         ) : (
           <div className="flex flex-col gap-3">
             {runs.map((run) => (
-              <div key={run.id} className="rounded-2xl border border-border bg-card p-4">
+              <div key={run.id} className="cauce-sheet p-4 sm:px-8">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div>
                     <h3 className="text-sm font-semibold">Período {run.period}</h3>

@@ -281,18 +281,17 @@ export default function AppLayout({ children }: { children: ReactNode }) {
     (subscriptionLocked && !isSubscriptionLockAllowedPath(pathname));
 
   const showChrome = !shouldHideSidebar;
+  const showWater =
+    showChrome && !NO_WATER_PATHS.some((p) => pathname.startsWith(p));
 
   return (
     <RealtimeProvider>
       <ForbiddenListener />
       <div className="relative flex min-h-full bg-papel">
         {trialBlocked && !isCauceDemo ? <TrialBanner forceOverlay /> : null}
-        {showChrome && !NO_WATER_PATHS.some((p) => pathname.startsWith(p)) && (
-          <div
-            aria-hidden
-            className="pointer-events-none fixed inset-0 z-0 hidden md:block"
-          >
-            <AuthWaterBackdrop variant="light" intensity={0.35} />
+        {showWater && (
+          <div aria-hidden className="pointer-events-none fixed inset-0 z-0 h-dvh w-dvw">
+            <AuthWaterBackdrop variant="dark" intensity={1} scrim={false} />
           </div>
         )}
         {showChrome && (
@@ -308,8 +307,14 @@ export default function AppLayout({ children }: { children: ReactNode }) {
           className={cn(
             "relative z-[1] flex min-h-full min-w-0 flex-1 flex-col overscroll-y-contain bg-transparent",
             showChrome && [
-              sidebarExpanded ? "md:ml-60" : "md:ml-16",
-              "pt-[env(safe-area-inset-top)] pb-24 md:pt-0 md:pb-0",
+              showWater
+                ? sidebarExpanded
+                  ? "m-2 mb-20 bg-papel md:m-0 md:my-3 md:mr-3 md:ml-[16.25rem]"
+                  : "m-2 mb-20 bg-papel md:m-0 md:my-3 md:mr-3 md:ml-[5rem]"
+                : sidebarExpanded
+                  ? "bg-papel pb-24 md:ml-60 md:pb-0"
+                  : "bg-papel pb-24 md:ml-16 md:pb-0",
+              "pt-[env(safe-area-inset-top)] md:pt-0",
               "transition-[margin] duration-300 ease-out",
             ],
           )}

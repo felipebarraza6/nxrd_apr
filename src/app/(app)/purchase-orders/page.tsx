@@ -1097,7 +1097,7 @@ export default function PurchaseOrdersPage() {
   });
 
   return (
-    <div className="mx-auto flex min-h-full w-full max-w-7xl flex-col overflow-x-clip">
+    <div className="cauce-page flex min-h-full w-full flex-col overflow-x-clip">
       <PageHeader
         title="Órdenes de compra"
         icon={<ShoppingCart className="h-5 w-5" />}

@@ -1,56 +1,11 @@
 "use client";
 
-import dynamic from "next/dynamic";
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
-import type { WaterVariant } from "@/components/auth/water-canvas";
+import { WaterBackdrop } from "@/components/water";
 
-const WaterCanvas = dynamic(() => import("@/components/auth/water-canvas"), {
-  ssr: false,
-  loading: () => null,
-});
-
-/** Backdrop WebGL + CSS fallback. Una instancia por shell. */
-export function AuthWaterBackdrop({
-  variant = "dark",
-  intensity = 1,
-}: {
-  variant?: WaterVariant;
-  intensity?: number;
-}) {
-  const light = variant === "light";
-  return (
-    <>
-      <div
-        className={cn(
-          "absolute inset-0",
-          light ? "fondo-agua-light" : "fondo-agua",
-        )}
-        aria-hidden
-      />
-      <WaterCanvas
-        variant={variant}
-        intensity={intensity}
-        className="pointer-events-none absolute inset-0 h-full w-full"
-      />
-      {!light ? (
-        <>
-          <div className="puntos pointer-events-none absolute inset-0 opacity-50" aria-hidden />
-          <div
-            className="pointer-events-none absolute inset-0 bg-gradient-to-r from-tinta/80 via-tinta/30 to-transparent"
-            aria-hidden
-          />
-          <div
-            className="pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-tinta to-transparent"
-            aria-hidden
-          />
-        </>
-      ) : (
-        <div className="puntos-oscura pointer-events-none absolute inset-0 opacity-30" aria-hidden />
-      )}
-    </>
-  );
-}
+/** Nombre de Cauce para el caudal portable. La pieza que se copia es `src/components/water`. */
+export const AuthWaterBackdrop = WaterBackdrop;
 
 /**
  * Shell visual Smart APR para páginas públicas de auth/signup.

@@ -719,7 +719,7 @@ export function FinanceReportView({ variant }: { variant: Variant }) {
   }
 
   return (
-    <div className="mx-auto flex min-h-full w-full min-w-0 max-w-7xl flex-col">
+    <div className="cauce-page flex min-h-full w-full min-w-0 flex-col">
       <PageHeader
         title={cfg.titulo}
         subtitle={cfg.subtitle}

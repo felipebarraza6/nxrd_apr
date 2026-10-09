@@ -724,7 +724,7 @@ function CustomersInner() {
                   key={c.id}
                   onClick={() => openCustomer(c.id)}
                   className={cn(
-                    "group relative flex min-w-0 flex-col justify-between overflow-hidden rounded-2xl border border-border bg-card p-4 shadow-2xs transition-all hover:border-primary/50 hover:shadow-xs cursor-pointer",
+                    "cauce-sheet group relative flex min-w-0 cursor-pointer flex-col justify-between overflow-hidden p-4 transition-colors hover:bg-white/80",
                     selectedId === c.id && "ring-2 ring-primary/50 border-primary",
                   )}
                 >
@@ -878,7 +878,7 @@ function CustomersInner() {
           /* Table View */
           <div
             className={cn(
-              "overflow-x-auto rounded-2xl border border-border bg-card shadow-xs transition-opacity duration-300",
+              "cauce-sheet overflow-x-auto transition-opacity duration-300",
               isFetching ? "opacity-60 pointer-events-none" : "opacity-100",
             )}
           >
