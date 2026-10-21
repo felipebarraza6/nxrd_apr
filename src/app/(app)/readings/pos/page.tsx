@@ -28,7 +28,6 @@ import { PageHeader } from "@/components/page-header";
 import { PageBody, PageShell } from "@/components/page-shell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Select } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/ui/empty-state";
 import {
@@ -43,6 +42,7 @@ import {
   fetchReadings,
   updateReading,
   type WaterMeter,
+  type WaterReading,
 } from "@/lib/api/water";
 import { fetchAllCustomers } from "@/lib/api/customers";
 import {
@@ -52,6 +52,11 @@ import {
   orderPosSearchResults,
   type PosSearchMatch,
 } from "@/lib/pos-client-search";
+import {
+  isReadingInRange,
+  readingNeighbors,
+  readingRangeMessage,
+} from "@/lib/reading-bounds";
 
 function currentPeriod(): string {
   const d = new Date();
@@ -119,8 +124,8 @@ export default function ReadingPosPage() {
     placeholderData: keepPreviousData,
   });
   const readingsQuery = useQuery({
-    queryKey: ["water", "readings", period],
-    queryFn: () => fetchReadings({ period }),
+    queryKey: ["water", "readings"],
+    queryFn: () => fetchReadings(),
     placeholderData: keepPreviousData,
   });
   // Clientes para dirección/RUT (el MeterViewSet no busca address ni dni).
@@ -143,12 +148,25 @@ export default function ReadingPosPage() {
   }, [clientsQuery.data]);
 
   const meters = useMemo(() => metersQuery.data ?? [], [metersQuery.data]);
-  const readings = useMemo(() => readingsQuery.data ?? [], [readingsQuery.data]);
+  const allReadings = useMemo(() => readingsQuery.data ?? [], [readingsQuery.data]);
+  const readings = useMemo(
+    () => allReadings.filter((row) => row.period === period),
+    [allReadings, period],
+  );
   const readingByMeter = useMemo(() => {
-    const map = new Map<string, (typeof readings)[number]>();
+    const map = new Map<string, WaterReading>();
     for (const r of readings) map.set(r.meter, r);
     return map;
   }, [readings]);
+  const historyByMeter = useMemo(() => {
+    const map = new Map<string, WaterReading[]>();
+    for (const row of allReadings) {
+      const list = map.get(row.meter) ?? [];
+      list.push(row);
+      map.set(row.meter, list);
+    }
+    return map;
+  }, [allReadings]);
 
   const sectors = useMemo(
     () =>
@@ -218,9 +236,17 @@ export default function ReadingPosPage() {
   const currentMatch = current ? matchById.get(current.id) : undefined;
   const currentReading = current ? readingByMeter.get(current.id) : undefined;
   const isEditing = Boolean(current && currentReading && editingId === current.id);
-  const baseReading = currentReading
-    ? Number(currentReading.previous_reading ?? 0)
-    : Number(current?.last_reading?.current_reading ?? current?.initial_reading ?? 0);
+  const neighbors = current
+    ? readingNeighbors({
+        period,
+        initialReading: current.initial_reading,
+        readings: historyByMeter.get(current.id) ?? [],
+      })
+    : null;
+  const baseReading = neighbors?.min ?? 0;
+  const rangeHint = neighbors ? readingRangeMessage({ period, ...neighbors }) : "";
+  const valueInRange =
+    value !== "" && neighbors != null && isReadingInRange(Number(value), neighbors);
   const completed = routeMeters.length - pending.length;
   const totalConsumed = routeMeters.reduce(
     (sum, m) => sum + Number(readingByMeter.get(m.id)?.consumed_m3 ?? 0),
@@ -268,15 +294,16 @@ export default function ReadingPosPage() {
         icon={<Gauge className="h-5 w-5" />}
         subtitle={`Período ${period} · toma la lectura medidor a medidor, Enter avanza al siguiente.`}
         actions={
-          <Select
+          <Input
+            type="month"
             value={period}
-            onChange={(e) => setPeriod(e.target.value)}
-            containerClassName="w-36"
-            className="h-9 text-xs"
-          >
-            <option value={currentPeriod()}>{currentPeriod()}</option>
-            <option value={prevPeriod()}>{prevPeriod()}</option>
-          </Select>
+            onChange={(e) => {
+              const next = e.target.value;
+              if (/^\d{4}-\d{2}$/.test(next)) setPeriod(next);
+            }}
+            className="h-9 w-40 text-xs"
+            aria-label="Período de lectura"
+          />
         }
       />
 
@@ -452,11 +479,9 @@ export default function ReadingPosPage() {
                 <div className="rounded-xl bg-primary/10 p-3">
                   <p className="text-[10px] uppercase tracking-wide text-primary">Consumo</p>
                   <p className="mt-1 text-2xl font-bold tabular-nums text-primary">
-                    {value !== "" && Number(value) >= 0
-                      ? Number(value) < baseReading
-                        ? "—"
-                        : Number(value) - baseReading
-                      : currentReading
+                    {valueInRange
+                      ? Number(value) - baseReading
+                      : currentReading && value === ""
                         ? Number(currentReading.consumed_m3 ?? 0)
                         : "—"}
                   </p>
@@ -511,7 +536,7 @@ export default function ReadingPosPage() {
                 className="mt-5 flex flex-col gap-2"
                 onSubmit={(e) => {
                   e.preventDefault();
-                  if (value === "" || Number(value) < baseReading) return;
+                  if (!valueInRange) return;
                   if (isEditing && currentReading) {
                     if (updateMutation.isPending) return;
                     updateMutation.mutate({ readingId: currentReading.id, value });
@@ -531,23 +556,35 @@ export default function ReadingPosPage() {
                   type="number"
                   step="0.01"
                   inputMode="decimal"
+                  min={neighbors?.min}
+                  max={neighbors?.max ?? undefined}
                   value={value}
-                  onChange={(e) => setValue(e.target.value)}
+                  onChange={(e) => {
+                    e.currentTarget.setCustomValidity("");
+                    setValue(e.target.value);
+                  }}
+                  onInvalid={(e) => {
+                    e.currentTarget.setCustomValidity(rangeHint);
+                  }}
                   placeholder="0"
                   className="h-16 text-center text-4xl font-bold tabular-nums"
                 />
-                {value !== "" && Number(value) < baseReading && (
-                  <p className="text-xs font-medium text-destructive">
-                    La lectura es menor que la anterior — revisa el número.
-                  </p>
-                )}
+                <p
+                  className={
+                    value !== "" && !valueInRange
+                      ? "text-xs font-medium text-destructive"
+                      : "text-xs text-muted-foreground"
+                  }
+                >
+                  {rangeHint}
+                </p>
                 {isEditing ? (
                   <div className="mt-2 flex gap-2">
                     <Button
                       type="submit"
                       size="lg"
                       className="flex-1"
-                      disabled={value === "" || Number(value) < baseReading || updateMutation.isPending}
+                      disabled={!valueInRange || updateMutation.isPending}
                       isLoading={updateMutation.isPending}
                     >
                       Guardar corrección
@@ -570,7 +607,7 @@ export default function ReadingPosPage() {
                       type="submit"
                       size="lg"
                       className="flex-1"
-                      disabled={value === "" || Number(value) < baseReading || saveMutation.isPending}
+                      disabled={!valueInRange || saveMutation.isPending}
                       isLoading={saveMutation.isPending}
                     >
                       Registrar y siguiente
@@ -645,11 +682,4 @@ export default function ReadingPosPage() {
   );
 }
 
-function prevPeriod(): string {
-  const d = new Date();
-  const m = d.getMonth(); // 0-based
-  const y = d.getFullYear();
-  const pm = m === 0 ? 12 : m;
-  const py = m === 0 ? y - 1 : y;
-  return `${py}-${String(pm).padStart(2, "0")}`;
-}
+
