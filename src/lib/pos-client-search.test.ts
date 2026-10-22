@@ -77,6 +77,23 @@ describe("pos-client-search", () => {
   it("placeholder estable", () => {
     expect(POS_CLIENT_SEARCH_PLACEHOLDER).toContain("dirección");
   });
+
+  it("filtra un listado de medidores por apellido del socio (OCAMPO)", () => {
+    const meters = [
+      { id: "1", number: "MED-01", client_name: "Juan Pérez", sector: "Alto", address: "Calle 1" },
+      { id: "2", number: "MED-18", client_name: "María Ocampo", sector: "Bajo", address: "Los Robles 12" },
+      { id: "3", number: "MED-20", client_name: "Ana Soto", sector: "Alto", address: "Pasaje Ocampo" },
+    ];
+    const byName = filterByPosSearch(meters, "OCAMPO", (m) => ({
+      name: m.client_name,
+      address: m.address,
+      meterNumber: m.number,
+      sector: m.sector,
+    }));
+    expect(byName.map((h) => h.item.id).sort()).toEqual(["2", "3"]);
+    expect(byName.find((h) => h.item.id === "2")?.match.field).toBe("name");
+    expect(byName.find((h) => h.item.id === "3")?.match.field).toBe("address");
+  });
 });
 
 describe("orderPosSearchResults", () => {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Droplets, Gauge, Pencil, Plus, Search, X } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
@@ -13,6 +13,8 @@ import { StatCard } from "@/components/ui/stat-card";
 import { AnimatedOverlay } from "@/components/ui/animated-overlay";
 import { EmptyState } from "@/components/ui/empty-state";
 import { useToast } from "@/lib/store/toast";
+import { useDebouncedValue } from "@/lib/hooks/useDebouncedValue";
+import { fetchAllCustomers } from "@/lib/api/customers";
 import {
   createMeter,
   fetchMeters,
@@ -20,6 +22,10 @@ import {
   type MeterWritePayload,
   type WaterMeter,
 } from "@/lib/api/water";
+import {
+  filterByPosSearch,
+  normalizeSearchText,
+} from "@/lib/pos-client-search";
 
 const STATUS_LABEL: Record<string, string> = {
   ACTIVE: "Activo",
@@ -37,22 +43,46 @@ export default function MetersPage() {
 
   const clientsQuery = useQuery({
     queryKey: ["customers", "meter-picker"],
-    queryFn: async () => {
-      // Padrón completo (activos + inactivos): searchCustomers("") devuelve solo
-      // la primera página (20) y dejaba fuera a la mayoría de los socios del APR.
-      const { fetchAllCustomers } = await import("@/lib/api/customers");
-      return fetchAllCustomers({ status: "" });
-    },
+    queryFn: () => fetchAllCustomers({ status: "" }),
     staleTime: 60_000,
   });
 
   const metersQuery = useQuery({
-    queryKey: ["water", "meters", search],
-    queryFn: () => fetchMeters({ search: search.trim() || undefined }),
+    queryKey: ["water", "meters"],
+    queryFn: () => fetchMeters(),
     placeholderData: keepPreviousData,
   });
 
-  const meters = metersQuery.data ?? [];
+  const debouncedSearch = useDebouncedValue(search, 250);
+  const hasSearch = Boolean(normalizeSearchText(debouncedSearch));
+
+  const clientById = useMemo(() => {
+    const map = new Map<string, { name?: string | null; address?: string | null }>();
+    for (const c of clientsQuery.data ?? []) {
+      map.set(String(c.id), { name: c.name ?? null, address: c.address ?? null });
+    }
+    return map;
+  }, [clientsQuery.data]);
+
+  const meters = useMemo(() => metersQuery.data ?? [], [metersQuery.data]);
+  const visibleMeters = useMemo(() => {
+    const byStatus = statusFilter
+      ? meters.filter((m) => m.status === statusFilter)
+      : meters;
+    if (!hasSearch) return byStatus;
+    // El API ignora `?search=` (sin SearchFilter). Filtramos el padrón completo
+    // por número, socio, dirección y sector, con la misma normalización del POS.
+    return filterByPosSearch(byStatus, debouncedSearch, (m) => {
+      const client = m.client != null ? clientById.get(String(m.client)) : undefined;
+      return {
+        name: m.client_name ?? client?.name ?? null,
+        address: client?.address ?? null,
+        meterNumber: m.number,
+        sector: m.sector || null,
+      };
+    }).map((hit) => hit.item);
+  }, [meters, statusFilter, hasSearch, debouncedSearch, clientById]);
+
   const activeCount = meters.filter((m) => m.status === "ACTIVE").length;
 
   const save = useMutation({
@@ -107,7 +137,7 @@ export default function MetersPage() {
             <Input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Buscar por número, socio o sector…"
+              placeholder="Buscar por número, socio, dirección o sector…"
               className="h-8 pl-8 text-xs"
             />
             {search && (
@@ -150,11 +180,26 @@ export default function MetersPage() {
               </Button>
             }
           />
+        ) : visibleMeters.length === 0 ? (
+          <EmptyState
+            icon={Search}
+            title={hasSearch ? "Sin resultados para esa búsqueda" : "Sin medidores con ese estado"}
+            description={
+              hasSearch
+                ? "Prueba con el número del medidor, el nombre del socio, la dirección o el sector."
+                : "Cambia el filtro de estado o registra un medidor nuevo."
+            }
+            action={
+              hasSearch ? (
+                <Button size="sm" variant="outline" onClick={() => setSearch("")}>
+                  Limpiar búsqueda
+                </Button>
+              ) : undefined
+            }
+          />
         ) : (
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {meters
-              .filter((m) => !statusFilter || m.status === statusFilter)
-              .map((meter) => (
+            {visibleMeters.map((meter) => (
                 <div
                   key={meter.id}
                   className="cauce-sheet group flex flex-col justify-between p-4 transition-colors hover:bg-white/70"
@@ -220,7 +265,7 @@ export default function MetersPage() {
                       : "sin fecha"}
                   </p>
                 </div>
-              ))}
+            ))}
           </div>
         )}
       </PageBody>

@@ -144,7 +144,11 @@ function asList<T>(data: { results?: T[] } | T[]): T[] {
 // ── Medidores ─────────────────────────────────────────────────────────────────
 
 export interface MeterFilters {
-  /** SearchFilter: number, sector, client__name. */
+  /**
+   * Query `search`. MeterViewSet declara search_fields (number, sector,
+   * client__name) pero el DEFAULT_FILTER_BACKENDS del API es solo
+   * DjangoFilterBackend: el param se ignora. El listado filtra en el cliente.
+   */
   search?: string;
   status?: "ACTIVE" | "RETIRED" | "DAMAGED" | string;
   sector?: string;

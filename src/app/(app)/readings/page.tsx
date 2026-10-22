@@ -27,7 +27,14 @@ import {
   importReadingsCsv,
   readingsCsvTemplate,
   type CsvImportResult,
+  type WaterReading,
 } from "@/lib/api/water";
+import {
+  isReadingInRange,
+  readingNeighbors,
+  readingRangeMessage,
+  type ReadingNeighbors,
+} from "@/lib/reading-bounds";
 
 function currentPeriod(): string {
   const d = new Date();
@@ -49,23 +56,37 @@ export default function ReadingsPage() {
   });
 
   const readingsQuery = useQuery({
-    queryKey: ["water", "readings", period],
-    queryFn: () => fetchReadings({ period }),
+    queryKey: ["water", "readings"],
+    queryFn: () => fetchReadings(),
     placeholderData: keepPreviousData,
   });
 
-  const readings = useMemo(
+  const allReadings = useMemo(
     () => readingsQuery.data ?? [],
     [readingsQuery.data],
   );
   const meters = useMemo(() => metersQuery.data ?? [], [metersQuery.data]);
+  const readings = useMemo(
+    () => allReadings.filter((row) => row.period === period),
+    [allReadings, period],
+  );
 
   // Medidores activos del período: con lectura o pendientes
   const readingsByMeter = useMemo(() => {
-    const map = new Map<string, (typeof readings)[number]>();
+    const map = new Map<string, WaterReading>();
     for (const r of readings) map.set(r.meter, r);
     return map;
   }, [readings]);
+
+  const historyByMeter = useMemo(() => {
+    const map = new Map<string, WaterReading[]>();
+    for (const row of allReadings) {
+      const list = map.get(row.meter) ?? [];
+      list.push(row);
+      map.set(row.meter, list);
+    }
+    return map;
+  }, [allReadings]);
 
   const activeMeters = meters.filter((m) => m.status === "ACTIVE");
   const pendingMeters = activeMeters.filter((m) => !readingsByMeter.has(m.id));
@@ -243,7 +264,12 @@ export default function ReadingsPage() {
                   ) : (
                     <ReadingQuickForm
                       meterId={meter.id}
-                      previous={Number(meter.last_reading?.current_reading ?? meter.initial_reading)}
+                      period={period}
+                      neighbors={readingNeighbors({
+                        period,
+                        initialReading: meter.initial_reading,
+                        readings: historyByMeter.get(meter.id) ?? [],
+                      })}
                       saving={createMutation.isPending}
                       onSubmit={(value) =>
                         createMutation.mutate({
@@ -339,50 +365,80 @@ export default function ReadingsPage() {
 
 function ReadingQuickForm({
   meterId,
-  previous,
+  period,
+  neighbors,
   saving,
   onSubmit,
 }: {
   meterId: string;
-  previous: number;
+  period: string;
+  neighbors: ReadingNeighbors;
   saving: boolean;
   onSubmit: (value: string) => void;
 }) {
   const [value, setValue] = useState("");
   const ref = useRef<HTMLInputElement>(null);
   const num = Number(value);
-  const consumed = value !== "" && num >= previous ? num - previous : null;
+  const inRange = value !== "" && isReadingInRange(num, neighbors);
+  const consumed = inRange ? num - neighbors.min : null;
+  const hint = readingRangeMessage({ period, ...neighbors });
 
   return (
-    <form
-      className="mt-3 flex items-center gap-2"
-      onSubmit={(e) => {
-        e.preventDefault();
-        if (value === "") return;
-        onSubmit(value);
-        setValue("");
-      }}
-    >
-      <Input
-        ref={ref}
-        type="number"
-        step="0.01"
-        min={previous}
-        value={value}
-        onChange={(e) => setValue(e.target.value)}
-        placeholder={`≥ ${previous}`}
-        className="h-8 flex-1 text-xs"
-        data-meter={meterId}
-      />
-      {consumed !== null && (
-        <span className="shrink-0 text-xs font-semibold tabular-nums text-primary">
-          {consumed} m³
-        </span>
-      )}
-      <Button type="submit" size="sm" className="h-8 shrink-0" disabled={value === "" || saving} isLoading={saving}>
-        Registrar
-      </Button>
-    </form>
+    <div className="mt-3 flex flex-col gap-1.5">
+      <form
+        className="flex items-center gap-2"
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (!inRange) return;
+          onSubmit(value);
+          setValue("");
+        }}
+      >
+        <Input
+          ref={ref}
+          type="number"
+          step="0.01"
+          min={neighbors.min}
+          max={neighbors.max ?? undefined}
+          value={value}
+          onChange={(e) => {
+            e.currentTarget.setCustomValidity("");
+            setValue(e.target.value);
+          }}
+          onInvalid={(e) => {
+            e.currentTarget.setCustomValidity(hint);
+          }}
+          placeholder={
+            neighbors.max != null ? `${neighbors.min} – ${neighbors.max}` : `≥ ${neighbors.min}`
+          }
+          className="h-8 flex-1 text-xs"
+          data-meter={meterId}
+        />
+        {consumed !== null && (
+          <span className="shrink-0 text-xs font-semibold tabular-nums text-primary">
+            {consumed} m³
+          </span>
+        )}
+        <Button
+          type="submit"
+          size="sm"
+          className="h-8 shrink-0"
+          disabled={value === "" || !inRange || saving}
+          isLoading={saving}
+        >
+          Registrar
+        </Button>
+      </form>
+      <p
+        className={
+          value !== "" && !inRange
+            ? "text-xs font-medium text-destructive"
+            : "text-[11px] text-muted-foreground"
+        }
+      >
+        {hint}
+      </p>
+    </div>
   );
 }
 
