@@ -4,6 +4,29 @@
  */
 
 export interface paths {
+    "/api/accounts/csrf/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description GET /api/accounts/csrf/
+         *
+         *     Público. Fija la cookie CSRF y devuelve el token enmascarado para que
+         *     muninn.yggdra.cl y el staging en GitHub Pages lo envíen en ``X-CSRFToken``
+         *     junto con ``credentials: include``.
+         */
+        get: operations["accounts_csrf_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/accounts/user-extra-field-values/": {
         parameters: {
             query?: never;
@@ -875,6 +898,26 @@ export interface paths {
         patch: operations["ai_agents_agents_partial_update"];
         trace?: never;
     };
+    "/api/ai-agents/agents/{id}/app-access/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Prestar o quitar las tools de la app a un agente
+         * @description Suma o quita buscar/describir/llamar. No cambia el prompt.
+         */
+        post: operations["ai_agents_agents_app_access_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/ai-agents/agents/{id}/skill-config/{skill_id}/": {
         parameters: {
             query?: never;
@@ -1009,6 +1052,26 @@ export interface paths {
         get: operations["ai_agents_agents_default_retrieve"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/ai-agents/agents/ensure-operator/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Crear o actualizar el operador de sucursal
+         * @description Alta idempotente del operador. No corre en el provisioning.
+         */
+        post: operations["ai_agents_agents_ensure_operator_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1150,6 +1213,57 @@ export interface paths {
         get: operations["ai_agents_application_connections_credential_fields_retrieve"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/ai-agents/billing/agents/{agent_id}/subscribe/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Suscripción mensual de un agente (0,5 UF) con Flow */
+        post: operations["ai_agents_billing_agents_subscribe_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/ai-agents/billing/balance/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Saldo de runas de la organización */
+        get: operations["ai_agents_billing_balance_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/ai-agents/billing/runas/checkout/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Compra de un pack de runas con Flow */
+        post: operations["ai_agents_billing_runas_checkout_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -4297,7 +4411,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** @description Invitar un usuario a la sucursal por email. */
+        /** @description Invitar un usuario a la sucursal por email. Encola correo de fijar contraseña (usuario nuevo) o aviso de acceso (usuario existente). La respuesta incluye invitation_queued (aditivo). */
         post: operations["branches_invite_user_create"];
         delete?: never;
         options?: never;
@@ -4341,6 +4455,23 @@ export interface paths {
          *     Acepta user_id por: header HTTP_USER_ID, query params, o body (JSON/form).
          */
         delete: operations["branches_remove_user_destroy"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/branches/{id}/resend-invitation/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Reenviar invitación a un usuario pendiente de esta sucursal (sin contraseña usable). Mismos permisos que invite-user; aislado por sucursal. */
+        post: operations["branches_resend_invitation_create"];
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -4624,6 +4755,44 @@ export interface paths {
         options?: never;
         head?: never;
         patch?: never;
+        trace?: never;
+    };
+    "/api/branches/delivery-zones/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Zonas de tarifa POS por sucursal (permisos del módulo branches). */
+        get: operations["branches_delivery_zones_list"];
+        put?: never;
+        /** @description Zonas de tarifa POS por sucursal (permisos del módulo branches). */
+        post: operations["branches_delivery_zones_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/branches/delivery-zones/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Zonas de tarifa POS por sucursal (permisos del módulo branches). */
+        get: operations["branches_delivery_zones_retrieve"];
+        /** @description Zonas de tarifa POS por sucursal (permisos del módulo branches). */
+        put: operations["branches_delivery_zones_update"];
+        post?: never;
+        /** @description Zonas de tarifa POS por sucursal (permisos del módulo branches). */
+        delete: operations["branches_delivery_zones_destroy"];
+        options?: never;
+        head?: never;
+        /** @description Zonas de tarifa POS por sucursal (permisos del módulo branches). */
+        patch: operations["branches_delivery_zones_partial_update"];
         trace?: never;
     };
     "/api/branches/extra-field-values/": {
@@ -5511,7 +5680,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** @description ViewSet para gestionar la configuración POS por sucursal. */
+        /** @description Garantiza el singleton POS de la sucursal activa (default de despacho). */
         get: operations["branches_pos_config_list"];
         put?: never;
         /** @description ViewSet para gestionar la configuración POS por sucursal. */
@@ -12007,7 +12176,7 @@ export interface paths {
         };
         /**
          * Obtener caja actual
-         * @description Caja OPEN. Requiere branch_id; station_id o station_code (default PRINCIPAL).
+         * @description Caja OPEN de hoy que usaría pay() si se omite cash_register_id. Regla: 1) OPEN de hoy de la estación (station_id o asignada al usuario); 2) OPEN PRINCIPAL de hoy; 3) si hay varias OPEN de hoy sin principal, la más reciente. Nunca elige una caja de un día anterior. Si solo hay OPEN antiguas, responde 200 con esa caja, stale=true, blocking=true y code=cash_register_stale. Sin ninguna OPEN → 404. station_id es opcional. Una fecha explícita distinta de hoy sigue filtrando por estación+fecha (stale=true, blocking=false). Incluye stale_open_registers (id, date, station_name, opening_amount, expected_amount, opened_by) y stale_open_count con todas las OPEN de la estación con fecha < hoy, también cuando hay caja de hoy.
          */
         get: operations["finance_cash_registers_current_retrieve"];
         put?: never;
@@ -14234,6 +14403,950 @@ export interface paths {
         patch: operations["finance_tax_types_partial_update"];
         trace?: never;
     };
+    "/api/forja/adherence-rules/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Listar reglas de adherencia
+         * @description ERPBase + viewer Forja. No confía en type_user global.
+         */
+        get: operations["forja_adherence_rules_list"];
+        put?: never;
+        /**
+         * Crear regla de adherencia
+         * @description ERPBase + viewer Forja. No confía en type_user global.
+         */
+        post: operations["forja_adherence_rules_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/forja/adherence-rules/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description ERPBase + viewer Forja. No confía en type_user global. */
+        get: operations["forja_adherence_rules_retrieve"];
+        /** @description ERPBase + viewer Forja. No confía en type_user global. */
+        put: operations["forja_adherence_rules_update"];
+        post?: never;
+        /** @description ERPBase + viewer Forja. No confía en type_user global. */
+        delete: operations["forja_adherence_rules_destroy"];
+        options?: never;
+        head?: never;
+        /** @description ERPBase + viewer Forja. No confía en type_user global. */
+        patch: operations["forja_adherence_rules_partial_update"];
+        trace?: never;
+    };
+    "/api/forja/adherence-rules/{id}/toggle/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Activar/desactivar regla de adherencia
+         * @description ERPBase + viewer Forja. No confía en type_user global.
+         */
+        post: operations["forja_adherence_rules_toggle_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/forja/adherence/weekly/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Adherencia semanal Forja */
+        get: operations["forja_adherence_weekly_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/forja/check-ins/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description ERPBase + viewer Forja. No confía en type_user global. */
+        get: operations["forja_check_ins_list"];
+        put?: never;
+        /** @description ERPBase + viewer Forja. No confía en type_user global. */
+        post: operations["forja_check_ins_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/forja/check-ins/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description ERPBase + viewer Forja. No confía en type_user global. */
+        get: operations["forja_check_ins_retrieve"];
+        /** @description ERPBase + viewer Forja. No confía en type_user global. */
+        put: operations["forja_check_ins_update"];
+        post?: never;
+        /** @description ERPBase + viewer Forja. No confía en type_user global. */
+        delete: operations["forja_check_ins_destroy"];
+        options?: never;
+        head?: never;
+        /** @description ERPBase + viewer Forja. No confía en type_user global. */
+        patch: operations["forja_check_ins_partial_update"];
+        trace?: never;
+    };
+    "/api/forja/meals/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description ERPBase + viewer Forja. No confía en type_user global. */
+        get: operations["forja_meals_list"];
+        put?: never;
+        /** @description ERPBase + viewer Forja. No confía en type_user global. */
+        post: operations["forja_meals_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/forja/meals/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description ERPBase + viewer Forja. No confía en type_user global. */
+        get: operations["forja_meals_retrieve"];
+        /** @description ERPBase + viewer Forja. No confía en type_user global. */
+        put: operations["forja_meals_update"];
+        post?: never;
+        /** @description ERPBase + viewer Forja. No confía en type_user global. */
+        delete: operations["forja_meals_destroy"];
+        options?: never;
+        head?: never;
+        /** @description ERPBase + viewer Forja. No confía en type_user global. */
+        patch: operations["forja_meals_partial_update"];
+        trace?: never;
+    };
+    "/api/forja/services/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Listar servicios Forja
+         * @description ERPBase + viewer Forja. No confía en type_user global.
+         */
+        get: operations["forja_services_list"];
+        put?: never;
+        /**
+         * Crear servicio Forja
+         * @description ERPBase + viewer Forja. No confía en type_user global.
+         */
+        post: operations["forja_services_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/forja/services/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Detalle servicio Forja
+         * @description ERPBase + viewer Forja. No confía en type_user global.
+         */
+        get: operations["forja_services_retrieve"];
+        /**
+         * Actualizar servicio Forja
+         * @description ERPBase + viewer Forja. No confía en type_user global.
+         */
+        put: operations["forja_services_update"];
+        post?: never;
+        /**
+         * Eliminar servicio Forja
+         * @description ERPBase + viewer Forja. No confía en type_user global.
+         */
+        delete: operations["forja_services_destroy"];
+        options?: never;
+        head?: never;
+        /**
+         * Parchear servicio Forja
+         * @description ERPBase + viewer Forja. No confía en type_user global.
+         */
+        patch: operations["forja_services_partial_update"];
+        trace?: never;
+    };
+    "/api/forja/students/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Listar alumnos Forja
+         * @description ERPBase + viewer Forja. No confía en type_user global.
+         */
+        get: operations["forja_students_list"];
+        put?: never;
+        /**
+         * Crear alumno Forja
+         * @description ERPBase + viewer Forja. No confía en type_user global.
+         */
+        post: operations["forja_students_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/forja/students/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Detalle alumno Forja
+         * @description ERPBase + viewer Forja. No confía en type_user global.
+         */
+        get: operations["forja_students_retrieve"];
+        /**
+         * Actualizar alumno Forja
+         * @description ERPBase + viewer Forja. No confía en type_user global.
+         */
+        put: operations["forja_students_update"];
+        post?: never;
+        /**
+         * Eliminar alumno Forja
+         * @description ERPBase + viewer Forja. No confía en type_user global.
+         */
+        delete: operations["forja_students_destroy"];
+        options?: never;
+        head?: never;
+        /**
+         * Parchear alumno Forja
+         * @description ERPBase + viewer Forja. No confía en type_user global.
+         */
+        patch: operations["forja_students_partial_update"];
+        trace?: never;
+    };
+    "/api/forja/students/{id}/adherence/weekly/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Adherencia semanal del alumno
+         * @description ERPBase + viewer Forja. No confía en type_user global.
+         */
+        get: operations["forja_students_adherence_weekly_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/forja/students/{id}/macros/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Actualizar macros del alumno
+         * @description ERPBase + viewer Forja. No confía en type_user global.
+         */
+        patch: operations["forja_students_macros_partial_update"];
+        trace?: never;
+    };
+    "/api/forja/students/{id}/status/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Actualizar estado del alumno
+         * @description ERPBase + viewer Forja. No confía en type_user global.
+         */
+        patch: operations["forja_students_status_partial_update"];
+        trace?: never;
+    };
+    "/api/forja/subscriptions/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description ERPBase + viewer Forja. No confía en type_user global. */
+        get: operations["forja_subscriptions_list"];
+        put?: never;
+        /** @description ERPBase + viewer Forja. No confía en type_user global. */
+        post: operations["forja_subscriptions_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/forja/subscriptions/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description ERPBase + viewer Forja. No confía en type_user global. */
+        get: operations["forja_subscriptions_retrieve"];
+        /** @description ERPBase + viewer Forja. No confía en type_user global. */
+        put: operations["forja_subscriptions_update"];
+        post?: never;
+        /** @description ERPBase + viewer Forja. No confía en type_user global. */
+        delete: operations["forja_subscriptions_destroy"];
+        options?: never;
+        head?: never;
+        /** @description ERPBase + viewer Forja. No confía en type_user global. */
+        patch: operations["forja_subscriptions_partial_update"];
+        trace?: never;
+    };
+    "/api/forja/threads/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description ERPBase + viewer Forja. No confía en type_user global. */
+        get: operations["forja_threads_list"];
+        put?: never;
+        /** @description ERPBase + viewer Forja. No confía en type_user global. */
+        post: operations["forja_threads_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/forja/threads/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description ERPBase + viewer Forja. No confía en type_user global. */
+        get: operations["forja_threads_retrieve"];
+        /** @description ERPBase + viewer Forja. No confía en type_user global. */
+        put: operations["forja_threads_update"];
+        post?: never;
+        /** @description ERPBase + viewer Forja. No confía en type_user global. */
+        delete: operations["forja_threads_destroy"];
+        options?: never;
+        head?: never;
+        /** @description ERPBase + viewer Forja. No confía en type_user global. */
+        patch: operations["forja_threads_partial_update"];
+        trace?: never;
+    };
+    "/api/forja/threads/{id}/events/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Stream SSE de mensajes del hilo Forja
+         * @description SSE async (Daphne/ASGI) por hilo. Auth: ``?stream_token=`` o sesión.
+         */
+        get: operations["forja_threads_events_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/forja/threads/{id}/messages/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Listar/crear mensajes del hilo
+         * @description ERPBase + viewer Forja. No confía en type_user global.
+         */
+        get: operations["forja_threads_messages_retrieve"];
+        put?: never;
+        /**
+         * Listar/crear mensajes del hilo
+         * @description ERPBase + viewer Forja. No confía en type_user global.
+         */
+        post: operations["forja_threads_messages_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/forja/threads/{id}/stream-token/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Emitir stream_token SSE del hilo
+         * @description ERPBase + viewer Forja. No confía en type_user global.
+         */
+        post: operations["forja_threads_stream_token_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/forja/training-plan/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Listar planes de entrenamiento
+         * @description ERPBase + viewer Forja. No confía en type_user global.
+         */
+        get: operations["forja_training_plan_list"];
+        put?: never;
+        /**
+         * Crear plan de entrenamiento
+         * @description ERPBase + viewer Forja. No confía en type_user global.
+         */
+        post: operations["forja_training_plan_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/forja/training-plan/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Detalle plan de entrenamiento
+         * @description ERPBase + viewer Forja. No confía en type_user global.
+         */
+        get: operations["forja_training_plan_retrieve"];
+        /**
+         * Actualizar plan de entrenamiento
+         * @description ERPBase + viewer Forja. No confía en type_user global.
+         */
+        put: operations["forja_training_plan_update"];
+        post?: never;
+        /**
+         * Eliminar plan de entrenamiento
+         * @description ERPBase + viewer Forja. No confía en type_user global.
+         */
+        delete: operations["forja_training_plan_destroy"];
+        options?: never;
+        head?: never;
+        /**
+         * Parchear plan de entrenamiento
+         * @description ERPBase + viewer Forja. No confía en type_user global.
+         */
+        patch: operations["forja_training_plan_partial_update"];
+        trace?: never;
+    };
+    "/api/forja/water/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description ERPBase + viewer Forja. No confía en type_user global. */
+        get: operations["forja_water_list"];
+        put?: never;
+        /** @description ERPBase + viewer Forja. No confía en type_user global. */
+        post: operations["forja_water_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/forja/water/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description ERPBase + viewer Forja. No confía en type_user global. */
+        get: operations["forja_water_retrieve"];
+        /** @description ERPBase + viewer Forja. No confía en type_user global. */
+        put: operations["forja_water_update"];
+        post?: never;
+        /** @description ERPBase + viewer Forja. No confía en type_user global. */
+        delete: operations["forja_water_destroy"];
+        options?: never;
+        head?: never;
+        /** @description ERPBase + viewer Forja. No confía en type_user global. */
+        patch: operations["forja_water_partial_update"];
+        trace?: never;
+    };
+    "/api/forja/workout-logs/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Listar logs de entrenamiento
+         * @description ERPBase + viewer Forja. No confía en type_user global.
+         */
+        get: operations["forja_workout_logs_list"];
+        put?: never;
+        /**
+         * Crear log de entrenamiento
+         * @description ERPBase + viewer Forja. No confía en type_user global.
+         */
+        post: operations["forja_workout_logs_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/forja/workout-logs/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Detalle log de entrenamiento
+         * @description ERPBase + viewer Forja. No confía en type_user global.
+         */
+        get: operations["forja_workout_logs_retrieve"];
+        /**
+         * Actualizar log de entrenamiento
+         * @description ERPBase + viewer Forja. No confía en type_user global.
+         */
+        put: operations["forja_workout_logs_update"];
+        post?: never;
+        /**
+         * Eliminar log de entrenamiento
+         * @description ERPBase + viewer Forja. No confía en type_user global.
+         */
+        delete: operations["forja_workout_logs_destroy"];
+        options?: never;
+        head?: never;
+        /**
+         * Parchear log de entrenamiento
+         * @description ERPBase + viewer Forja. No confía en type_user global.
+         */
+        patch: operations["forja_workout_logs_partial_update"];
+        trace?: never;
+    };
+    "/api/ik/batch/stats/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Endpoint dinamico 'compat-batch-stats' (batch/stats/) */
+        post: operations["ik_batch_stats_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/ik/batch/telemetry/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Endpoint dinamico 'compat-batch-telemetry' (batch/telemetry/) */
+        post: operations["ik_batch_telemetry_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/ik/compliance/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Endpoint dinamico 'compat-compliance' (compliance/) */
+        get: operations["ik_compliance_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/ik/compliance/{point_id}/flow_history/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Endpoint dinamico 'compat-compliance-flow-history' (compliance/<int:point_id>/flow_history/) */
+        get: operations["ik_compliance_flow_history_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/ik/compliance/{point_id}/near_limit/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Endpoint dinamico 'compat-compliance-near-limit' (compliance/<int:point_id>/near_limit/) */
+        get: operations["ik_compliance_near_limit_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/ik/control_center/system_events/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Endpoint dinamico 'compat-system-events' (control_center/system_events/) */
+        get: operations["ik_control_center_system_events_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/ik/control_center/system_events/{point_id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Endpoint dinamico 'compat-system-events-point' (control_center/system_events/<int:point_id>/) */
+        get: operations["ik_control_center_system_events_retrieve_2"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/ik/dashboard_stats/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Endpoint dinamico 'compat-dashboard' (dashboard_stats/) */
+        get: operations["ik_dashboard_stats_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/ik/login/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Endpoint dinamico 'compat-login' (login/) */
+        post: operations["ik_login_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/ik/my_points/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Endpoint dinamico 'compat-my-points' (my_points/) */
+        get: operations["ik_my_points_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/ik/point/{point_id}/calendar/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Endpoint dinamico 'compat-point-calendar' (point/<int:point_id>/calendar/) */
+        get: operations["ik_point_calendar_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/ik/point/{point_id}/config/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Endpoint dinamico 'compat-point-config' (point/<int:point_id>/config/) */
+        get: operations["ik_point_config_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** @description Endpoint dinamico 'compat-point-config' (point/<int:point_id>/config/) */
+        patch: operations["ik_point_config_partial_update"];
+        trace?: never;
+    };
+    "/api/ik/point/{point_id}/gaps/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Endpoint dinamico 'compat-point-gaps' (point/<int:point_id>/gaps/) */
+        get: operations["ik_point_gaps_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/ik/point/{point_id}/records/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Endpoint dinamico 'compat-point-records' (point/<int:point_id>/records/) */
+        get: operations["ik_point_records_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/ik/point/{point_id}/summary/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Endpoint dinamico 'compat-point-summary' (point/<int:point_id>/summary/) */
+        get: operations["ik_point_summary_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/ik/point/{point_id}/variables/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Endpoint dinamico 'compat-point-variables' (point/<int:point_id>/variables/) */
+        get: operations["ik_point_variables_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/ik/points/{point_id}/config/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Endpoint dinamico 'compat-point-config-plural' (points/<int:point_id>/config/) */
+        get: operations["ik_points_config_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** @description Endpoint dinamico 'compat-point-config-plural' (points/<int:point_id>/config/) */
+        patch: operations["ik_points_config_partial_update"];
+        trace?: never;
+    };
+    "/api/ik/points_summary/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Endpoint dinamico 'compat-points-summary' (points_summary/) */
+        get: operations["ik_points_summary_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/ik/system-events/summary/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Endpoint dinamico 'compat-system-events-summary' (system-events/summary/) */
+        get: operations["ik_system_events_summary_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/inventory/beneficiary-discounts/": {
         parameters: {
             query?: never;
@@ -16119,6 +17232,26 @@ export interface paths {
         patch: operations["inventory_products_partial_update"];
         trace?: never;
     };
+    "/api/inventory/products/{id}/download-nutrition-label-pdf/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * PDF de etiqueta nutricional del producto
+         * @description Descarga el PDF de la receta con cálculo nutricional del producto. Query: page_size=label|a4|letter.
+         */
+        get: operations["inventory_products_download_nutrition_label_pdf_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/inventory/products/{id}/equipment-assignments/": {
         parameters: {
             query?: never;
@@ -16555,12 +17688,23 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** @description Actualizar cantidad de un producto en bodega con trazabilidad. */
+        /**
+         * @description Actualizar cantidad de un producto en bodega con trazabilidad.
+         *
+         *     quantity es obligatorio: ausente responde 400, no vacía el recinto.
+         *     POST se conserva; PATCH queda disponible para el contrato nuevo.
+         */
         post: operations["inventory_warehouse_products_update_quantity_create"];
         delete?: never;
         options?: never;
         head?: never;
-        patch?: never;
+        /**
+         * @description Actualizar cantidad de un producto en bodega con trazabilidad.
+         *
+         *     quantity es obligatorio: ausente responde 400, no vacía el recinto.
+         *     POST se conserva; PATCH queda disponible para el contrato nuevo.
+         */
+        patch: operations["inventory_warehouse_products_update_quantity_partial_update"];
         trace?: never;
     };
     "/api/inventory/warehouses/": {
@@ -16626,7 +17770,7 @@ export interface paths {
             cookie?: never;
         };
         /** @description Obtener productos de una bodega específica. */
-        get: operations["inventory_warehouses_products_retrieve"];
+        get: operations["inventory_warehouses_products_list"];
         put?: never;
         post?: never;
         delete?: never;
@@ -16642,7 +17786,13 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** @description Obtener resumen de bodegas de una sucursal. */
+        /**
+         * @description Obtener resumen de bodegas de la sucursal del request.
+         *
+         *     Valida branch_id (query o X-Branch-ID) contra las sucursales del
+         *     usuario para evitar fuga entre clientes. Nunca convierte excepciones
+         *     internas en 400 genéricos (regresión KeyError → 400).
+         */
         get: operations["inventory_warehouses_branch_summary_retrieve"];
         put?: never;
         post?: never;
@@ -16717,7 +17867,7 @@ export interface paths {
             cookie?: never;
         };
         /** @description Obtener tipos de bodega disponibles. */
-        get: operations["inventory_warehouses_types_retrieve"];
+        get: operations["inventory_warehouses_types_list"];
         put?: never;
         post?: never;
         delete?: never;
@@ -16874,6 +18024,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/iot-telemetry/alert-triggers/summary/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Resumen de disparos de alerta
+         * @description Conteos de disparos abiertos/reconocidos por severidad (solo lectura).
+         */
+        get: operations["iot_telemetry_alert_triggers_summary_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/iot-telemetry/compliance-configs/": {
         parameters: {
             query?: never;
@@ -16910,6 +18080,26 @@ export interface paths {
         head?: never;
         /** @description ViewSet para configuracion de cumplimiento. */
         patch: operations["iot_telemetry_compliance_configs_partial_update"];
+        trace?: never;
+    };
+    "/api/iot-telemetry/compliance-configs/status/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Estado de cumplimiento (solo lectura)
+         * @description Estado agregado de cumplimiento. No dispara envíos externos.
+         */
+        get: operations["iot_telemetry_compliance_configs_status_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/api/iot-telemetry/device-configs/": {
@@ -16988,6 +18178,112 @@ export interface paths {
         patch: operations["iot_telemetry_devices_partial_update"];
         trace?: never;
     };
+    "/api/iot-telemetry/devices/{id}/calendar/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Calendario diario de lecturas del dispositivo
+         * @description Resumen diario de lecturas para un dispositivo.
+         */
+        get: operations["iot_telemetry_devices_calendar_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/iot-telemetry/devices/{id}/documents/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Archivos apuntando a este equipo. El portal sube el suyo. */
+        get: operations["iot_telemetry_devices_documents_retrieve"];
+        put?: never;
+        /** @description Archivos apuntando a este equipo. El portal sube el suyo. */
+        post: operations["iot_telemetry_devices_documents_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/iot-telemetry/devices/{id}/documents/{document_id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** @description El portal borra un archivo que subió. La sucursal borra el del equipo. */
+        delete: operations["iot_telemetry_devices_documents_destroy"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/iot-telemetry/devices/{id}/logger_sheet/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Ficha PDF del logger con cumplimiento y últimas variables. */
+        post: operations["iot_telemetry_devices_logger_sheet_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/iot-telemetry/devices/{id}/operation_sheet/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description PDF de la operación: tickets, visitas, documentos, compras y tareas. */
+        post: operations["iot_telemetry_devices_operation_sheet_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/iot-telemetry/devices/{id}/operations/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Tickets, visitas, documentos, compras y tareas ya enlazados al equipo. */
+        get: operations["iot_telemetry_devices_operations_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/iot-telemetry/devices/{id}/status/": {
         parameters: {
             query?: never;
@@ -17039,6 +18335,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/iot-telemetry/devices/overview/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Overview de dispositivos (KPIs)
+         * @description KPIs agregados de la sucursal (solo lectura).
+         */
+        get: operations["iot_telemetry_devices_overview_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/iot-telemetry/events/": {
         parameters: {
             query?: never;
@@ -17075,6 +18391,64 @@ export interface paths {
         head?: never;
         /** @description ViewSet para eventos del sistema IoT. */
         patch: operations["iot_telemetry_events_partial_update"];
+        trace?: never;
+    };
+    "/api/iot-telemetry/events/summary/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Resumen de eventos IoT
+         * @description Agregados por severidad/tipo/dispositivo (solo lectura).
+         */
+        get: operations["iot_telemetry_events_summary_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/iot-telemetry/mqtt-brokers/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Gestion de brokers MQTT de telemetria (config dinamica). */
+        get: operations["iot_telemetry_mqtt_brokers_list"];
+        put?: never;
+        /** @description Gestion de brokers MQTT de telemetria (config dinamica). */
+        post: operations["iot_telemetry_mqtt_brokers_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/iot-telemetry/mqtt-brokers/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Gestion de brokers MQTT de telemetria (config dinamica). */
+        get: operations["iot_telemetry_mqtt_brokers_retrieve"];
+        /** @description Gestion de brokers MQTT de telemetria (config dinamica). */
+        put: operations["iot_telemetry_mqtt_brokers_update"];
+        post?: never;
+        /** @description Gestion de brokers MQTT de telemetria (config dinamica). */
+        delete: operations["iot_telemetry_mqtt_brokers_destroy"];
+        options?: never;
+        head?: never;
+        /** @description Gestion de brokers MQTT de telemetria (config dinamica). */
+        patch: operations["iot_telemetry_mqtt_brokers_partial_update"];
         trace?: never;
     };
     "/api/iot-telemetry/projects/": {
@@ -17200,8 +18574,51 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** @description Crear multiples lecturas en una sola llamada. */
+        /**
+         * Crear lecturas en lote
+         * @description Crear multiples lecturas en una sola llamada.
+         */
         post: operations["iot_telemetry_readings_bulk_create_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/iot-telemetry/readings/daily/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Rollup diario de lecturas
+         * @description Agregación diaria multi-dispositivo (solo lectura).
+         */
+        get: operations["iot_telemetry_readings_daily_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/iot-telemetry/readings/latest-batch/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Última lectura por dispositivo (batch)
+         * @description Última lectura de varios dispositivos de la sucursal activa.
+         */
+        post: operations["iot_telemetry_readings_latest_batch_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -17215,10 +18632,102 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** @description Obtener estadisticas de lecturas. */
+        /**
+         * Estadísticas de lecturas
+         * @description Obtener estadisticas de lecturas.
+         */
         get: operations["iot_telemetry_readings_stats_retrieve"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/iot-telemetry/reports/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description La sucursal guarda el informe. `data` lo muestra y `download` lo baja. */
+        get: operations["iot_telemetry_reports_list"];
+        put?: never;
+        /** @description La sucursal guarda el informe. `data` lo muestra y `download` lo baja. */
+        post: operations["iot_telemetry_reports_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/iot-telemetry/reports/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description La sucursal guarda el informe. `data` lo muestra y `download` lo baja. */
+        get: operations["iot_telemetry_reports_retrieve"];
+        /** @description La sucursal guarda el informe. `data` lo muestra y `download` lo baja. */
+        put: operations["iot_telemetry_reports_update"];
+        post?: never;
+        /** @description La sucursal guarda el informe. `data` lo muestra y `download` lo baja. */
+        delete: operations["iot_telemetry_reports_destroy"];
+        options?: never;
+        head?: never;
+        /** @description La sucursal guarda el informe. `data` lo muestra y `download` lo baja. */
+        patch: operations["iot_telemetry_reports_partial_update"];
+        trace?: never;
+    };
+    "/api/iot-telemetry/reports/{id}/data/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description La sucursal guarda el informe. `data` lo muestra y `download` lo baja. */
+        get: operations["iot_telemetry_reports_data_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/iot-telemetry/reports/{id}/download/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description La sucursal guarda el informe. `data` lo muestra y `download` lo baja. */
+        get: operations["iot_telemetry_reports_download_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/iot-telemetry/reports/{id}/sheet/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description PDF del informe con las filas del mismo corte que data y download. */
+        post: operations["iot_telemetry_reports_sheet_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -17923,6 +19432,357 @@ export interface paths {
         };
         /** @description Obtener datos del dashboard de conductores. */
         get: operations["logistics_driver_profiles_dashboard_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/p90/panel/comments/{comment_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Borrar comentario (lógico) */
+        delete: operations["p90_panel_comments_destroy"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/p90/panel/config": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Configuración del panel semanal */
+        get: operations["p90_panel_config_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Actualizar configuración del panel (admin) */
+        patch: operations["p90_panel_config_partial_update"];
+        trace?: never;
+    };
+    "/api/p90/panel/messages/broadcast": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Publicar aviso general a todos los alumnos
+         * @description Aviso general a todos los alumnos (sin copiar mensajes privados).
+         */
+        post: operations["p90_panel_messages_broadcast_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/p90/panel/messages/broadcast/{broadcast_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Borrar envío masivo por broadcast_id (lógico)
+         * @description Admin puede borrar cualquier envío. Nutricionista solo si es autora de todos los avisos y mensajes del broadcast. Envíos legacy sin autor: solo admin. Coach y alumno reciben 403.
+         */
+        delete: operations["p90_panel_messages_broadcast_destroy"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/p90/panel/messages/inbox": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Bandeja de mensajes del equipo
+         * @description Bandeja del equipo: todos los hilos, del más reciente al más antiguo.
+         */
+        get: operations["p90_panel_messages_inbox_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/p90/panel/messages/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Listar mensajes del hilo del alumno autenticado
+         * @description Hilo propio del alumno: listar y escribir eligiendo destinatario.
+         */
+        get: operations["p90_panel_messages_me_retrieve"];
+        put?: never;
+        /**
+         * Enviar mensaje (alumno → nutri/admin)
+         * @description Hilo propio del alumno: listar y escribir eligiendo destinatario.
+         */
+        post: operations["p90_panel_messages_me_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/p90/panel/messages/stream": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Stream SSE de mensajes P90
+         * @description SSE: eventos {type:message, thread_id, message} + heartbeat/timeout.
+         *
+         *     Auth: ``?stream_token=`` (recomendado para EventSource) o Authorization/cookie
+         *     + ``X-Branch-ID``. El branch va embebido en el stream_token.
+         */
+        get: operations["p90_panel_messages_stream_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/p90/panel/messages/stream-token": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Obtener token de corta vida para SSE de mensajería
+         * @description Emite un stream_token corto para EventSource (no usar el token principal en URL).
+         */
+        post: operations["p90_panel_messages_stream_token_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/p90/panel/participants/{client_id}/analysis": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Alertas y análisis de la semana */
+        get: operations["p90_panel_participants_analysis_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/p90/panel/participants/{client_id}/comments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Listar comentarios del alumno */
+        get: operations["p90_panel_participants_comments_retrieve"];
+        put?: never;
+        /** Crear comentario */
+        post: operations["p90_panel_participants_comments_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/p90/panel/participants/{client_id}/habit-plan": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Plan de hábitos vigente e historial */
+        get: operations["p90_panel_participants_habit_plan_retrieve"];
+        put?: never;
+        /** Crear o actualizar plan de hábitos */
+        post: operations["p90_panel_participants_habit_plan_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/p90/panel/participants/{client_id}/macro-targets": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Listar metas de macros por tramo */
+        get: operations["p90_panel_participants_macro_targets_retrieve"];
+        put?: never;
+        /** Crear meta de macros por tramo */
+        post: operations["p90_panel_participants_macro_targets_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/p90/panel/participants/{client_id}/messages": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Listar mensajes del hilo de un alumno
+         * @description Hilo de mensajería de un alumno (staff: nutri/admin; coach si está habilitado).
+         */
+        get: operations["p90_panel_participants_messages_retrieve"];
+        put?: never;
+        /**
+         * Responder en el hilo (o broadcast a todos)
+         * @description Hilo de mensajería de un alumno (staff: nutri/admin; coach si está habilitado).
+         */
+        post: operations["p90_panel_participants_messages_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/p90/panel/participants/{client_id}/messages/{message_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Borrar mensaje del hilo (lógico)
+         * @description Admin puede borrar cualquier mensaje. Nutricionista solo los que escribió. Coach y alumno reciben 403.
+         */
+        delete: operations["p90_panel_participants_messages_destroy"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/p90/panel/participants/{client_id}/week": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Ficha semanal de un alumno */
+        get: operations["p90_panel_participants_week_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/p90/panel/week": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Resumen y filas de una semana */
+        get: operations["p90_panel_week_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/p90/panel/weeks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Semanas disponibles del panel */
+        get: operations["p90_panel_weeks_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/plan-checkout/billing-status/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Estado de trial/billing de la sucursal
+         * @description GET /api/plan-checkout/billing-status/
+         *
+         *     Devuelve la suscripción ACTIVE de la sucursal del request (header
+         *     ``x-branch-id``) para el banner de trial y la pantalla de billing.
+         */
+        get: operations["plan_checkout_billing_status_retrieve"];
         put?: never;
         post?: never;
         delete?: never;
@@ -19510,6 +21370,168 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/public/agent-catalog/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Listar plantillas públicas del catálogo */
+        get: operations["public_agent_catalog_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/public/agent-catalog/{slug}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Detalle de plantilla pública */
+        get: operations["public_agent_catalog_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/public/agent-catalog/{slug}/approve/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Aprobar plantilla (superadmin) */
+        post: operations["public_agent_catalog_approve"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/public/agent-catalog/{slug}/clone/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Clonar plantilla a la sucursal del usuario */
+        post: operations["public_agent_catalog_clone"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/public/agent-catalog/{slug}/reject/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Rechazar plantilla (superadmin) */
+        post: operations["public_agent_catalog_reject"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/public/agent-catalog/categories/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Categorías del catálogo */
+        get: operations["public_agent_catalog_categories"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/public/agent-catalog/publish/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Publicar un agente propio como plantilla (queda en revisión) */
+        post: operations["public_agent_catalog_publish"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/public/cauce-demo-kpis/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * KPIs públicos de la demo Cauce
+         * @description GET /api/public/cauce-demo-kpis/ — métricas read-only para la landing.
+         */
+        get: operations["public_cauce_demo_kpis_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/public/cauce-demo-login/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Iniciar sesión demo Cauce
+         * @description POST /api/public/cauce-demo-login/ — token demo corto (1h).
+         *
+         *     Cada llamada crea un usuario visitante efímero (sesiones concurrentes no
+         *     se pisan). Throttle propio ``cauce_demo_login`` (10/min por IP).
+         */
+        post: operations["public_cauce_demo_login_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/public/checkout/magic-login/": {
         parameters: {
             query?: never;
@@ -19573,6 +21595,46 @@ export interface paths {
         get: operations["public_landing_config_retrieve"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/public/muninn/signup/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Alta gratis de Muninn
+         * @description Crea organización, sucursal y OWNER. No cobra y no inicia sesión.
+         */
+        post: operations["public_muninn_signup_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/public/muninn/verify/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Verificación de correo Muninn
+         * @description Canjea el magic link. Si viene contraseña, la define y verifica el correo.
+         */
+        post: operations["public_muninn_verify_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -20018,8 +22080,8 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * @description Generar y descargar PDF de etiqueta nutricional en formato 62mm x 100mm vertical.
-         *     GET /api/recipes/recipes/{id}/download-nutrition-label-pdf/
+         * Descargar PDF de etiqueta nutricional (RSA DS 977)
+         * @description Generador oficial backend. Frig debe descargar este PDF (no generar uno propio). `page_size=label` (default): 62×100 mm para etiquetadora; `a4` / `letter`: hoja con varias etiquetas. Respuesta 200: application/pdf. 409 si el cálculo está incompleto (nutrition_is_complete / nutrition_missing_details).
          */
         get: operations["recipes_recipes_download_nutrition_label_pdf_retrieve"];
         put?: never;
@@ -20054,8 +22116,28 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** @description Obtener etiqueta nutricional formateada para la receta. */
+        /** @description Obtener etiqueta nutricional formateada (solo lectura; no escribe en BD). */
         get: operations["recipes_recipes_nutrition_label_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/recipes/recipes/{id}/preview-nutrition-label/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Previsualizar etiqueta nutricional (PNG o SVG)
+         * @description Preview listo para mostrar en Frig. `media=png` (default) o `media=svg`. Misma fuente de datos que el PDF oficial; Frig no debe redibujar. Nota: se usa `media` (no `format`) para no chocar con el negociador DRF. Respuesta 200: image/png o image/svg+xml. 409 si el cálculo está incompleto (nutrition_is_complete / nutrition_missing_details).
+         */
+        get: operations["recipes_recipes_preview_nutrition_label_retrieve"];
         put?: never;
         post?: never;
         delete?: never;
@@ -20124,7 +22206,12 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** @description Actualizar y recalcular valores nutricionales de la receta. */
+        /**
+         * @description Actualizar rendimiento declarado (opcional) y recalcular nutrición.
+         *
+         *     Delega al servicio real NutritionCalculator.update_recipe_nutrition
+         *     (corrige I6: ya no marca calculated sin persistir calculated_*).
+         */
         post: operations["recipes_recipes_update_nutrition_create"];
         delete?: never;
         options?: never;
@@ -20379,6 +22466,8 @@ export interface paths {
          *     Query params:
          *     - date_from: Fecha inicio (YYYY-MM-DD)
          *     - date_to: Fecha fin (YYYY-MM-DD)
+         *
+         *     El día de la semana usa TIME_ZONE (America/Santiago), no UTC.
          */
         get: operations["sales_analytics_by_day_retrieve"];
         put?: never;
@@ -20403,6 +22492,8 @@ export interface paths {
          *     Query params:
          *     - date_from: Fecha inicio (YYYY-MM-DD)
          *     - date_to: Fecha fin (YYYY-MM-DD)
+         *
+         *     Las horas usan TIME_ZONE (America/Santiago), no UTC.
          */
         get: operations["sales_analytics_by_hour_retrieve"];
         put?: never;
@@ -20811,6 +22902,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/sales/kitchen-tickets/{id}/revert/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Retroceder un estado
+         * @description Retrocede un paso: Entregado → Listo → En preparación → Pendiente.
+         */
+        post: operations["sales_kitchen_tickets_revert_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/sales/kitchen-tickets/{id}/start/": {
         parameters: {
             query?: never;
@@ -21198,6 +23309,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/sales/orders/{id}/assign-driver/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Asigna un repartidor a la orden. No modifica delivery_cost ni el total del cliente. Persiste driver_fee (calculado o explícito). */
+        post: operations["sales_orders_assign_driver_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/sales/orders/{id}/cancel/": {
         parameters: {
             query?: never;
@@ -21428,9 +23556,8 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * @description Registrar un pago para una orden de venta/pedido.
-         *
-         *     POST /api/sales/orders/{id}/pay/
+         * Registrar pago de orden
+         * @description Cobra un monto (parcial o total) sobre el saldo pendiente de la orden. Solo el dueño de la cuenta, OWNER/ADMIN_LOCAL o ADM/super pueden pagar. Si se omite cash_register_id, se asigna la misma caja OPEN de hoy que GET /finance/cash-registers/current/ (estación del usuario, si no PRINCIPAL, si no la OPEN de hoy más reciente). Nunca se elige una caja de un día anterior. Sin caja abierta el cobro se rechaza (400 cash_register_closed). Si solo hay cajas abiertas de días anteriores, 400 cash_register_stale. Un cash_register_id explícito de una caja antigua también es 400 stale. Errores de validación (referencia, stock, FinanceValidationError) responden 400.
          */
         post: operations["sales_orders_pay_create"];
         delete?: never;
@@ -22438,7 +24565,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** @description Obtener resumen por sucursal. */
+        /** @description Obtener resumen por sucursal (solo sucursales del usuario). */
         get: operations["scheduling_admin_dashboard_branch_retrieve"];
         put?: never;
         post?: never;
@@ -24175,6 +26302,61 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/shared/notice-rules/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description La sucursal arma varios avisos para el mismo evento o para otro elemento. */
+        get: operations["shared_notice_rules_list"];
+        put?: never;
+        /** @description La sucursal arma varios avisos para el mismo evento o para otro elemento. */
+        post: operations["shared_notice_rules_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/shared/notice-rules/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description La sucursal arma varios avisos para el mismo evento o para otro elemento. */
+        get: operations["shared_notice_rules_retrieve"];
+        /** @description La sucursal arma varios avisos para el mismo evento o para otro elemento. */
+        put: operations["shared_notice_rules_update"];
+        post?: never;
+        /** @description La sucursal arma varios avisos para el mismo evento o para otro elemento. */
+        delete: operations["shared_notice_rules_destroy"];
+        options?: never;
+        head?: never;
+        /** @description La sucursal arma varios avisos para el mismo evento o para otro elemento. */
+        patch: operations["shared_notice_rules_partial_update"];
+        trace?: never;
+    };
+    "/api/shared/notice-rules/events/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Catálogo de eventos que ya emite el sistema. */
+        get: operations["shared_notice_rules_events_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/shared/notifications/": {
         parameters: {
             query?: never;
@@ -24213,6 +26395,23 @@ export interface paths {
         patch: operations["shared_notifications_partial_update"];
         trace?: never;
     };
+    "/api/shared/notifications/deliver/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description La sucursal avisa lo que quiera por bandeja, socket y push. */
+        post: operations["shared_notifications_deliver_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/shared/notifications/my_notifications/": {
         parameters: {
             query?: never;
@@ -24225,6 +26424,56 @@ export interface paths {
         put?: never;
         post?: never;
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/shared/push/public-key/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["shared_push_public_key_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/shared/push/subscriptions/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Cada usuario registra y lista solo sus navegadores. */
+        get: operations["shared_push_subscriptions_retrieve"];
+        put?: never;
+        /** @description Cada usuario registra y lista solo sus navegadores. */
+        post: operations["shared_push_subscriptions_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/shared/push/subscriptions/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["shared_push_subscriptions_destroy"];
         options?: never;
         head?: never;
         patch?: never;
@@ -26150,15 +28399,29 @@ export interface paths {
         };
         /**
          * Listar tickets
-         * @description Mixin para ViewSets que necesitan soporte opcional de ``branch`` en el
-         *     payload para super administradores.
+         * @description Tickets de soporte.
+         *
+         *     Self-service (cualquier BranchUser activo):
+         *     - list / retrieve / create / submit de tickets propios (requester=user)
+         *     - no exige permiso de escritura en ``config``
+         *
+         *     Gestión (escritura en ``config``):
+         *     - ver/editar todos los tickets de la sucursal
+         *     - assign / close / cancel / stats / etc.
          */
         get: operations["support_tickets_list"];
         put?: never;
         /**
          * Crear ticket
-         * @description Mixin para ViewSets que necesitan soporte opcional de ``branch`` en el
-         *     payload para super administradores.
+         * @description Tickets de soporte.
+         *
+         *     Self-service (cualquier BranchUser activo):
+         *     - list / retrieve / create / submit de tickets propios (requester=user)
+         *     - no exige permiso de escritura en ``config``
+         *
+         *     Gestión (escritura en ``config``):
+         *     - ver/editar todos los tickets de la sucursal
+         *     - assign / close / cancel / stats / etc.
          */
         post: operations["support_tickets_create"];
         delete?: never;
@@ -26176,28 +28439,56 @@ export interface paths {
         };
         /**
          * Obtener ticket
-         * @description Mixin para ViewSets que necesitan soporte opcional de ``branch`` en el
-         *     payload para super administradores.
+         * @description Tickets de soporte.
+         *
+         *     Self-service (cualquier BranchUser activo):
+         *     - list / retrieve / create / submit de tickets propios (requester=user)
+         *     - no exige permiso de escritura en ``config``
+         *
+         *     Gestión (escritura en ``config``):
+         *     - ver/editar todos los tickets de la sucursal
+         *     - assign / close / cancel / stats / etc.
          */
         get: operations["support_tickets_retrieve"];
         /**
          * Actualizar ticket
-         * @description Mixin para ViewSets que necesitan soporte opcional de ``branch`` en el
-         *     payload para super administradores.
+         * @description Tickets de soporte.
+         *
+         *     Self-service (cualquier BranchUser activo):
+         *     - list / retrieve / create / submit de tickets propios (requester=user)
+         *     - no exige permiso de escritura en ``config``
+         *
+         *     Gestión (escritura en ``config``):
+         *     - ver/editar todos los tickets de la sucursal
+         *     - assign / close / cancel / stats / etc.
          */
         put: operations["support_tickets_update"];
         post?: never;
         /**
          * Eliminar ticket
-         * @description Mixin para ViewSets que necesitan soporte opcional de ``branch`` en el
-         *     payload para super administradores.
+         * @description Tickets de soporte.
+         *
+         *     Self-service (cualquier BranchUser activo):
+         *     - list / retrieve / create / submit de tickets propios (requester=user)
+         *     - no exige permiso de escritura en ``config``
+         *
+         *     Gestión (escritura en ``config``):
+         *     - ver/editar todos los tickets de la sucursal
+         *     - assign / close / cancel / stats / etc.
          */
         delete: operations["support_tickets_destroy"];
         options?: never;
         head?: never;
         /**
-         * @description Mixin para ViewSets que necesitan soporte opcional de ``branch`` en el
-         *     payload para super administradores.
+         * @description Tickets de soporte.
+         *
+         *     Self-service (cualquier BranchUser activo):
+         *     - list / retrieve / create / submit de tickets propios (requester=user)
+         *     - no exige permiso de escritura en ``config``
+         *
+         *     Gestión (escritura en ``config``):
+         *     - ver/editar todos los tickets de la sucursal
+         *     - assign / close / cancel / stats / etc.
          */
         patch: operations["support_tickets_partial_update"];
         trace?: never;
@@ -26213,8 +28504,15 @@ export interface paths {
         put?: never;
         /**
          * Asignar ticket
-         * @description Mixin para ViewSets que necesitan soporte opcional de ``branch`` en el
-         *     payload para super administradores.
+         * @description Tickets de soporte.
+         *
+         *     Self-service (cualquier BranchUser activo):
+         *     - list / retrieve / create / submit de tickets propios (requester=user)
+         *     - no exige permiso de escritura en ``config``
+         *
+         *     Gestión (escritura en ``config``):
+         *     - ver/editar todos los tickets de la sucursal
+         *     - assign / close / cancel / stats / etc.
          */
         post: operations["support_tickets_assign_create"];
         delete?: never;
@@ -26234,8 +28532,15 @@ export interface paths {
         put?: never;
         /**
          * Anular ticket
-         * @description Mixin para ViewSets que necesitan soporte opcional de ``branch`` en el
-         *     payload para super administradores.
+         * @description Tickets de soporte.
+         *
+         *     Self-service (cualquier BranchUser activo):
+         *     - list / retrieve / create / submit de tickets propios (requester=user)
+         *     - no exige permiso de escritura en ``config``
+         *
+         *     Gestión (escritura en ``config``):
+         *     - ver/editar todos los tickets de la sucursal
+         *     - assign / close / cancel / stats / etc.
          */
         post: operations["support_tickets_cancel_create"];
         delete?: never;
@@ -26255,10 +28560,45 @@ export interface paths {
         put?: never;
         /**
          * Cerrar ticket
-         * @description Mixin para ViewSets que necesitan soporte opcional de ``branch`` en el
-         *     payload para super administradores.
+         * @description Tickets de soporte.
+         *
+         *     Self-service (cualquier BranchUser activo):
+         *     - list / retrieve / create / submit de tickets propios (requester=user)
+         *     - no exige permiso de escritura en ``config``
+         *
+         *     Gestión (escritura en ``config``):
+         *     - ver/editar todos los tickets de la sucursal
+         *     - assign / close / cancel / stats / etc.
          */
         post: operations["support_tickets_close_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/support/tickets/desk/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Cola del agente: míos, sin asignar y vencidos
+         * @description Tickets de soporte.
+         *
+         *     Self-service (cualquier BranchUser activo):
+         *     - list / retrieve / create / submit de tickets propios (requester=user)
+         *     - no exige permiso de escritura en ``config``
+         *
+         *     Gestión (escritura en ``config``):
+         *     - ver/editar todos los tickets de la sucursal
+         *     - assign / close / cancel / stats / etc.
+         */
+        get: operations["support_tickets_desk_retrieve"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -26274,12 +28614,39 @@ export interface paths {
         };
         /**
          * Tickets asignados al usuario actual
-         * @description Mixin para ViewSets que necesitan soporte opcional de ``branch`` en el
-         *     payload para super administradores.
+         * @description Tickets de soporte.
+         *
+         *     Self-service (cualquier BranchUser activo):
+         *     - list / retrieve / create / submit de tickets propios (requester=user)
+         *     - no exige permiso de escritura en ``config``
+         *
+         *     Gestión (escritura en ``config``):
+         *     - ver/editar todos los tickets de la sucursal
+         *     - assign / close / cancel / stats / etc.
          */
         get: operations["support_tickets_my_tickets_retrieve"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/support/tickets/portal_request/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Solicitud de soporte del portal
+         * @description El cliente abre un ticket y el escritorio lo recibe en la sucursal.
+         */
+        post: operations["support_tickets_portal_request_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -26296,11 +28663,38 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Crear ticket público desde formulario web
-         * @description Mixin para ViewSets que necesitan soporte opcional de ``branch`` en el
-         *     payload para super administradores.
+         * Crear ticket desde formulario web (requiere auth + membresía)
+         * @description Antes era AllowAny y auto-provisionaba catálogo Frig. Ya no: exige autenticación y membresía activa en la sucursal, y solo usa categorías/SLA ya existentes (no crea ni reactiva config). El front Frig no consume este endpoint; preferir /submit/ o POST /.
          */
         post: operations["support_tickets_public_create_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/support/tickets/ranking/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Ranking de tickets resueltos por agente
+         * @description Tickets de soporte.
+         *
+         *     Self-service (cualquier BranchUser activo):
+         *     - list / retrieve / create / submit de tickets propios (requester=user)
+         *     - no exige permiso de escritura en ``config``
+         *
+         *     Gestión (escritura en ``config``):
+         *     - ver/editar todos los tickets de la sucursal
+         *     - assign / close / cancel / stats / etc.
+         */
+        get: operations["support_tickets_ranking_retrieve"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -26316,8 +28710,15 @@ export interface paths {
         };
         /**
          * Tickets vencidos de SLA
-         * @description Mixin para ViewSets que necesitan soporte opcional de ``branch`` en el
-         *     payload para super administradores.
+         * @description Tickets de soporte.
+         *
+         *     Self-service (cualquier BranchUser activo):
+         *     - list / retrieve / create / submit de tickets propios (requester=user)
+         *     - no exige permiso de escritura en ``config``
+         *
+         *     Gestión (escritura en ``config``):
+         *     - ver/editar todos los tickets de la sucursal
+         *     - assign / close / cancel / stats / etc.
          */
         get: operations["support_tickets_sla_breached_retrieve"];
         put?: never;
@@ -26337,12 +28738,39 @@ export interface paths {
         };
         /**
          * Estadísticas de tickets
-         * @description Mixin para ViewSets que necesitan soporte opcional de ``branch`` en el
-         *     payload para super administradores.
+         * @description Tickets de soporte.
+         *
+         *     Self-service (cualquier BranchUser activo):
+         *     - list / retrieve / create / submit de tickets propios (requester=user)
+         *     - no exige permiso de escritura en ``config``
+         *
+         *     Gestión (escritura en ``config``):
+         *     - ver/editar todos los tickets de la sucursal
+         *     - assign / close / cancel / stats / etc.
          */
         get: operations["support_tickets_stats_retrieve"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/support/tickets/submit/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Crear ticket Frig (category_code)
+         * @description Endpoint self-service para Frig. Cualquier BranchUser activo puede abrir un ticket propio sin permiso de `config`. Auto-provisiona categorías Frig (duda, incidencia, reclamo, feedback, manual) y una SLA por defecto si faltan. Notifica a PLATFORM_SUPPORT_EMAIL.
+         */
+        post: operations["support_tickets_submit_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -26358,8 +28786,15 @@ export interface paths {
         };
         /**
          * Tickets sin asignar
-         * @description Mixin para ViewSets que necesitan soporte opcional de ``branch`` en el
-         *     payload para super administradores.
+         * @description Tickets de soporte.
+         *
+         *     Self-service (cualquier BranchUser activo):
+         *     - list / retrieve / create / submit de tickets propios (requester=user)
+         *     - no exige permiso de escritura en ``config``
+         *
+         *     Gestión (escritura en ``config``):
+         *     - ver/editar todos los tickets de la sucursal
+         *     - assign / close / cancel / stats / etc.
          */
         get: operations["support_tickets_unassigned_retrieve"];
         put?: never;
@@ -26968,6 +29403,55 @@ export interface paths {
          *             # No es necesario definir permission_classes
          */
         post: operations["support_work_orders_complete_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/support/work-orders/{id}/confirm/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Confirmar la visita programada
+         * @description Mixin base para todos los ViewSets de negocio del ERP.
+         *
+         *     Combina automaticamente:
+         *     - Filtrado por sucursal (UniversalFilterMixin)
+         *     - Ocultar registros soft-deleted en listados (UniversalFilterMixin)
+         *     - Soft delete en destroy (SoftDeleteMixin)
+         *     - Permisos estandar (IsAuthenticated + ActiveSubscriptionRequired + ModuleEnabledRequired + ModuleRolePermission)
+         *
+         *     Uso:
+         *         class MyViewSet(ERPBaseViewSet, viewsets.ModelViewSet):
+         *             queryset = MyModel.objects.all()
+         *             serializer_class = MySerializer
+         *             # No es necesario definir permission_classes
+         */
+        post: operations["support_work_orders_confirm_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/support/work-orders/{id}/sheet/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Genera la ficha PDF de la visita y la guarda como documento. */
+        post: operations["support_work_orders_sheet_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -28071,6 +30555,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/water/billing-runs/{id}/void/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description POST: anula una corrida impaga y sin boleta, y libera el período. */
+        post: operations["water_billing_runs_void_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/water/meters/": {
         parameters: {
             query?: never;
@@ -29119,10 +31620,11 @@ export interface components {
             /**
              * @description * `ACTIVE` - Activo
              *     * `INACTIVE` - Inactivo
+             *     * `PAUSED` - Pausado
              *     * `TRAINING` - Entrenando
              * @enum {string}
              */
-            status?: "ACTIVE" | "INACTIVE" | "TRAINING";
+            status?: "ACTIVE" | "INACTIVE" | "PAUSED" | "TRAINING";
             /**
              * Activo
              * @description Determina si el agente esta disponible para uso
@@ -29268,10 +31770,11 @@ export interface components {
             /**
              * @description * `ACTIVE` - Activo
              *     * `INACTIVE` - Inactivo
+             *     * `PAUSED` - Pausado
              *     * `TRAINING` - Entrenando
              * @enum {string}
              */
-            status?: "ACTIVE" | "INACTIVE" | "TRAINING";
+            status?: "ACTIVE" | "INACTIVE" | "PAUSED" | "TRAINING";
             /**
              * Activo
              * @description Determina si el agente esta disponible para uso
@@ -29392,10 +31895,11 @@ export interface components {
             /**
              * @description * `ACTIVE` - Activo
              *     * `INACTIVE` - Inactivo
+             *     * `PAUSED` - Pausado
              *     * `TRAINING` - Entrenando
              * @enum {string}
              */
-            status?: "ACTIVE" | "INACTIVE" | "TRAINING";
+            status?: "ACTIVE" | "INACTIVE" | "PAUSED" | "TRAINING";
             /**
              * Activo
              * @description Determina si el agente esta disponible para uso
@@ -30237,9 +32741,8 @@ export interface components {
              *     * `AGENT` - Agente
              *     * `SYSTEM` - Sistema
              *     * `TOOL` - Herramienta
-             * @enum {string}
              */
-            role: "USER" | "AGENT" | "SYSTEM" | "TOOL";
+            role: string;
             /** Contenido */
             content: string;
             /** Tokens */
@@ -30295,9 +32798,8 @@ export interface components {
              *     * `AGENT` - Agente
              *     * `SYSTEM` - Sistema
              *     * `TOOL` - Herramienta
-             * @enum {string}
              */
-            role: "USER" | "AGENT" | "SYSTEM" | "TOOL";
+            role: string;
             /** Contenido */
             content: string;
             /** Tokens */
@@ -30748,6 +33250,12 @@ export interface components {
             deactivated_modules: string[];
             synced_product_types: string[];
             message: string;
+        };
+        /** @description Asignar repartidor a una orden de delivery. */
+        AssignDriverRequest: {
+            driver_user_id: number;
+            /** Format: double */
+            driver_fee?: number | null;
         };
         AuditLog: {
             readonly id: number;
@@ -31547,8 +34055,9 @@ export interface components {
             /**
              * Rut
              * @description RUT de la empresa (formato: 12.345.678-9). Único entre sucursales independientes; bajo Organization puede reutilizar el RUT del holding o quedar vacío.
+             * @default
              */
-            dni?: string;
+            dni: string;
             /**
              * Correo Electrónico
              * Format: email
@@ -31755,6 +34264,72 @@ export interface components {
                 [key: string]: unknown;
             };
         };
+        /** @description CRUD de zonas de despacho de la sucursal activa. */
+        BranchDeliveryZone: {
+            readonly id: number;
+            /**
+             * Sucursal
+             * @description Sucursal a la que pertenece esta zona de despacho
+             */
+            readonly branch: number;
+            /**
+             * Nombre
+             * @description Nombre visible (p.ej. comuna o barrio).
+             */
+            name: string;
+            /**
+             * Precio
+             * Format: double
+             * @description Cargo de despacho de esta zona. Editable en el carrito antes de cobrar.
+             */
+            price: number;
+            /**
+             * Orden
+             * @description Menor = primero en el selector del POS.
+             */
+            sort_order?: number;
+            /**
+             * Activo
+             * @description Indica si el registro está activo. Use esto en lugar de eliminar.
+             */
+            is_active?: boolean;
+            /**
+             * Created at
+             * Format: date-time
+             * @description Fecha de creacion.
+             */
+            readonly created: string;
+            /**
+             * Modified at
+             * Format: date-time
+             * @description Fecha de modificacion.
+             */
+            readonly modified: string;
+        };
+        /** @description CRUD de zonas de despacho de la sucursal activa. */
+        BranchDeliveryZoneRequest: {
+            /**
+             * Nombre
+             * @description Nombre visible (p.ej. comuna o barrio).
+             */
+            name: string;
+            /**
+             * Precio
+             * Format: double
+             * @description Cargo de despacho de esta zona. Editable en el carrito antes de cobrar.
+             */
+            price: number;
+            /**
+             * Orden
+             * @description Menor = primero en el selector del POS.
+             */
+            sort_order?: number;
+            /**
+             * Activo
+             * @description Indica si el registro está activo. Use esto en lugar de eliminar.
+             */
+            is_active?: boolean;
+        };
         /** @description Serializador detallado para Branch */
         BranchDetail: {
             readonly id: number;
@@ -31770,8 +34345,9 @@ export interface components {
             /**
              * Rut
              * @description RUT de la empresa (formato: 12.345.678-9). Único entre sucursales independientes; bajo Organization puede reutilizar el RUT del holding o quedar vacío.
+             * @default
              */
-            dni?: string;
+            dni: string;
             /**
              * Correo Electrónico
              * Format: email
@@ -31881,8 +34457,9 @@ export interface components {
             /**
              * Rut
              * @description RUT de la empresa (formato: 12.345.678-9). Único entre sucursales independientes; bajo Organization puede reutilizar el RUT del holding o quedar vacío.
+             * @default
              */
-            dni?: string;
+            dni: string;
             /**
              * Correo Electrónico
              * Format: email
@@ -32025,9 +34602,8 @@ export interface components {
              *     * `INSPECTION` - Inspección
              *     * `SHIFT` - Turno
              *     * `OTHER` - Otro
-             * @enum {string}
              */
-            event_type?: "APPOINTMENT" | "MAINTENANCE" | "MEETING" | "DELIVERY" | "TRAINING" | "INSPECTION" | "SHIFT" | "OTHER";
+            event_type?: string;
             readonly event_type_display: string;
             /** Creado por */
             created_by?: number | null;
@@ -32124,9 +34700,8 @@ export interface components {
              *     * `INSPECTION` - Inspección
              *     * `SHIFT` - Turno
              *     * `OTHER` - Otro
-             * @enum {string}
              */
-            event_type?: "APPOINTMENT" | "MAINTENANCE" | "MEETING" | "DELIVERY" | "TRAINING" | "INSPECTION" | "SHIFT" | "OTHER";
+            event_type?: string;
             readonly event_type_display: string;
             /** Título */
             title: string;
@@ -32228,9 +34803,8 @@ export interface components {
              *     * `INSPECTION` - Inspección
              *     * `SHIFT` - Turno
              *     * `OTHER` - Otro
-             * @enum {string}
              */
-            event_type?: "APPOINTMENT" | "MAINTENANCE" | "MEETING" | "DELIVERY" | "TRAINING" | "INSPECTION" | "SHIFT" | "OTHER";
+            event_type?: string;
             /** Creado por */
             created_by?: number | null;
             /**
@@ -32872,6 +35446,11 @@ export interface components {
              */
             profit_growth?: number;
         };
+        /** @description Respuesta aditiva de invite / resend (no breaking). */
+        BranchInvitationQueuedResponse: {
+            status: string;
+            invitation_queued: boolean;
+        };
         /**
          * @description Sucursal mínima para listados de alto volumen.
          *
@@ -32926,6 +35505,7 @@ export interface components {
              *     * `scheduling` - Agendamiento
              *     * `ai_agents` - Agentes IA
              *     * `coaching` - Coaching
+             *     * `forja` - Forja
              *     * `support` - Soporte
              *     * `workflows` - Workflows
              *     * `analytics` - Analítica
@@ -32964,9 +35544,8 @@ export interface components {
              *     * `waste_agreements` - Convenios de Recolección
              *     * `recipes` - Recetas
              *     * `ingredients` - Ingredientes
-             * @enum {string}
              */
-            readonly module_name: "dashboard" | "config" | "sales" | "finance" | "customers" | "clients" | "suppliers" | "inventory" | "employees" | "logistics" | "services" | "equipment" | "promotions" | "tables" | "scheduling" | "ai_agents" | "coaching" | "support" | "workflows" | "analytics" | "public_catalog" | "audit" | "production" | "iot_telemetry" | "water_management" | "nutrition" | "waste_management" | "pos" | "invoices" | "products" | "cash_register" | "payment_methods" | "bank_accounts" | "departments" | "positions" | "payroll" | "warehouse_management" | "stock_control" | "product_catalog" | "product_gallery" | "raw_materials" | "certificates" | "tariffs" | "measurements" | "measurement_points" | "deliveries" | "memberships" | "subscriptions" | "agreements" | "waste_collection_points" | "waste_tariffs" | "waste_certificates" | "waste_agreements" | "recipes" | "ingredients";
+            readonly module_name: string;
             readonly module_display_name: string;
             /**
              * Habilitado
@@ -33207,7 +35786,7 @@ export interface components {
              * Sucursal
              * @description Sucursal a la que pertenece esta configuración POS
              */
-            branch: number;
+            readonly branch: number;
             readonly branch_name: string;
             /**
              * Mostrar Precios
@@ -33242,6 +35821,17 @@ export interface components {
              */
             quick_actions?: unknown;
             /**
+             * Generar comanda automáticamente
+             * @description Crea un KitchenTicket automáticamente al crear una orden de venta/pedido
+             */
+            auto_kitchen_ticket?: boolean;
+            /**
+             * Costo de despacho por defecto
+             * Format: double
+             * @description Cargo de despacho por defecto para órdenes con dirección de entrega. 0 = sin cargo.
+             */
+            default_delivery_fee?: number;
+            /**
              * Created at
              * Format: date-time
              * @description Fecha de creacion.
@@ -33256,11 +35846,6 @@ export interface components {
         };
         /** @description Serializador para BranchPOSConfig */
         BranchPOSConfigRequest: {
-            /**
-             * Sucursal
-             * @description Sucursal a la que pertenece esta configuración POS
-             */
-            branch: number;
             /**
              * Mostrar Precios
              * @description Mostrar precios en la lista de productos del POS
@@ -33293,6 +35878,17 @@ export interface components {
              * @description Lista de acciones rápidas del POS (id, type, label, icon, color, enabled).
              */
             quick_actions?: unknown;
+            /**
+             * Generar comanda automáticamente
+             * @description Crea un KitchenTicket automáticamente al crear una orden de venta/pedido
+             */
+            auto_kitchen_ticket?: boolean;
+            /**
+             * Costo de despacho por defecto
+             * Format: double
+             * @description Cargo de despacho por defecto para órdenes con dirección de entrega. 0 = sin cargo.
+             */
+            default_delivery_fee?: number;
         };
         /** @description Serializer for branch product type configuration. */
         BranchProductTypeConfig: {
@@ -33414,8 +36010,9 @@ export interface components {
             /**
              * Rut
              * @description RUT de la empresa (formato: 12.345.678-9). Único entre sucursales independientes; bajo Organization puede reutilizar el RUT del holding o quedar vacío.
+             * @default
              */
-            dni?: string;
+            dni: string;
             /**
              * Correo Electrónico
              * Format: email
@@ -33669,6 +36266,11 @@ export interface components {
              */
             status?: "ACTIVE" | "EXPIRED" | "CANCELLED" | "PENDING";
             /**
+             * En período de prueba
+             * @description True si la suscripción ACTIVE es un trial (p. ej. Cauce 30 días). Al vencer end_date, expire_overdue_subscriptions la marca EXPIRED y corta el acceso a módulos de extensión.
+             */
+            readonly is_trial: boolean;
+            /**
              * Fecha de Inicio
              * Format: date
              */
@@ -33679,6 +36281,9 @@ export interface components {
              * @description Si está vacío, la suscripción es indefinida
              */
             end_date?: string | null;
+            readonly days_remaining: number | null;
+            /** @description True si la suscripción pasa el mismo criterio que ActiveSubscriptionRequired. */
+            readonly access_active: boolean;
             /**
              * Created at
              * Format: date-time
@@ -34128,6 +36733,17 @@ export interface components {
              * @description Permite al usuario cambiar entre sucursales. Roles CAJERO, METER, WAITER quedan restringidos a una sucursal.
              */
             can_access_other_branches?: boolean;
+        };
+        /** @description Serializer para resumen de bodegas de una sucursal. */
+        BranchWarehouseSummary: {
+            total_warehouses: number;
+            total_products: number;
+            total_quantity: number;
+            /** Format: double */
+            total_value: number;
+            /** Format: double */
+            total_sale_value: number;
+            warehouses: components["schemas"]["WarehouseMetrics"][];
         };
         /** @description Serializer para calendarios. */
         Calendar: {
@@ -35066,6 +37682,91 @@ export interface components {
             closing_amount: number;
             notes?: string;
         };
+        /** @description Caja current/ con flags stale y lista de OPEN antiguas de la estación. */
+        CashRegisterCurrent: {
+            readonly id: number;
+            /**
+             * Sucursal
+             * @description Sucursal a la que pertenece este registro
+             */
+            branch: number;
+            readonly branch_name: string;
+            /**
+             * Estación
+             * @description Terminal de caja. Null solo en registros legacy pre-migración.
+             */
+            station?: number | null;
+            readonly station_code: string;
+            readonly station_name: string;
+            /**
+             * Fecha
+             * Format: date
+             * @description Fecha del registro de caja
+             */
+            date?: string;
+            /**
+             * Monto Apertura
+             * Format: double
+             * @description Efectivo al abrir la caja
+             */
+            opening_amount?: number;
+            /**
+             * Monto Cierre
+             * Format: double
+             * @description Efectivo contado al cerrar
+             */
+            closing_amount?: number | null;
+            /**
+             * Monto Esperado
+             * Format: double
+             * @description Monto esperado según ventas (apertura + ventas en efectivo)
+             */
+            readonly expected_amount: number | null;
+            /**
+             * Diferencia
+             * Format: double
+             * @description Diferencia entre cierre y esperado
+             */
+            readonly difference: number | null;
+            /** Abierto por */
+            opened_by?: number | null;
+            readonly opened_by_name: string;
+            /** Cerrado por */
+            readonly closed_by: number | null;
+            readonly closed_by_name: string;
+            /**
+             * Estado
+             * @description * `OPEN` - Abierta
+             *     * `CLOSED` - Cerrada
+             * @default OPEN
+             * @enum {string}
+             */
+            readonly status: "OPEN" | "CLOSED";
+            readonly status_display: string;
+            /**
+             * Notas
+             * @description Observaciones del cierre
+             */
+            notes?: string | null;
+            /**
+             * Created at
+             * Format: date-time
+             * @description Fecha de creacion.
+             */
+            readonly created: string;
+            /**
+             * Modified at
+             * Format: date-time
+             * @description Fecha de modificacion.
+             */
+            readonly modified: string;
+            stale?: boolean;
+            blocking?: boolean;
+            code?: string | null;
+            detail?: string | null;
+            stale_open_registers?: components["schemas"]["StaleOpenRegister"][];
+            stale_open_count?: number;
+        };
         /** @description Serializer para movimientos manuales de caja. */
         CashRegisterMovement: {
             readonly id: number;
@@ -35324,6 +38025,19 @@ export interface components {
              */
             category_type?: "MEMBERSHIP" | "SUBSCRIPTION" | "CONSULTING" | "TRAINING" | "MAINTENANCE" | "SUPPORT" | "RENTAL" | "COWORKING" | "EVENT" | "OTHER" | "" | null;
             branch_id?: number | null;
+        };
+        CauceDemoLoginRequest: {
+            /**
+             * @description Rol de la sesión demo. Default ADMIN (ADMIN_LOCAL).
+             *
+             *     * `ADMIN` - ADMIN
+             *     * `MEDIDOR` - MEDIDOR
+             *     * `CAJERO` - CAJERO
+             *     * `ADMIN_LOCAL` - ADMIN_LOCAL
+             *     * `METER` - METER
+             * @default ADMIN
+             */
+            role: string;
         };
         /** @description Serializer for Certificate. */
         Certificate: {
@@ -37588,6 +40302,20 @@ export interface components {
             notes?: string | null;
             items?: components["schemas"]["ComboItemWriteRequest"][];
         };
+        CommentCreate: {
+            text: string;
+            /** Format: date */
+            week_start?: string | null;
+            /** Format: uuid */
+            client_request_id?: string | null;
+        };
+        CommentCreateRequest: {
+            text: string;
+            /** Format: date */
+            week_start?: string | null;
+            /** Format: uuid */
+            client_request_id?: string | null;
+        };
         /** @description Serializer para giros comerciales. */
         CommercialBusiness: {
             readonly id: number;
@@ -37665,8 +40393,13 @@ export interface components {
             date_start_compliance?: string | null;
             /** Nombre informante */
             informant_name?: string;
-            /** RUT informante */
+            /**
+             * RUT informante
+             * @description Vacío usa el RUT informante constante de la instalación.
+             */
             informant_rut?: string;
+            /** @description Vacío usa el RUT empresa constante de la instalación DGA. */
+            rut_empresa?: string;
             /**
              * App externa
              * Format: uuid
@@ -37744,8 +40477,13 @@ export interface components {
             date_start_compliance?: string | null;
             /** Nombre informante */
             informant_name?: string;
-            /** RUT informante */
+            /**
+             * RUT informante
+             * @description Vacío usa el RUT informante constante de la instalación.
+             */
             informant_rut?: string;
+            /** @description Vacío usa el RUT empresa constante de la instalación DGA. */
+            rut_empresa?: string;
             /**
              * Clave DGA
              * @description Clave del informante ante el organismo. No es la credencial del conector.
@@ -43226,6 +45964,681 @@ export interface components {
             branch_id?: number | null;
             login_slug?: string | null;
         };
+        ForjaAdherenceRule: {
+            readonly id: number;
+            name: string;
+            /**
+             * @description * `training` - Entrenamiento
+             *     * `water` - Agua
+             *     * `macros` - Macros
+             *     * `check_in` - Check-in
+             * @enum {string}
+             */
+            metric: "training" | "water" | "macros" | "check_in";
+            /** @description Peso relativo en el promedio de adherencia */
+            weight?: number;
+            enabled?: boolean;
+            /**
+             * Format: double
+             * @description Umbral opcional (ej. 0.85 = 85 % de la meta)
+             */
+            threshold?: number | null;
+            config?: unknown;
+            /**
+             * Activo
+             * @description Indica si el registro está activo. Use esto en lugar de eliminar.
+             */
+            is_active?: boolean;
+            /**
+             * Created at
+             * Format: date-time
+             * @description Fecha de creacion.
+             */
+            readonly created: string;
+            /**
+             * Modified at
+             * Format: date-time
+             * @description Fecha de modificacion.
+             */
+            readonly modified: string;
+        };
+        ForjaAdherenceRuleRequest: {
+            name: string;
+            /**
+             * @description * `training` - Entrenamiento
+             *     * `water` - Agua
+             *     * `macros` - Macros
+             *     * `check_in` - Check-in
+             * @enum {string}
+             */
+            metric: "training" | "water" | "macros" | "check_in";
+            /** @description Peso relativo en el promedio de adherencia */
+            weight?: number;
+            enabled?: boolean;
+            /**
+             * Format: double
+             * @description Umbral opcional (ej. 0.85 = 85 % de la meta)
+             */
+            threshold?: number | null;
+            config?: unknown;
+            /**
+             * Activo
+             * @description Indica si el registro está activo. Use esto en lugar de eliminar.
+             */
+            is_active?: boolean;
+        };
+        /**
+         * @description Restringe FKs ``student``/``service`` al alcance del viewer.
+         *
+         *     En update, ``student`` (y ``service`` si ``lock_service_on_update``) no
+         *     se pueden reasignar: si vienen en el payload se rechazan con 400.
+         */
+        ForjaCheckIn: {
+            readonly id: number;
+            student: number;
+            /** Format: date */
+            checked_on?: string;
+            /** Format: double */
+            weight_kg?: number | null;
+            mood?: number | null;
+            /** Format: double */
+            sleep_hours?: number | null;
+            notes?: string;
+            metrics?: unknown;
+            /**
+             * Activo
+             * @description Indica si el registro está activo. Use esto en lugar de eliminar.
+             */
+            is_active?: boolean;
+            /**
+             * Created at
+             * Format: date-time
+             * @description Fecha de creacion.
+             */
+            readonly created: string;
+            /**
+             * Modified at
+             * Format: date-time
+             * @description Fecha de modificacion.
+             */
+            readonly modified: string;
+        };
+        /**
+         * @description Restringe FKs ``student``/``service`` al alcance del viewer.
+         *
+         *     En update, ``student`` (y ``service`` si ``lock_service_on_update``) no
+         *     se pueden reasignar: si vienen en el payload se rechazan con 400.
+         */
+        ForjaCheckInRequest: {
+            student: number;
+            /** Format: date */
+            checked_on?: string;
+            /** Format: double */
+            weight_kg?: number | null;
+            mood?: number | null;
+            /** Format: double */
+            sleep_hours?: number | null;
+            notes?: string;
+            metrics?: unknown;
+            /**
+             * Activo
+             * @description Indica si el registro está activo. Use esto en lugar de eliminar.
+             */
+            is_active?: boolean;
+        };
+        ForjaExercise: {
+            readonly id: number;
+            name: string;
+            position?: number;
+            sets?: number;
+            reps?: string;
+            rest_seconds?: number;
+            tempo?: string;
+            /** Format: double */
+            load_kg?: number | null;
+            notes?: string;
+            /** Format: uri */
+            video_url?: string;
+        };
+        ForjaExerciseRequest: {
+            name: string;
+            position?: number;
+            sets?: number;
+            reps?: string;
+            rest_seconds?: number;
+            tempo?: string;
+            /** Format: double */
+            load_kg?: number | null;
+            notes?: string;
+            /** Format: uri */
+            video_url?: string;
+        };
+        /**
+         * @description Restringe FKs ``student``/``service`` al alcance del viewer.
+         *
+         *     En update, ``student`` (y ``service`` si ``lock_service_on_update``) no
+         *     se pueden reasignar: si vienen en el payload se rechazan con 400.
+         */
+        ForjaMealLog: {
+            readonly id: number;
+            student: number;
+            /** Format: date */
+            logged_on?: string;
+            /**
+             * @description * `breakfast` - Desayuno
+             *     * `lunch` - Almuerzo
+             *     * `dinner` - Cena
+             *     * `snack` - Snack
+             *     * `other` - Otro
+             * @enum {string}
+             */
+            meal_type?: "breakfast" | "lunch" | "dinner" | "snack" | "other";
+            description?: string;
+            calories?: number | null;
+            protein?: number | null;
+            carbs?: number | null;
+            fats?: number | null;
+            notes?: string;
+            /**
+             * Activo
+             * @description Indica si el registro está activo. Use esto en lugar de eliminar.
+             */
+            is_active?: boolean;
+            /**
+             * Created at
+             * Format: date-time
+             * @description Fecha de creacion.
+             */
+            readonly created: string;
+            /**
+             * Modified at
+             * Format: date-time
+             * @description Fecha de modificacion.
+             */
+            readonly modified: string;
+        };
+        /**
+         * @description Restringe FKs ``student``/``service`` al alcance del viewer.
+         *
+         *     En update, ``student`` (y ``service`` si ``lock_service_on_update``) no
+         *     se pueden reasignar: si vienen en el payload se rechazan con 400.
+         */
+        ForjaMealLogRequest: {
+            student: number;
+            /** Format: date */
+            logged_on?: string;
+            /**
+             * @description * `breakfast` - Desayuno
+             *     * `lunch` - Almuerzo
+             *     * `dinner` - Cena
+             *     * `snack` - Snack
+             *     * `other` - Otro
+             * @enum {string}
+             */
+            meal_type?: "breakfast" | "lunch" | "dinner" | "snack" | "other";
+            description?: string;
+            calories?: number | null;
+            protein?: number | null;
+            carbs?: number | null;
+            fats?: number | null;
+            notes?: string;
+            /**
+             * Activo
+             * @description Indica si el registro está activo. Use esto en lugar de eliminar.
+             */
+            is_active?: boolean;
+        };
+        ForjaService: {
+            readonly id: number;
+            name: string;
+            description?: string;
+            /** Format: double */
+            price?: number;
+            /**
+             * @description * `monthly` - Mensual
+             *     * `quarterly` - Trimestral
+             *     * `yearly` - Anual
+             *     * `one_time` - Único
+             * @enum {string}
+             */
+            billing_period?: "monthly" | "quarterly" | "yearly" | "one_time";
+            duration_weeks?: number | null;
+            includes_nutrition?: boolean;
+            includes_training?: boolean;
+            /**
+             * Activo
+             * @description Indica si el registro está activo. Use esto en lugar de eliminar.
+             */
+            is_active?: boolean;
+            /**
+             * Created at
+             * Format: date-time
+             * @description Fecha de creacion.
+             */
+            readonly created: string;
+            /**
+             * Modified at
+             * Format: date-time
+             * @description Fecha de modificacion.
+             */
+            readonly modified: string;
+        };
+        ForjaServiceRequest: {
+            name: string;
+            description?: string;
+            /** Format: double */
+            price?: number;
+            /**
+             * @description * `monthly` - Mensual
+             *     * `quarterly` - Trimestral
+             *     * `yearly` - Anual
+             *     * `one_time` - Único
+             * @enum {string}
+             */
+            billing_period?: "monthly" | "quarterly" | "yearly" | "one_time";
+            duration_weeks?: number | null;
+            includes_nutrition?: boolean;
+            includes_training?: boolean;
+            /**
+             * Activo
+             * @description Indica si el registro está activo. Use esto en lugar de eliminar.
+             */
+            is_active?: boolean;
+        };
+        /**
+         * @description Restringe FKs ``student``/``service`` al alcance del viewer.
+         *
+         *     En update, ``student`` (y ``service`` si ``lock_service_on_update``) no
+         *     se pueden reasignar: si vienen en el payload se rechazan con 400.
+         */
+        ForjaStudent: {
+            readonly id: number;
+            readonly user: number | null;
+            service?: number | null;
+            full_name: string;
+            /** Format: email */
+            email?: string;
+            phone?: string;
+            /**
+             * @description * `invited` - Invitado
+             *     * `active` - Activo
+             *     * `paused` - Pausado
+             *     * `finished` - Finalizado
+             *     * `cancelled` - Cancelado
+             * @enum {string}
+             */
+            status?: "invited" | "active" | "paused" | "finished" | "cancelled";
+            notes?: string;
+            /** Format: date */
+            start_date?: string | null;
+            calories_target?: number | null;
+            protein_target?: number | null;
+            carbs_target?: number | null;
+            fats_target?: number | null;
+            water_target_ml?: number | null;
+            sessions_per_week?: number | null;
+            /** Format: double */
+            height_cm?: number | null;
+            /** Format: double */
+            weight_kg?: number | null;
+            goal?: string;
+            /**
+             * Activo
+             * @description Indica si el registro está activo. Use esto en lugar de eliminar.
+             */
+            is_active?: boolean;
+            /**
+             * Created at
+             * Format: date-time
+             * @description Fecha de creacion.
+             */
+            readonly created: string;
+            /**
+             * Modified at
+             * Format: date-time
+             * @description Fecha de modificacion.
+             */
+            readonly modified: string;
+        };
+        /**
+         * @description Restringe FKs ``student``/``service`` al alcance del viewer.
+         *
+         *     En update, ``student`` (y ``service`` si ``lock_service_on_update``) no
+         *     se pueden reasignar: si vienen en el payload se rechazan con 400.
+         */
+        ForjaStudentRequest: {
+            service?: number | null;
+            full_name: string;
+            /** Format: email */
+            email?: string;
+            phone?: string;
+            /**
+             * @description * `invited` - Invitado
+             *     * `active` - Activo
+             *     * `paused` - Pausado
+             *     * `finished` - Finalizado
+             *     * `cancelled` - Cancelado
+             * @enum {string}
+             */
+            status?: "invited" | "active" | "paused" | "finished" | "cancelled";
+            notes?: string;
+            /** Format: date */
+            start_date?: string | null;
+            calories_target?: number | null;
+            protein_target?: number | null;
+            carbs_target?: number | null;
+            fats_target?: number | null;
+            water_target_ml?: number | null;
+            sessions_per_week?: number | null;
+            /** Format: double */
+            height_cm?: number | null;
+            /** Format: double */
+            weight_kg?: number | null;
+            goal?: string;
+            /**
+             * Activo
+             * @description Indica si el registro está activo. Use esto en lugar de eliminar.
+             */
+            is_active?: boolean;
+        };
+        /**
+         * @description Restringe FKs ``student``/``service`` al alcance del viewer.
+         *
+         *     En update, ``student`` (y ``service`` si ``lock_service_on_update``) no
+         *     se pueden reasignar: si vienen en el payload se rechazan con 400.
+         */
+        ForjaSubscription: {
+            readonly id: number;
+            student: number;
+            service: number;
+            /**
+             * @description * `active` - Activa
+             *     * `past_due` - Vencida
+             *     * `cancelled` - Cancelada
+             *     * `trial` - Prueba
+             * @enum {string}
+             */
+            status?: "active" | "past_due" | "cancelled" | "trial";
+            /** Format: date */
+            started_on?: string;
+            /** Format: date */
+            ends_on?: string | null;
+            /** Format: double */
+            amount?: number;
+            notes?: string;
+            /**
+             * Activo
+             * @description Indica si el registro está activo. Use esto en lugar de eliminar.
+             */
+            is_active?: boolean;
+            /**
+             * Created at
+             * Format: date-time
+             * @description Fecha de creacion.
+             */
+            readonly created: string;
+            /**
+             * Modified at
+             * Format: date-time
+             * @description Fecha de modificacion.
+             */
+            readonly modified: string;
+        };
+        /**
+         * @description Restringe FKs ``student``/``service`` al alcance del viewer.
+         *
+         *     En update, ``student`` (y ``service`` si ``lock_service_on_update``) no
+         *     se pueden reasignar: si vienen en el payload se rechazan con 400.
+         */
+        ForjaSubscriptionRequest: {
+            student: number;
+            service: number;
+            /**
+             * @description * `active` - Activa
+             *     * `past_due` - Vencida
+             *     * `cancelled` - Cancelada
+             *     * `trial` - Prueba
+             * @enum {string}
+             */
+            status?: "active" | "past_due" | "cancelled" | "trial";
+            /** Format: date */
+            started_on?: string;
+            /** Format: date */
+            ends_on?: string | null;
+            /** Format: double */
+            amount?: number;
+            notes?: string;
+            /**
+             * Activo
+             * @description Indica si el registro está activo. Use esto en lugar de eliminar.
+             */
+            is_active?: boolean;
+        };
+        /**
+         * @description Restringe FKs ``student``/``service`` al alcance del viewer.
+         *
+         *     En update, ``student`` (y ``service`` si ``lock_service_on_update``) no
+         *     se pueden reasignar: si vienen en el payload se rechazan con 400.
+         */
+        ForjaThread: {
+            readonly id: number;
+            student: number;
+            subject?: string;
+            /** Format: date-time */
+            readonly last_message_at: string | null;
+            /**
+             * Activo
+             * @description Indica si el registro está activo. Use esto en lugar de eliminar.
+             */
+            is_active?: boolean;
+            /**
+             * Created at
+             * Format: date-time
+             * @description Fecha de creacion.
+             */
+            readonly created: string;
+            /**
+             * Modified at
+             * Format: date-time
+             * @description Fecha de modificacion.
+             */
+            readonly modified: string;
+        };
+        /**
+         * @description Restringe FKs ``student``/``service`` al alcance del viewer.
+         *
+         *     En update, ``student`` (y ``service`` si ``lock_service_on_update``) no
+         *     se pueden reasignar: si vienen en el payload se rechazan con 400.
+         */
+        ForjaThreadRequest: {
+            student: number;
+            subject?: string;
+            /**
+             * Activo
+             * @description Indica si el registro está activo. Use esto en lugar de eliminar.
+             */
+            is_active?: boolean;
+        };
+        /**
+         * @description Restringe FKs ``student``/``service`` al alcance del viewer.
+         *
+         *     En update, ``student`` (y ``service`` si ``lock_service_on_update``) no
+         *     se pueden reasignar: si vienen en el payload se rechazan con 400.
+         */
+        ForjaTrainingPlan: {
+            readonly id: number;
+            student: number;
+            title: string;
+            notes?: string;
+            /** Format: date */
+            effective_from?: string;
+            /** Format: date */
+            effective_to?: string | null;
+            is_current?: boolean;
+            days?: components["schemas"]["ForjaWorkoutDay"][];
+            /**
+             * Activo
+             * @description Indica si el registro está activo. Use esto en lugar de eliminar.
+             */
+            is_active?: boolean;
+            /**
+             * Created at
+             * Format: date-time
+             * @description Fecha de creacion.
+             */
+            readonly created: string;
+            /**
+             * Modified at
+             * Format: date-time
+             * @description Fecha de modificacion.
+             */
+            readonly modified: string;
+        };
+        /**
+         * @description Restringe FKs ``student``/``service`` al alcance del viewer.
+         *
+         *     En update, ``student`` (y ``service`` si ``lock_service_on_update``) no
+         *     se pueden reasignar: si vienen en el payload se rechazan con 400.
+         */
+        ForjaTrainingPlanRequest: {
+            student: number;
+            title: string;
+            notes?: string;
+            /** Format: date */
+            effective_from?: string;
+            /** Format: date */
+            effective_to?: string | null;
+            is_current?: boolean;
+            days?: components["schemas"]["ForjaWorkoutDayRequest"][];
+            /**
+             * Activo
+             * @description Indica si el registro está activo. Use esto en lugar de eliminar.
+             */
+            is_active?: boolean;
+        };
+        /**
+         * @description Restringe FKs ``student``/``service`` al alcance del viewer.
+         *
+         *     En update, ``student`` (y ``service`` si ``lock_service_on_update``) no
+         *     se pueden reasignar: si vienen en el payload se rechazan con 400.
+         */
+        ForjaWaterLog: {
+            readonly id: number;
+            student: number;
+            /** Format: date */
+            logged_on?: string;
+            amount_ml?: number;
+            notes?: string;
+            /**
+             * Activo
+             * @description Indica si el registro está activo. Use esto en lugar de eliminar.
+             */
+            is_active?: boolean;
+            /**
+             * Created at
+             * Format: date-time
+             * @description Fecha de creacion.
+             */
+            readonly created: string;
+            /**
+             * Modified at
+             * Format: date-time
+             * @description Fecha de modificacion.
+             */
+            readonly modified: string;
+        };
+        /**
+         * @description Restringe FKs ``student``/``service`` al alcance del viewer.
+         *
+         *     En update, ``student`` (y ``service`` si ``lock_service_on_update``) no
+         *     se pueden reasignar: si vienen en el payload se rechazan con 400.
+         */
+        ForjaWaterLogRequest: {
+            student: number;
+            /** Format: date */
+            logged_on?: string;
+            amount_ml?: number;
+            notes?: string;
+            /**
+             * Activo
+             * @description Indica si el registro está activo. Use esto en lugar de eliminar.
+             */
+            is_active?: boolean;
+        };
+        ForjaWorkoutDay: {
+            readonly id: number;
+            name: string;
+            /** @description 0=lunes … 6=domingo; null = sin día fijo */
+            weekday?: number | null;
+            position?: number;
+            notes?: string;
+            exercises?: components["schemas"]["ForjaExercise"][];
+        };
+        ForjaWorkoutDayRequest: {
+            name: string;
+            /** @description 0=lunes … 6=domingo; null = sin día fijo */
+            weekday?: number | null;
+            position?: number;
+            notes?: string;
+            exercises?: components["schemas"]["ForjaExerciseRequest"][];
+        };
+        /**
+         * @description Restringe FKs ``student``/``service`` al alcance del viewer.
+         *
+         *     En update, ``student`` (y ``service`` si ``lock_service_on_update``) no
+         *     se pueden reasignar: si vienen en el payload se rechazan con 400.
+         */
+        ForjaWorkoutLog: {
+            readonly id: number;
+            student: number;
+            workout_day?: number | null;
+            /** Format: date */
+            performed_on?: string;
+            completed?: boolean;
+            duration_minutes?: number | null;
+            perceived_effort?: number | null;
+            notes?: string;
+            payload?: unknown;
+            /**
+             * Activo
+             * @description Indica si el registro está activo. Use esto en lugar de eliminar.
+             */
+            is_active?: boolean;
+            /**
+             * Created at
+             * Format: date-time
+             * @description Fecha de creacion.
+             */
+            readonly created: string;
+            /**
+             * Modified at
+             * Format: date-time
+             * @description Fecha de modificacion.
+             */
+            readonly modified: string;
+        };
+        /**
+         * @description Restringe FKs ``student``/``service`` al alcance del viewer.
+         *
+         *     En update, ``student`` (y ``service`` si ``lock_service_on_update``) no
+         *     se pueden reasignar: si vienen en el payload se rechazan con 400.
+         */
+        ForjaWorkoutLogRequest: {
+            student: number;
+            workout_day?: number | null;
+            /** Format: date */
+            performed_on?: string;
+            completed?: boolean;
+            duration_minutes?: number | null;
+            perceived_effort?: number | null;
+            notes?: string;
+            payload?: unknown;
+            /**
+             * Activo
+             * @description Indica si el registro está activo. Use esto en lugar de eliminar.
+             */
+            is_active?: boolean;
+        };
         /** @description Serializer para request de generación batch de boletas. */
         GenerateBoletaBatchRequest: {
             order_ids: number[];
@@ -43389,6 +46802,8 @@ export interface components {
             /** Format: email */
             readonly target_user_email: string;
             readonly target_user_name: string;
+            /** Datos */
+            data?: unknown;
             /** Activa */
             is_active?: boolean;
             /**
@@ -43445,6 +46860,8 @@ export interface components {
             target_role?: string | null;
             /** Usuario Objetivo */
             target_user?: number | null;
+            /** Datos */
+            data?: unknown;
             /** Activa */
             is_active?: boolean;
             /**
@@ -43838,6 +47255,10 @@ export interface components {
              * Format: uuid
              */
             related_booking?: string | null;
+            /** Tipo de entidad */
+            content_type?: number | null;
+            /** ID de entidad */
+            object_id?: string | null;
             /** Notas */
             notes?: string | null;
             /**
@@ -43943,6 +47364,10 @@ export interface components {
              * Format: uuid
              */
             related_booking?: string | null;
+            /** Tipo de entidad */
+            content_type?: number | null;
+            /** ID de entidad */
+            object_id?: string | null;
             /** Notas */
             notes?: string | null;
             /**
@@ -44023,6 +47448,10 @@ export interface components {
              * Format: uuid
              */
             related_booking?: string | null;
+            /** Tipo de entidad */
+            content_type?: number | null;
+            /** ID de entidad */
+            object_id?: string | null;
             /** Notas */
             notes?: string | null;
             /**
@@ -44127,6 +47556,10 @@ export interface components {
              * Format: uuid
              */
             related_booking?: string | null;
+            /** Tipo de entidad */
+            content_type?: number | null;
+            /** ID de entidad */
+            object_id?: string | null;
             /** Notas */
             notes?: string | null;
             /**
@@ -44748,6 +48181,7 @@ export interface components {
             readonly status_display: string;
             /** Notas */
             notes?: string;
+            readonly modifiers: components["schemas"]["KitchenTicketItemModifier"][];
             /**
              * Created at
              * Format: date-time
@@ -44760,6 +48194,15 @@ export interface components {
              * @description Fecha de modificacion.
              */
             readonly modified: string;
+        };
+        /** @description Extra de un ítem de comanda (read-only). */
+        KitchenTicketItemModifier: {
+            id: number;
+            option_name: string;
+            group_name: string;
+            /** Format: double */
+            surcharge_applied: number;
+            notes: string | null;
         };
         /** @description Serializer para items de comanda. */
         KitchenTicketItemRequest: {
@@ -45201,6 +48644,11 @@ export interface components {
             branch?: number | null;
             branches?: number[];
         };
+        /** @description Par value/label para catálogos (tipos de bodega). */
+        LabelValue: {
+            value: string;
+            label: string;
+        };
         Lead: {
             /** Format: uuid */
             readonly id: string;
@@ -45215,6 +48663,13 @@ export interface components {
             phone?: string;
             /** Empresa */
             company?: string;
+            /** @description RUT chileno normalizado (12345678-9). Único por sucursal. */
+            rut?: string | null;
+            /**
+             * Datos extra
+             * @description Atributos filtrables del registro APR: region, provincia, comuna, anio_puesta_en_marcha, n_arranques, beneficiarios, clasificacion_art_106, registro_operadores, tipo_asentamiento, art_52_bis, lat, lon, correo_2, tipo_correo.
+             */
+            extra_data?: unknown;
             /**
              * Fuente
              * Format: uuid
@@ -45284,6 +48739,13 @@ export interface components {
             phone?: string;
             /** Empresa */
             company?: string;
+            /** @description RUT chileno normalizado (12345678-9). Único por sucursal. */
+            rut?: string | null;
+            /**
+             * Datos extra
+             * @description Atributos filtrables del registro APR: region, provincia, comuna, anio_puesta_en_marcha, n_arranques, beneficiarios, clasificacion_art_106, registro_operadores, tipo_asentamiento, art_52_bis, lat, lon, correo_2, tipo_correo.
+             */
+            extra_data?: unknown;
             /**
              * Estado
              * @description * `NEW` - Nuevo
@@ -45338,6 +48800,13 @@ export interface components {
             phone?: string;
             /** Empresa */
             company?: string;
+            /** @description RUT chileno normalizado (12345678-9). Único por sucursal. */
+            rut?: string | null;
+            /**
+             * Datos extra
+             * @description Atributos filtrables del registro APR: region, provincia, comuna, anio_puesta_en_marcha, n_arranques, beneficiarios, clasificacion_art_106, registro_operadores, tipo_asentamiento, art_52_bis, lat, lon, correo_2, tipo_correo.
+             */
+            extra_data?: unknown;
             /**
              * Fuente
              * Format: uuid
@@ -46783,6 +50252,164 @@ export interface components {
             /** Activo */
             is_active?: boolean;
         };
+        MqttBrokerConfig: {
+            readonly id: number;
+            /** Nombre */
+            name: string;
+            /**
+             * Host del broker
+             * @description Hostname o IP (sin esquema ni puerto)
+             */
+            host: string;
+            /** Puerto */
+            port?: number;
+            /** Usar TLS */
+            use_tls?: boolean;
+            /** Usuario */
+            username?: string;
+            /** @description Si queda vacio se genera uno automatico */
+            client_id?: string;
+            /**
+             * Template de suscripcion
+             * @description Patron MQTT a suscribir. Placeholders: {branch}, {device_token}. Ej: yggdra/{device_token}/+ o sucursal/{branch}/#
+             */
+            topic_template?: string;
+            readonly subscribe_topic: string;
+            is_active?: boolean;
+            /**
+             * Ultima conexion
+             * Format: date-time
+             */
+            readonly last_connected_at: string | null;
+            /** Ultimo error */
+            readonly last_error: string | null;
+            /**
+             * Created at
+             * Format: date-time
+             * @description Fecha de creacion.
+             */
+            readonly created: string;
+            /**
+             * Modified at
+             * Format: date-time
+             * @description Fecha de modificacion.
+             */
+            readonly modified: string;
+        };
+        MqttBrokerConfigRequest: {
+            /** Nombre */
+            name: string;
+            /**
+             * Host del broker
+             * @description Hostname o IP (sin esquema ni puerto)
+             */
+            host: string;
+            /** Puerto */
+            port?: number;
+            /** Usar TLS */
+            use_tls?: boolean;
+            /** Usuario */
+            username?: string;
+            /** Password (cifrada) */
+            password?: string;
+            /** @description Si queda vacio se genera uno automatico */
+            client_id?: string;
+            /**
+             * Template de suscripcion
+             * @description Patron MQTT a suscribir. Placeholders: {branch}, {device_token}. Ej: yggdra/{device_token}/+ o sucursal/{branch}/#
+             */
+            topic_template?: string;
+            is_active?: boolean;
+        };
+        MuninnSignupRequest: {
+            /** Format: email */
+            email: string;
+            organization_name: string;
+            contact_name: string;
+        };
+        MuninnVerifyRequest: {
+            token: string;
+            password?: string;
+        };
+        NoticeRule: {
+            readonly id: number;
+            /** Nombre */
+            name: string;
+            /** Evento */
+            event_name: string;
+            /**
+             * Título
+             * @description Placeholders como {order_number}, {name}, {status}, {client}.
+             */
+            title_template: string;
+            /** Mensaje */
+            message_template?: string;
+            /**
+             * Destino
+             * @description * `BRANCH` - Sucursal
+             *     * `CLIENT` - Cliente del elemento
+             *     * `ROLE` - Rol de la sucursal
+             * @enum {string}
+             */
+            audience?: "BRANCH" | "CLIENT" | "ROLE";
+            /** Rol */
+            role_code?: string;
+            /**
+             * Estado
+             * @description Si se llena, el aviso sale solo cuando el elemento trae ese estado.
+             */
+            status_filter?: string;
+            /**
+             * Activo
+             * @description Indica si el registro está activo. Use esto en lugar de eliminar.
+             */
+            is_active?: boolean;
+            /**
+             * Created at
+             * Format: date-time
+             * @description Fecha de creacion.
+             */
+            readonly created: string;
+            /**
+             * Modified at
+             * Format: date-time
+             * @description Fecha de modificacion.
+             */
+            readonly modified: string;
+        };
+        NoticeRuleRequest: {
+            /** Nombre */
+            name: string;
+            /** Evento */
+            event_name: string;
+            /**
+             * Título
+             * @description Placeholders como {order_number}, {name}, {status}, {client}.
+             */
+            title_template: string;
+            /** Mensaje */
+            message_template?: string;
+            /**
+             * Destino
+             * @description * `BRANCH` - Sucursal
+             *     * `CLIENT` - Cliente del elemento
+             *     * `ROLE` - Rol de la sucursal
+             * @enum {string}
+             */
+            audience?: "BRANCH" | "CLIENT" | "ROLE";
+            /** Rol */
+            role_code?: string;
+            /**
+             * Estado
+             * @description Si se llena, el aviso sale solo cuando el elemento trae ese estado.
+             */
+            status_filter?: string;
+            /**
+             * Activo
+             * @description Indica si el registro está activo. Use esto en lugar de eliminar.
+             */
+            is_active?: boolean;
+        };
         /** @description Serializer para certificados nutricionales. */
         NutritionalCertificate: {
             readonly id: number;
@@ -47316,6 +50943,8 @@ export interface components {
             readonly owner: number;
             readonly branch: components["schemas"]["OrderBranchBrief"];
             readonly client: components["schemas"]["OrderClientBrief"];
+            delivered_by_id?: number | null;
+            readonly delivered_by_name: string | null;
             /** @description Table assigned to the order (optional) */
             table?: number | null;
             /**
@@ -47412,6 +51041,12 @@ export interface components {
             delivery_address?: string | null;
             /** Format: date-time */
             delivery_date?: string | null;
+            /** Format: double */
+            delivery_cost?: number | null;
+            /** Format: double */
+            driver_fee?: number | null;
+            readonly delivery_zone: string;
+            delivery_zone_id?: number | null;
             /**
              * Format: double
              * @description Latitude of the order location
@@ -47602,6 +51237,10 @@ export interface components {
         /**
          * @description Serializer para edición rápida de una orden abierta.
          *     Permite cambiar cliente/mesa/observación, datos de entrega y modificar ítems.
+         *
+         *     Cada ítem puede incluir ``modifiers`` (lista de
+         *     ``{modifier_option, notes}``). En ítems existentes, si la clave está
+         *     presente se reemplaza el set; si no está, no se tocan los extras.
          */
         OrderEditRequest: {
             client_id?: number | null;
@@ -47610,14 +51249,47 @@ export interface components {
             delivery_address?: string | null;
             /** Format: date-time */
             delivery_date?: string | null;
+            /** Format: double */
+            delivery_cost?: number | null;
+            delivery_zone_id?: number | null;
             /** @description Lista de ítems. Si tiene 'id' se actualiza; si no, se crea. */
             items?: {
                 [key: string]: unknown;
             }[];
         };
+        /** @description Request body tipado para POST /api/sales/orders/{id}/pay/. */
+        OrderPayRequest: {
+            /**
+             * Format: uuid
+             * @description ID del método de pago activo de la sucursal.
+             */
+            payment_method_id: string;
+            /**
+             * Format: double
+             * @description Monto a cobrar (parcial o total del saldo pendiente).
+             */
+            amount: number;
+            /** @description Sesión de caja OPEN de hoy de la sucursal. Si se omite, se elige con la misma regla que GET /finance/cash-registers/current/ (estación del usuario, PRINCIPAL, o la OPEN de hoy más reciente). Nunca se elige una caja de un día anterior. Si se envía, debe estar OPEN, ser de la sucursal y ser de hoy; una caja antigua responde 400 code=cash_register_stale. Sin caja abierta el cobro se rechaza con 400 code=cash_register_closed. */
+            cash_register_id?: number | null;
+            /**
+             * @description Notas opcionales del pago. null se normaliza a cadena vacía.
+             * @default
+             */
+            notes: string | null;
+            /**
+             * @description Referencia externa (voucher, transferencia, etc.). null se normaliza a cadena vacía. Obligatoria solo si el método tiene requires_reference=true.
+             * @default
+             */
+            reference: string | null;
+        };
         /**
-         * @description Serializer para productos de orden - OPTIMIZADO.
-         *     Incluye todos los campos del detalle de productos.
+         * @description Serializer de lectura para productos de orden.
+         *
+         *     Modelo de precios (compatible con legacy):
+         *     - ``unit_price``: incluye extras = base + suma de surcharges por unidad.
+         *     - ``total_price``: ``quantity × unit_price`` (GeneratedField; ya con extra).
+         *     - ``modifiers_total``: recargo por unidad (suma de ``surcharge_applied``).
+         *     - Precio base = ``unit_price - modifiers_total``.
          */
         OrderProduct: {
             readonly id: number;
@@ -47817,7 +51489,13 @@ export interface components {
              */
             notes?: string | null;
         };
-        /** @description Serializer de escritura para modificadores en productos de orden. */
+        /**
+         * @description Escritura de modificadores en productos de orden.
+         *
+         *     ``surcharge_applied`` se toma siempre de ``ModifierOption.surcharge``
+         *     (se ignora el valor del cliente). Tras crear/actualizar se recalcula
+         *     ``OrderProduct.unit_price = base + extras`` y los totales/Revenue.
+         */
         OrderProductModifierWrite: {
             readonly id: number;
             /** Producto de Orden */
@@ -47836,7 +51514,13 @@ export interface components {
              */
             notes?: string | null;
         };
-        /** @description Serializer de escritura para modificadores en productos de orden. */
+        /**
+         * @description Escritura de modificadores en productos de orden.
+         *
+         *     ``surcharge_applied`` se toma siempre de ``ModifierOption.surcharge``
+         *     (se ignora el valor del cliente). Tras crear/actualizar se recalcula
+         *     ``OrderProduct.unit_price = base + extras`` y los totales/Revenue.
+         */
         OrderProductModifierWriteRequest: {
             /** Producto de Orden */
             order_product: number;
@@ -47855,8 +51539,13 @@ export interface components {
             notes?: string | null;
         };
         /**
-         * @description Serializer para productos de orden - OPTIMIZADO.
-         *     Incluye todos los campos del detalle de productos.
+         * @description Serializer de lectura para productos de orden.
+         *
+         *     Modelo de precios (compatible con legacy):
+         *     - ``unit_price``: incluye extras = base + suma de surcharges por unidad.
+         *     - ``total_price``: ``quantity × unit_price`` (GeneratedField; ya con extra).
+         *     - ``modifiers_total``: recargo por unidad (suma de ``surcharge_applied``).
+         *     - Precio base = ``unit_price - modifiers_total``.
          */
         OrderProductRequest: {
             /** Format: uuid */
@@ -48064,6 +51753,11 @@ export interface components {
             delivery_address?: string | null;
             /** Format: date-time */
             delivery_date?: string | null;
+            /** Format: double */
+            delivery_cost?: number | null;
+            /** Format: double */
+            driver_fee?: number | null;
+            delivery_zone_id?: number | null;
             /**
              * Format: double
              * @description Latitude of the order location
@@ -48770,6 +52464,21 @@ export interface components {
              */
             previous?: string | null;
             results: components["schemas"]["BranchCurrencyConfig"][];
+        };
+        PaginatedBranchDeliveryZoneList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next?: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous?: string | null;
+            results: components["schemas"]["BranchDeliveryZone"][];
         };
         PaginatedBranchEventLogListList: {
             /** @example 123 */
@@ -49956,6 +53665,156 @@ export interface components {
             previous?: string | null;
             results: components["schemas"]["FollowUpCategory"][];
         };
+        PaginatedForjaAdherenceRuleList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next?: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous?: string | null;
+            results: components["schemas"]["ForjaAdherenceRule"][];
+        };
+        PaginatedForjaCheckInList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next?: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous?: string | null;
+            results: components["schemas"]["ForjaCheckIn"][];
+        };
+        PaginatedForjaMealLogList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next?: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous?: string | null;
+            results: components["schemas"]["ForjaMealLog"][];
+        };
+        PaginatedForjaServiceList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next?: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous?: string | null;
+            results: components["schemas"]["ForjaService"][];
+        };
+        PaginatedForjaStudentList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next?: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous?: string | null;
+            results: components["schemas"]["ForjaStudent"][];
+        };
+        PaginatedForjaSubscriptionList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next?: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous?: string | null;
+            results: components["schemas"]["ForjaSubscription"][];
+        };
+        PaginatedForjaThreadList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next?: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous?: string | null;
+            results: components["schemas"]["ForjaThread"][];
+        };
+        PaginatedForjaTrainingPlanList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next?: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous?: string | null;
+            results: components["schemas"]["ForjaTrainingPlan"][];
+        };
+        PaginatedForjaWaterLogList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next?: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous?: string | null;
+            results: components["schemas"]["ForjaWaterLog"][];
+        };
+        PaginatedForjaWorkoutLogList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next?: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous?: string | null;
+            results: components["schemas"]["ForjaWorkoutLog"][];
+        };
         PaginatedGlobalAppConfigList: {
             /** @example 123 */
             count: number;
@@ -50136,6 +53995,21 @@ export interface components {
             previous?: string | null;
             results: components["schemas"]["LLMModel"][];
         };
+        PaginatedLabelValueList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next?: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous?: string | null;
+            results: components["schemas"]["LabelValue"][];
+        };
         PaginatedLeadListList: {
             /** @example 123 */
             count: number;
@@ -50300,6 +54174,36 @@ export interface components {
              */
             previous?: string | null;
             results: components["schemas"]["ModuleConfiguration"][];
+        };
+        PaginatedMqttBrokerConfigList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next?: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous?: string | null;
+            results: components["schemas"]["MqttBrokerConfig"][];
+        };
+        PaginatedNoticeRuleList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next?: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous?: string | null;
+            results: components["schemas"]["NoticeRule"][];
         };
         PaginatedNutritionalCertificateList: {
             /** @example 123 */
@@ -51411,6 +55315,21 @@ export interface components {
             previous?: string | null;
             results: components["schemas"]["TelemetryReading"][];
         };
+        PaginatedTelemetryReportList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next?: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous?: string | null;
+            results: components["schemas"]["TelemetryReport"][];
+        };
         PaginatedTelemetryVariableList: {
             /** @example 123 */
             count: number;
@@ -51801,6 +55720,78 @@ export interface components {
             previous?: string | null;
             results: components["schemas"]["WorkflowList"][];
         };
+        PanelConfig: {
+            panel_enabled: boolean;
+            thresholds: {
+                [key: string]: unknown;
+            };
+            percent_decimals: number;
+            show_summary_cards: boolean;
+            show_email_in_table: boolean;
+            ai_summary_enabled: boolean;
+            readonly can_comment: boolean;
+            comment_delete_policy: string;
+            habit_weights: {
+                [key: string]: unknown;
+            };
+            partial_day_policy: string;
+            missing_day_policy: string;
+            macro_met_requires: string[];
+            macro_ranges: {
+                [key: string]: unknown;
+            };
+            macro_weights: {
+                [key: string]: unknown;
+            };
+            calories_min_enabled: boolean;
+            calories_low_alert_enabled: boolean;
+            /** Format: double */
+            calories_low_ratio: number;
+            goal_resolution: string;
+            summary_avg_mode: string;
+            allow_student_rest: boolean;
+            messaging_coach_enabled: boolean;
+            rest_day_counts: string;
+            default_water_goal_ml: number;
+            default_sessions_per_week: number;
+            training_mode: string;
+            macros_source: string;
+            week_start_weekday: number;
+            timezone: string;
+            report_grace_hours: number;
+            start_date_source: string;
+            challenge_length_days: number;
+            show_after_challenge_end: boolean;
+            prorate_partial_weeks: boolean;
+            training_alert_closed_weeks_only: boolean;
+            no_data_counts_as_risk: boolean;
+            status_multi_badge: boolean;
+            comment_visible_to_participant_default: boolean;
+            notify_participant_on_comment: boolean;
+            professional_scope: string;
+            reviewer_access: string;
+            min_days_for_analysis: number;
+            min_days_per_metric: number;
+            alert_min_affected_days: number;
+            missing_alert_min_days: number;
+            duplicate_window_seconds: number;
+            comment_max_length: number;
+            block_length_days: number;
+            adherence_equal_weights_as_40_40_20: boolean;
+            milestone_days: number[];
+            milestone_windows: {
+                [key: string]: unknown;
+            };
+            weight_min_kg: number;
+            weight_max_kg: number;
+            height_min_cm: number;
+            height_max_cm: number;
+            /** Format: double */
+            ai_temperature: number;
+            ai_max_tokens: number;
+            ai_timeout_s: number;
+            readonly config_version: number;
+        };
         /** @description Serializer para conexiones entre nodos. */
         PatchedAIAgentWorkflowEdgeRequest: {
             /** Format: uuid */
@@ -52015,10 +56006,11 @@ export interface components {
             /**
              * @description * `ACTIVE` - Activo
              *     * `INACTIVE` - Inactivo
+             *     * `PAUSED` - Pausado
              *     * `TRAINING` - Entrenando
              * @enum {string}
              */
-            status?: "ACTIVE" | "INACTIVE" | "TRAINING";
+            status?: "ACTIVE" | "INACTIVE" | "PAUSED" | "TRAINING";
             /**
              * Activo
              * @description Determina si el agente esta disponible para uso
@@ -52285,9 +56277,8 @@ export interface components {
              *     * `AGENT` - Agente
              *     * `SYSTEM` - Sistema
              *     * `TOOL` - Herramienta
-             * @enum {string}
              */
-            role?: "USER" | "AGENT" | "SYSTEM" | "TOOL";
+            role?: string;
             /** Contenido */
             content?: string;
             /** Tokens */
@@ -52715,6 +56706,30 @@ export interface components {
              */
             is_active?: boolean;
         };
+        /** @description CRUD de zonas de despacho de la sucursal activa. */
+        PatchedBranchDeliveryZoneRequest: {
+            /**
+             * Nombre
+             * @description Nombre visible (p.ej. comuna o barrio).
+             */
+            name?: string;
+            /**
+             * Precio
+             * Format: double
+             * @description Cargo de despacho de esta zona. Editable en el carrito antes de cobrar.
+             */
+            price?: number;
+            /**
+             * Orden
+             * @description Menor = primero en el selector del POS.
+             */
+            sort_order?: number;
+            /**
+             * Activo
+             * @description Indica si el registro está activo. Use esto en lugar de eliminar.
+             */
+            is_active?: boolean;
+        };
         /** @description Serializador detallado para Branch */
         PatchedBranchDetailRequest: {
             business_name?: string;
@@ -52729,8 +56744,9 @@ export interface components {
             /**
              * Rut
              * @description RUT de la empresa (formato: 12.345.678-9). Único entre sucursales independientes; bajo Organization puede reutilizar el RUT del holding o quedar vacío.
+             * @default
              */
-            dni?: string;
+            dni: string;
             /**
              * Correo Electrónico
              * Format: email
@@ -52871,9 +56887,8 @@ export interface components {
              *     * `INSPECTION` - Inspección
              *     * `SHIFT` - Turno
              *     * `OTHER` - Otro
-             * @enum {string}
              */
-            event_type?: "APPOINTMENT" | "MAINTENANCE" | "MEETING" | "DELIVERY" | "TRAINING" | "INSPECTION" | "SHIFT" | "OTHER";
+            event_type?: string;
             /** Creado por */
             created_by?: number | null;
             /**
@@ -53238,11 +57253,6 @@ export interface components {
         /** @description Serializador para BranchPOSConfig */
         PatchedBranchPOSConfigRequest: {
             /**
-             * Sucursal
-             * @description Sucursal a la que pertenece esta configuración POS
-             */
-            branch?: number;
-            /**
              * Mostrar Precios
              * @description Mostrar precios en la lista de productos del POS
              */
@@ -53274,6 +57284,17 @@ export interface components {
              * @description Lista de acciones rápidas del POS (id, type, label, icon, color, enabled).
              */
             quick_actions?: unknown;
+            /**
+             * Generar comanda automáticamente
+             * @description Crea un KitchenTicket automáticamente al crear una orden de venta/pedido
+             */
+            auto_kitchen_ticket?: boolean;
+            /**
+             * Costo de despacho por defecto
+             * Format: double
+             * @description Cargo de despacho por defecto para órdenes con dirección de entrega. 0 = sin cargo.
+             */
+            default_delivery_fee?: number;
         };
         /** @description Serializer for branch product type configuration. */
         PatchedBranchProductTypeConfigRequest: {
@@ -53334,8 +57355,9 @@ export interface components {
             /**
              * Rut
              * @description RUT de la empresa (formato: 12.345.678-9). Único entre sucursales independientes; bajo Organization puede reutilizar el RUT del holding o quedar vacío.
+             * @default
              */
-            dni?: string;
+            dni: string;
             /**
              * Correo Electrónico
              * Format: email
@@ -54775,8 +58797,13 @@ export interface components {
             date_start_compliance?: string | null;
             /** Nombre informante */
             informant_name?: string;
-            /** RUT informante */
+            /**
+             * RUT informante
+             * @description Vacío usa el RUT informante constante de la instalación.
+             */
             informant_rut?: string;
+            /** @description Vacío usa el RUT empresa constante de la instalación DGA. */
+            rut_empresa?: string;
             /**
              * Clave DGA
              * @description Clave del informante ante el organismo. No es la credencial del conector.
@@ -56616,6 +60643,255 @@ export interface components {
              */
             is_active?: boolean;
         };
+        PatchedForjaAdherenceRuleRequest: {
+            name?: string;
+            /**
+             * @description * `training` - Entrenamiento
+             *     * `water` - Agua
+             *     * `macros` - Macros
+             *     * `check_in` - Check-in
+             * @enum {string}
+             */
+            metric?: "training" | "water" | "macros" | "check_in";
+            /** @description Peso relativo en el promedio de adherencia */
+            weight?: number;
+            enabled?: boolean;
+            /**
+             * Format: double
+             * @description Umbral opcional (ej. 0.85 = 85 % de la meta)
+             */
+            threshold?: number | null;
+            config?: unknown;
+            /**
+             * Activo
+             * @description Indica si el registro está activo. Use esto en lugar de eliminar.
+             */
+            is_active?: boolean;
+        };
+        /**
+         * @description Restringe FKs ``student``/``service`` al alcance del viewer.
+         *
+         *     En update, ``student`` (y ``service`` si ``lock_service_on_update``) no
+         *     se pueden reasignar: si vienen en el payload se rechazan con 400.
+         */
+        PatchedForjaCheckInRequest: {
+            student?: number;
+            /** Format: date */
+            checked_on?: string;
+            /** Format: double */
+            weight_kg?: number | null;
+            mood?: number | null;
+            /** Format: double */
+            sleep_hours?: number | null;
+            notes?: string;
+            metrics?: unknown;
+            /**
+             * Activo
+             * @description Indica si el registro está activo. Use esto en lugar de eliminar.
+             */
+            is_active?: boolean;
+        };
+        /**
+         * @description Restringe FKs ``student``/``service`` al alcance del viewer.
+         *
+         *     En update, ``student`` (y ``service`` si ``lock_service_on_update``) no
+         *     se pueden reasignar: si vienen en el payload se rechazan con 400.
+         */
+        PatchedForjaMealLogRequest: {
+            student?: number;
+            /** Format: date */
+            logged_on?: string;
+            /**
+             * @description * `breakfast` - Desayuno
+             *     * `lunch` - Almuerzo
+             *     * `dinner` - Cena
+             *     * `snack` - Snack
+             *     * `other` - Otro
+             * @enum {string}
+             */
+            meal_type?: "breakfast" | "lunch" | "dinner" | "snack" | "other";
+            description?: string;
+            calories?: number | null;
+            protein?: number | null;
+            carbs?: number | null;
+            fats?: number | null;
+            notes?: string;
+            /**
+             * Activo
+             * @description Indica si el registro está activo. Use esto en lugar de eliminar.
+             */
+            is_active?: boolean;
+        };
+        PatchedForjaServiceRequest: {
+            name?: string;
+            description?: string;
+            /** Format: double */
+            price?: number;
+            /**
+             * @description * `monthly` - Mensual
+             *     * `quarterly` - Trimestral
+             *     * `yearly` - Anual
+             *     * `one_time` - Único
+             * @enum {string}
+             */
+            billing_period?: "monthly" | "quarterly" | "yearly" | "one_time";
+            duration_weeks?: number | null;
+            includes_nutrition?: boolean;
+            includes_training?: boolean;
+            /**
+             * Activo
+             * @description Indica si el registro está activo. Use esto en lugar de eliminar.
+             */
+            is_active?: boolean;
+        };
+        /**
+         * @description Restringe FKs ``student``/``service`` al alcance del viewer.
+         *
+         *     En update, ``student`` (y ``service`` si ``lock_service_on_update``) no
+         *     se pueden reasignar: si vienen en el payload se rechazan con 400.
+         */
+        PatchedForjaStudentRequest: {
+            service?: number | null;
+            full_name?: string;
+            /** Format: email */
+            email?: string;
+            phone?: string;
+            /**
+             * @description * `invited` - Invitado
+             *     * `active` - Activo
+             *     * `paused` - Pausado
+             *     * `finished` - Finalizado
+             *     * `cancelled` - Cancelado
+             * @enum {string}
+             */
+            status?: "invited" | "active" | "paused" | "finished" | "cancelled";
+            notes?: string;
+            /** Format: date */
+            start_date?: string | null;
+            calories_target?: number | null;
+            protein_target?: number | null;
+            carbs_target?: number | null;
+            fats_target?: number | null;
+            water_target_ml?: number | null;
+            sessions_per_week?: number | null;
+            /** Format: double */
+            height_cm?: number | null;
+            /** Format: double */
+            weight_kg?: number | null;
+            goal?: string;
+            /**
+             * Activo
+             * @description Indica si el registro está activo. Use esto en lugar de eliminar.
+             */
+            is_active?: boolean;
+        };
+        /**
+         * @description Restringe FKs ``student``/``service`` al alcance del viewer.
+         *
+         *     En update, ``student`` (y ``service`` si ``lock_service_on_update``) no
+         *     se pueden reasignar: si vienen en el payload se rechazan con 400.
+         */
+        PatchedForjaSubscriptionRequest: {
+            student?: number;
+            service?: number;
+            /**
+             * @description * `active` - Activa
+             *     * `past_due` - Vencida
+             *     * `cancelled` - Cancelada
+             *     * `trial` - Prueba
+             * @enum {string}
+             */
+            status?: "active" | "past_due" | "cancelled" | "trial";
+            /** Format: date */
+            started_on?: string;
+            /** Format: date */
+            ends_on?: string | null;
+            /** Format: double */
+            amount?: number;
+            notes?: string;
+            /**
+             * Activo
+             * @description Indica si el registro está activo. Use esto en lugar de eliminar.
+             */
+            is_active?: boolean;
+        };
+        /**
+         * @description Restringe FKs ``student``/``service`` al alcance del viewer.
+         *
+         *     En update, ``student`` (y ``service`` si ``lock_service_on_update``) no
+         *     se pueden reasignar: si vienen en el payload se rechazan con 400.
+         */
+        PatchedForjaThreadRequest: {
+            student?: number;
+            subject?: string;
+            /**
+             * Activo
+             * @description Indica si el registro está activo. Use esto en lugar de eliminar.
+             */
+            is_active?: boolean;
+        };
+        /**
+         * @description Restringe FKs ``student``/``service`` al alcance del viewer.
+         *
+         *     En update, ``student`` (y ``service`` si ``lock_service_on_update``) no
+         *     se pueden reasignar: si vienen en el payload se rechazan con 400.
+         */
+        PatchedForjaTrainingPlanRequest: {
+            student?: number;
+            title?: string;
+            notes?: string;
+            /** Format: date */
+            effective_from?: string;
+            /** Format: date */
+            effective_to?: string | null;
+            is_current?: boolean;
+            days?: components["schemas"]["ForjaWorkoutDayRequest"][];
+            /**
+             * Activo
+             * @description Indica si el registro está activo. Use esto en lugar de eliminar.
+             */
+            is_active?: boolean;
+        };
+        /**
+         * @description Restringe FKs ``student``/``service`` al alcance del viewer.
+         *
+         *     En update, ``student`` (y ``service`` si ``lock_service_on_update``) no
+         *     se pueden reasignar: si vienen en el payload se rechazan con 400.
+         */
+        PatchedForjaWaterLogRequest: {
+            student?: number;
+            /** Format: date */
+            logged_on?: string;
+            amount_ml?: number;
+            notes?: string;
+            /**
+             * Activo
+             * @description Indica si el registro está activo. Use esto en lugar de eliminar.
+             */
+            is_active?: boolean;
+        };
+        /**
+         * @description Restringe FKs ``student``/``service`` al alcance del viewer.
+         *
+         *     En update, ``student`` (y ``service`` si ``lock_service_on_update``) no
+         *     se pueden reasignar: si vienen en el payload se rechazan con 400.
+         */
+        PatchedForjaWorkoutLogRequest: {
+            student?: number;
+            workout_day?: number | null;
+            /** Format: date */
+            performed_on?: string;
+            completed?: boolean;
+            duration_minutes?: number | null;
+            perceived_effort?: number | null;
+            notes?: string;
+            payload?: unknown;
+            /**
+             * Activo
+             * @description Indica si el registro está activo. Use esto en lugar de eliminar.
+             */
+            is_active?: boolean;
+        };
         PatchedGlobalAppConfigRequest: {
             /** Nombre de la Aplicación */
             app_name?: string;
@@ -56683,6 +60959,8 @@ export interface components {
             target_role?: string | null;
             /** Usuario Objetivo */
             target_user?: number | null;
+            /** Datos */
+            data?: unknown;
             /** Activa */
             is_active?: boolean;
             /**
@@ -56875,6 +61153,10 @@ export interface components {
              * Format: uuid
              */
             related_booking?: string | null;
+            /** Tipo de entidad */
+            content_type?: number | null;
+            /** ID de entidad */
+            object_id?: string | null;
             /** Notas */
             notes?: string | null;
             /**
@@ -57207,6 +61489,13 @@ export interface components {
             phone?: string;
             /** Empresa */
             company?: string;
+            /** @description RUT chileno normalizado (12345678-9). Único por sucursal. */
+            rut?: string | null;
+            /**
+             * Datos extra
+             * @description Atributos filtrables del registro APR: region, provincia, comuna, anio_puesta_en_marcha, n_arranques, beneficiarios, clasificacion_art_106, registro_operadores, tipo_asentamiento, art_52_bis, lat, lon, correo_2, tipo_correo.
+             */
+            extra_data?: unknown;
             /**
              * Fuente
              * Format: uuid
@@ -57658,6 +61947,64 @@ export interface components {
             /** Activo */
             is_active?: boolean;
         };
+        PatchedMqttBrokerConfigRequest: {
+            /** Nombre */
+            name?: string;
+            /**
+             * Host del broker
+             * @description Hostname o IP (sin esquema ni puerto)
+             */
+            host?: string;
+            /** Puerto */
+            port?: number;
+            /** Usar TLS */
+            use_tls?: boolean;
+            /** Usuario */
+            username?: string;
+            /** Password (cifrada) */
+            password?: string;
+            /** @description Si queda vacio se genera uno automatico */
+            client_id?: string;
+            /**
+             * Template de suscripcion
+             * @description Patron MQTT a suscribir. Placeholders: {branch}, {device_token}. Ej: yggdra/{device_token}/+ o sucursal/{branch}/#
+             */
+            topic_template?: string;
+            is_active?: boolean;
+        };
+        PatchedNoticeRuleRequest: {
+            /** Nombre */
+            name?: string;
+            /** Evento */
+            event_name?: string;
+            /**
+             * Título
+             * @description Placeholders como {order_number}, {name}, {status}, {client}.
+             */
+            title_template?: string;
+            /** Mensaje */
+            message_template?: string;
+            /**
+             * Destino
+             * @description * `BRANCH` - Sucursal
+             *     * `CLIENT` - Cliente del elemento
+             *     * `ROLE` - Rol de la sucursal
+             * @enum {string}
+             */
+            audience?: "BRANCH" | "CLIENT" | "ROLE";
+            /** Rol */
+            role_code?: string;
+            /**
+             * Estado
+             * @description Si se llena, el aviso sale solo cuando el elemento trae ese estado.
+             */
+            status_filter?: string;
+            /**
+             * Activo
+             * @description Indica si el registro está activo. Use esto en lugar de eliminar.
+             */
+            is_active?: boolean;
+        };
         /** @description Serializer para certificados nutricionales. */
         PatchedNutritionalCertificateRequest: {
             /**
@@ -57838,7 +62185,13 @@ export interface components {
              */
             is_active?: boolean;
         };
-        /** @description Serializer de escritura para modificadores en productos de orden. */
+        /**
+         * @description Escritura de modificadores en productos de orden.
+         *
+         *     ``surcharge_applied`` se toma siempre de ``ModifierOption.surcharge``
+         *     (se ignora el valor del cliente). Tras crear/actualizar se recalcula
+         *     ``OrderProduct.unit_price = base + extras`` y los totales/Revenue.
+         */
         PatchedOrderProductModifierWriteRequest: {
             /** Producto de Orden */
             order_product?: number;
@@ -57993,6 +62346,11 @@ export interface components {
             delivery_address?: string | null;
             /** Format: date-time */
             delivery_date?: string | null;
+            /** Format: double */
+            delivery_cost?: number | null;
+            /** Format: double */
+            driver_fee?: number | null;
+            delivery_zone_id?: number | null;
             /**
              * Format: double
              * @description Latitude of the order location
@@ -58094,6 +62452,77 @@ export interface components {
             custom_domain?: string | null;
             /** Activa */
             is_active?: boolean;
+        };
+        /** @description Body parcial de PATCH /api/p90/panel/config (todos opcionales). */
+        PatchedPanelConfigPatchRequest: {
+            panel_enabled?: boolean;
+            thresholds?: {
+                [key: string]: unknown;
+            };
+            percent_decimals?: number;
+            show_summary_cards?: boolean;
+            show_email_in_table?: boolean;
+            ai_summary_enabled?: boolean;
+            comment_delete_policy?: string;
+            habit_weights?: {
+                [key: string]: unknown;
+            };
+            partial_day_policy?: string;
+            missing_day_policy?: string;
+            macro_met_requires?: string[];
+            macro_ranges?: {
+                [key: string]: unknown;
+            };
+            macro_weights?: {
+                [key: string]: unknown;
+            };
+            calories_min_enabled?: boolean;
+            calories_low_alert_enabled?: boolean;
+            /** Format: double */
+            calories_low_ratio?: number;
+            goal_resolution?: string;
+            summary_avg_mode?: string;
+            allow_student_rest?: boolean;
+            messaging_coach_enabled?: boolean;
+            rest_day_counts?: string;
+            default_water_goal_ml?: number;
+            default_sessions_per_week?: number;
+            training_mode?: string;
+            macros_source?: string;
+            week_start_weekday?: number;
+            timezone?: string;
+            report_grace_hours?: number;
+            start_date_source?: string;
+            challenge_length_days?: number;
+            show_after_challenge_end?: boolean;
+            prorate_partial_weeks?: boolean;
+            training_alert_closed_weeks_only?: boolean;
+            no_data_counts_as_risk?: boolean;
+            status_multi_badge?: boolean;
+            comment_visible_to_participant_default?: boolean;
+            notify_participant_on_comment?: boolean;
+            professional_scope?: string;
+            reviewer_access?: string;
+            min_days_for_analysis?: number;
+            min_days_per_metric?: number;
+            alert_min_affected_days?: number;
+            missing_alert_min_days?: number;
+            duplicate_window_seconds?: number;
+            comment_max_length?: number;
+            block_length_days?: number;
+            adherence_equal_weights_as_40_40_20?: boolean;
+            milestone_days?: number[];
+            milestone_windows?: {
+                [key: string]: unknown;
+            };
+            weight_min_kg?: number;
+            weight_max_kg?: number;
+            height_min_cm?: number;
+            height_max_cm?: number;
+            /** Format: double */
+            ai_temperature?: number;
+            ai_max_tokens?: number;
+            ai_timeout_s?: number;
         };
         /** @description Serializer para métodos de pago. */
         PatchedPaymentMethodRequest: {
@@ -58945,6 +63374,43 @@ export interface components {
              */
             sodium_mg?: number | null;
             /**
+             * Densidad (g/ml)
+             * Format: double
+             * @description Densidad opcional para convertir ml/l a gramos. Si no se informa, se asume 1 g/ml con advertencia.
+             */
+            density_g_per_ml?: number | null;
+            /**
+             * Gramos por Unidad
+             * Format: double
+             * @description Peso en gramos de una unidad del producto. Obligatorio cuando la receta usa la unidad 'unidad'.
+             */
+            grams_per_unit?: number | null;
+            /**
+             * Contiene (alérgenos)
+             * @description Códigos RSA art. 107 presentes en el producto. null = sin declarar; [] = declarado sin alérgenos.
+             */
+            contains_allergens?: unknown;
+            /**
+             * Puede contener (alérgenos)
+             * @description Códigos RSA art. 107 por posible contaminación cruzada. null = sin declarar; [] = declarado sin trazas.
+             */
+            may_contain_allergens?: unknown;
+            /**
+             * Azúcares añadidos
+             * @description True si se adicionaron azúcares, miel o jarabes.
+             */
+            has_added_sugars?: boolean;
+            /**
+             * Grasas saturadas añadidas
+             * @description True si se adicionaron grasas saturadas.
+             */
+            has_added_saturated_fats?: boolean;
+            /**
+             * Sodio añadido
+             * @description True si se adicionó sodio (sal u otros).
+             */
+            has_added_sodium?: boolean;
+            /**
              * Estanque Asociado
              * @description Producto contenedor o estanque al que está asociado este residuo o material
              */
@@ -59516,6 +63982,10 @@ export interface components {
             notes?: string | null;
             /** Notas del Proveedor */
             supplier_notes?: string | null;
+            /** Tipo de entidad */
+            content_type?: number | null;
+            /** ID de entidad */
+            object_id?: string | null;
         };
         /** @description Serializer para suscripciones push web. */
         PatchedPushSubscriptionRequest: {
@@ -59761,7 +64231,7 @@ export interface components {
             /**
              * Rendimiento Total (gramos)
              * Format: double
-             * @description Peso total en gramos de la receta terminada
+             * @description Rendimiento declarado del producto terminado (con merma). Ingresado por el usuario; el calculador no lo sobrescribe.
              */
             total_yield_grams?: number | null;
             /**
@@ -59779,6 +64249,26 @@ export interface components {
              * @description Instrucciones adicionales (ej: Mantener congelado, Refrigerar una vez abierto)
              */
             shelf_life_conditions?: string;
+            /**
+             * Resolución Sanitaria
+             * @description Nº de resolución sanitaria del producto o establecimiento
+             */
+            sanitary_resolution?: string;
+            /**
+             * Porción declarada
+             * Format: double
+             * @description Tamaño de porción declarado en la etiqueta (g o ml)
+             */
+            declared_portion_quantity?: number | null;
+            /**
+             * Unidad de porción declarada
+             * @description g o ml según contenido neto sólido/líquido
+             *
+             *     * `g` - g
+             *     * `ml` - ml
+             * @enum {string}
+             */
+            declared_portion_unit?: "g" | "ml" | "";
         };
         /** @description Serializer para pasos de recetas. */
         PatchedRecipeStepRequest: {
@@ -60435,9 +64925,8 @@ export interface components {
              *     * `promotions` - Promociones
              *     * `logistics` - Logística
              *     * `water_management` - Gestión Hídrica
-             * @enum {string}
              */
-            module_name?: "finance" | "sales" | "inventory" | "measurements" | "clients" | "suppliers" | "services" | "config" | "dashboard" | "promotions" | "logistics" | "water_management";
+            module_name?: string;
             /** Habilitado */
             is_enabled?: boolean;
             /**
@@ -61003,9 +65492,9 @@ export interface components {
              *     * `API_ERROR` - Error de API externa
              *     * `CONFIG_CHANGE` - Cambio de configuracion
              *     * `FIRMWARE_UPDATE` - Actualizacion de firmware
-             * @enum {string}
+             *     * `ALERT` - Alerta de regla IoT
              */
-            event_type?: "COUNTER_RESET" | "DISCONNECTION" | "RECONNECTION" | "MEASUREMENT_ERROR" | "MASSIVE_JUMP_BLOCKED" | "TOKEN_REFRESH" | "API_ERROR" | "CONFIG_CHANGE" | "FIRMWARE_UPDATE";
+            event_type?: string;
             /** Dispositivo */
             device?: number | null;
             /** Titulo */
@@ -61159,6 +65648,58 @@ export interface components {
             dga_response?: string | null;
             /** Comprobante DGA */
             dga_voucher?: string | null;
+            /** Enviar a SMA */
+            send_sma?: boolean;
+        };
+        /**
+         * @description Hace que ``branch`` sea un campo opcional y escribible por
+         *     PrimaryKeyRelatedField. Esto permite que los payloads puedan incluir
+         *     ``branch`` (UUID de sucursal) mientras que la vista se encarga de
+         *     asignar la sucursal por defecto cuando no se envía.
+         *
+         *     Hereda de ``serializers.Serializer`` para que DRF registre ``branch``
+         *     como campo declarado en las subclases ``ModelSerializer``.
+         *
+         *     Uso:
+         *         class MySerializer(BranchWritableMixin, serializers.ModelSerializer):
+         *             class Meta:
+         *                 model = MyModel
+         *                 fields = [..., "branch"]
+         */
+        PatchedTelemetryReportRequest: {
+            /** @description UUID de la sucursal. Solo editable por super administradores. */
+            branch?: number | null;
+            /** Nombre */
+            name?: string;
+            /** Descripción */
+            description?: string | null;
+            /**
+             * Corte
+             * @description * `SERIES` - Serie
+             *     * `LAST` - Última lectura
+             *     * `DAY` - Cierre del día
+             *     * `MONTH` - Cierre del mes
+             * @enum {string}
+             */
+            behavior?: "SERIES" | "LAST" | "DAY" | "MONTH";
+            /**
+             * Visualización
+             * @description * `line` - Línea
+             *     * `bar` - Barras
+             *     * `area` - Área
+             *     * `table` - Tabla
+             * @enum {string}
+             */
+            chart_type?: "line" | "bar" | "area" | "table";
+            /**
+             * Proyecto
+             * @description Si se indica, el informe incluye los equipos activos de ese proyecto.
+             */
+            project?: number | null;
+            devices?: number[];
+            variables?: number[];
+            /** Activo */
+            is_active?: boolean;
         };
         /** @description Serializer para TelemetryVariable. */
         PatchedTelemetryVariableRequest: {
@@ -61271,6 +65812,12 @@ export interface components {
             branch?: number | null;
             /** Nombre */
             name?: string;
+            /**
+             * Código
+             * @description Código estable para clientes (ej. feedback, incidencia).
+             * @default
+             */
+            code: string;
             /** Descripción */
             description?: string;
             /**
@@ -61337,6 +65884,8 @@ export interface components {
              * Format: uuid
              */
             category?: string;
+            /** @description Código de categoría Frig (duda, incidencia, reclamo, feedback, manual). */
+            category_code?: string;
             /**
              * Prioridad
              * @description * `LOW` - Baja
@@ -61394,9 +65943,11 @@ export interface components {
              * Origen
              * @description * `INTERNAL` - Interno
              *     * `WEB_FORM` - Formulario Web
+             *     * `PORTAL` - Portal del cliente
+             *     * `CHAT` - Chat
              * @enum {string}
              */
-            source?: "INTERNAL" | "WEB_FORM";
+            source?: "INTERNAL" | "WEB_FORM" | "PORTAL" | "CHAT";
             /** Tipo de Entidad */
             content_type?: number | null;
             /** ID de Entidad */
@@ -61413,6 +65964,11 @@ export interface components {
             satisfaction_score?: number | null;
             /** Comentario de Satisfacción */
             satisfaction_comment?: string;
+            /**
+             * Format: date-time
+             * @description Si el tipo requiere visita, abre la orden de trabajo en esta fecha.
+             */
+            scheduled_date?: string | null;
             /**
              * Activo
              * @description Indica si el registro está activo. Use esto en lugar de eliminar.
@@ -61484,7 +66040,7 @@ export interface components {
             description?: string;
             /**
              * Requiere visita técnica
-             * @description Si es True, los tickets de este tipo generan una orden de trabajo
+             * @description Si es True y el alta del ticket trae scheduled_date, se abre la orden de trabajo en esa fecha
              */
             requires_visit?: boolean;
             /**
@@ -61564,9 +66120,8 @@ export interface components {
              *     * `backup` - Backups
              *     * `security` - Seguridad
              *     * `api` - Integraciones API
-             * @enum {string}
              */
-            module_name?: "global" | "sales" | "inventory" | "finance" | "customers" | "suppliers" | "measurements" | "water_management" | "nutrition" | "pos" | "employees" | "equipment" | "promotions" | "logistics" | "scheduling" | "tables" | "services" | "analytics" | "notifications" | "backup" | "security" | "api";
+            module_name?: string;
             /**
              * Nombre del Esquema
              * @description Identificador único del esquema
@@ -61632,9 +66187,8 @@ export interface components {
              *     * `backup` - Backups
              *     * `security` - Seguridad
              *     * `api` - Integraciones API
-             * @enum {string}
              */
-            module_name?: "global" | "sales" | "inventory" | "finance" | "customers" | "suppliers" | "measurements" | "water_management" | "nutrition" | "pos" | "employees" | "equipment" | "promotions" | "logistics" | "scheduling" | "tables" | "services" | "analytics" | "notifications" | "backup" | "security" | "api";
+            module_name?: string;
             /**
              * Clave de Configuración
              * @description Identificador único para esta configuración
@@ -61789,9 +66343,10 @@ export interface components {
             email?: string;
             password?: string;
             /**
-             * RUT
-             * @description Formato: 12.345.678-9
+             * Activo
+             * @description Indica si el usuario debe ser tratado como activo. Desmarque esta opción en lugar de borrar la cuenta.
              */
+            is_active?: boolean;
             dni?: string;
             /**
              * Producto Asignado
@@ -61820,10 +66375,6 @@ export interface components {
              * @description Requerido. 150 carácteres como máximo. Únicamente letras, dígitos y @/./+/-/_
              */
             username?: string;
-            /**
-             * RUT
-             * @description Formato: 12.345.678-9
-             */
             dni?: string;
         };
         /** @description Warehouse Product serializer. */
@@ -61915,6 +66466,13 @@ export interface components {
              */
             is_default?: boolean;
             branch_id?: number;
+        };
+        /** @description Ajuste de stock. quantity ausente es 400, no un vaciado a 0. */
+        PatchedWarehouseUpdateQuantityRequest: {
+            /** Format: double */
+            quantity?: number;
+            /** @default  */
+            notes: string;
         };
         PatchedWebhookEndpointRequest: {
             /** Nombre */
@@ -64117,6 +68675,43 @@ export interface components {
              */
             sodium_mg?: number | null;
             /**
+             * Densidad (g/ml)
+             * Format: double
+             * @description Densidad opcional para convertir ml/l a gramos. Si no se informa, se asume 1 g/ml con advertencia.
+             */
+            density_g_per_ml?: number | null;
+            /**
+             * Gramos por Unidad
+             * Format: double
+             * @description Peso en gramos de una unidad del producto. Obligatorio cuando la receta usa la unidad 'unidad'.
+             */
+            grams_per_unit?: number | null;
+            /**
+             * Contiene (alérgenos)
+             * @description Códigos RSA art. 107 presentes en el producto. null = sin declarar; [] = declarado sin alérgenos.
+             */
+            contains_allergens?: unknown;
+            /**
+             * Puede contener (alérgenos)
+             * @description Códigos RSA art. 107 por posible contaminación cruzada. null = sin declarar; [] = declarado sin trazas.
+             */
+            may_contain_allergens?: unknown;
+            /**
+             * Azúcares añadidos
+             * @description True si se adicionaron azúcares, miel o jarabes.
+             */
+            has_added_sugars?: boolean;
+            /**
+             * Grasas saturadas añadidas
+             * @description True si se adicionaron grasas saturadas.
+             */
+            has_added_saturated_fats?: boolean;
+            /**
+             * Sodio añadido
+             * @description True si se adicionó sodio (sal u otros).
+             */
+            has_added_sodium?: boolean;
+            /**
              * Estanque Asociado
              * @description Producto contenedor o estanque al que está asociado este residuo o material
              */
@@ -64822,6 +69417,43 @@ export interface components {
              * @description Miligramos de sodio por 100g
              */
             sodium_mg?: number | null;
+            /**
+             * Densidad (g/ml)
+             * Format: double
+             * @description Densidad opcional para convertir ml/l a gramos. Si no se informa, se asume 1 g/ml con advertencia.
+             */
+            density_g_per_ml?: number | null;
+            /**
+             * Gramos por Unidad
+             * Format: double
+             * @description Peso en gramos de una unidad del producto. Obligatorio cuando la receta usa la unidad 'unidad'.
+             */
+            grams_per_unit?: number | null;
+            /**
+             * Contiene (alérgenos)
+             * @description Códigos RSA art. 107 presentes en el producto. null = sin declarar; [] = declarado sin alérgenos.
+             */
+            contains_allergens?: unknown;
+            /**
+             * Puede contener (alérgenos)
+             * @description Códigos RSA art. 107 por posible contaminación cruzada. null = sin declarar; [] = declarado sin trazas.
+             */
+            may_contain_allergens?: unknown;
+            /**
+             * Azúcares añadidos
+             * @description True si se adicionaron azúcares, miel o jarabes.
+             */
+            has_added_sugars?: boolean;
+            /**
+             * Grasas saturadas añadidas
+             * @description True si se adicionaron grasas saturadas.
+             */
+            has_added_saturated_fats?: boolean;
+            /**
+             * Sodio añadido
+             * @description True si se adicionó sodio (sal u otros).
+             */
+            has_added_sodium?: boolean;
         };
         /** @description Serializer para vincular productos con grupos de modificadores. */
         ProductModifierGroup: {
@@ -65162,6 +69794,43 @@ export interface components {
              * @description Miligramos de sodio por 100g
              */
             sodium_mg?: number | null;
+            /**
+             * Densidad (g/ml)
+             * Format: double
+             * @description Densidad opcional para convertir ml/l a gramos. Si no se informa, se asume 1 g/ml con advertencia.
+             */
+            density_g_per_ml?: number | null;
+            /**
+             * Gramos por Unidad
+             * Format: double
+             * @description Peso en gramos de una unidad del producto. Obligatorio cuando la receta usa la unidad 'unidad'.
+             */
+            grams_per_unit?: number | null;
+            /**
+             * Contiene (alérgenos)
+             * @description Códigos RSA art. 107 presentes en el producto. null = sin declarar; [] = declarado sin alérgenos.
+             */
+            contains_allergens?: unknown;
+            /**
+             * Puede contener (alérgenos)
+             * @description Códigos RSA art. 107 por posible contaminación cruzada. null = sin declarar; [] = declarado sin trazas.
+             */
+            may_contain_allergens?: unknown;
+            /**
+             * Azúcares añadidos
+             * @description True si se adicionaron azúcares, miel o jarabes.
+             */
+            has_added_sugars?: boolean;
+            /**
+             * Grasas saturadas añadidas
+             * @description True si se adicionaron grasas saturadas.
+             */
+            has_added_saturated_fats?: boolean;
+            /**
+             * Sodio añadido
+             * @description True si se adicionó sodio (sal u otros).
+             */
+            has_added_sodium?: boolean;
             /**
              * Estanque Asociado
              * @description Producto contenedor o estanque al que está asociado este residuo o material
@@ -66509,7 +71178,8 @@ export interface components {
         };
         /** @description Serializer para mensajes entrantes desde el widget web. */
         PublicChatMessageRequest: {
-            user_id: string;
+            user_id?: string;
+            visitor_token?: string;
             user_name?: string;
             message: string;
             /** Format: email */
@@ -66520,10 +71190,7 @@ export interface components {
             success: boolean;
             response: string | null;
             session_id: string | null;
-            /** debug */
-            _debug?: {
-                [key: string]: unknown;
-            } | null;
+            visitor_token?: string;
         };
         /**
          * @description Registro público de cliente final de una sucursal.
@@ -66922,6 +71589,10 @@ export interface components {
             notes?: string | null;
             /** Notas del Proveedor */
             supplier_notes?: string | null;
+            /** Tipo de entidad */
+            content_type?: number | null;
+            /** ID de entidad */
+            object_id?: string | null;
             readonly items: components["schemas"]["PurchaseOrderItem"][];
             readonly supplier_type_display: string | null;
             /**
@@ -66988,6 +71659,10 @@ export interface components {
             notes?: string | null;
             /** Notas del Proveedor */
             supplier_notes?: string | null;
+            /** Tipo de entidad */
+            content_type?: number | null;
+            /** ID de entidad */
+            object_id?: string | null;
             items: components["schemas"]["PurchaseOrderItem"][];
         };
         /** @description Serializer para crear órdenes de compra. */
@@ -67041,6 +71716,10 @@ export interface components {
             notes?: string | null;
             /** Notas del Proveedor */
             supplier_notes?: string | null;
+            /** Tipo de entidad */
+            content_type?: number | null;
+            /** ID de entidad */
+            object_id?: string | null;
             items: components["schemas"]["PurchaseOrderItemRequest"][];
         };
         /** @description Serializer para items de órdenes de compra. */
@@ -67314,6 +71993,10 @@ export interface components {
             notes?: string | null;
             /** Notas del Proveedor */
             supplier_notes?: string | null;
+            /** Tipo de entidad */
+            content_type?: number | null;
+            /** ID de entidad */
+            object_id?: string | null;
         };
         /** @description Serializer para suscripciones push web. */
         PushSubscription: {
@@ -67798,14 +72481,35 @@ export interface components {
             /**
              * Rendimiento Total (gramos)
              * Format: double
-             * @description Peso total en gramos de la receta terminada
+             * @description Rendimiento declarado del producto terminado (con merma). Ingresado por el usuario; el calculador no lo sobrescribe.
              */
             total_yield_grams?: number | null;
+            /**
+             * Peso Crudo Calculado (gramos)
+             * Format: double
+             * @description Suma de pesos de ingredientes convertidos a gramos
+             */
+            readonly raw_weight_grams: number | null;
             /**
              * Tiene Cálculo Nutricional
              * @description Indica si esta receta tiene cálculo nutricional automático
              */
             readonly has_nutritional_calculation: boolean;
+            /**
+             * Cálculo Nutricional Completo
+             * @description False si faltan datos obligatorios en algún ingrediente
+             */
+            readonly nutrition_is_complete: boolean;
+            /**
+             * Detalle de Datos Nutricionales Faltantes
+             * @description Ingredientes y campos faltantes del último cálculo
+             */
+            readonly nutrition_missing_details: unknown;
+            /**
+             * Hash de Insumos Nutricionales
+             * @description SHA-256 de ingredientes/cantidades/datos para saber si el cálculo está vigente
+             */
+            readonly nutrition_inputs_hash: string | null;
             /**
              * Duración (días)
              * @description Vida útil del producto en días
@@ -67821,6 +72525,26 @@ export interface components {
              * @description Instrucciones adicionales (ej: Mantener congelado, Refrigerar una vez abierto)
              */
             shelf_life_conditions?: string;
+            /**
+             * Resolución Sanitaria
+             * @description Nº de resolución sanitaria del producto o establecimiento
+             */
+            sanitary_resolution?: string;
+            /**
+             * Porción declarada
+             * Format: double
+             * @description Tamaño de porción declarado en la etiqueta (g o ml)
+             */
+            declared_portion_quantity?: number | null;
+            /**
+             * Unidad de porción declarada
+             * @description g o ml según contenido neto sólido/líquido
+             *
+             *     * `g` - g
+             *     * `ml` - ml
+             * @enum {string}
+             */
+            declared_portion_unit?: "g" | "ml" | "";
             /**
              * Última Actualización Nutricional
              * Format: date-time
@@ -68149,7 +72873,7 @@ export interface components {
             /**
              * Rendimiento Total (gramos)
              * Format: double
-             * @description Peso total en gramos de la receta terminada
+             * @description Rendimiento declarado del producto terminado (con merma). Ingresado por el usuario; el calculador no lo sobrescribe.
              */
             total_yield_grams?: number | null;
             /**
@@ -68167,6 +72891,26 @@ export interface components {
              * @description Instrucciones adicionales (ej: Mantener congelado, Refrigerar una vez abierto)
              */
             shelf_life_conditions?: string;
+            /**
+             * Resolución Sanitaria
+             * @description Nº de resolución sanitaria del producto o establecimiento
+             */
+            sanitary_resolution?: string;
+            /**
+             * Porción declarada
+             * Format: double
+             * @description Tamaño de porción declarado en la etiqueta (g o ml)
+             */
+            declared_portion_quantity?: number | null;
+            /**
+             * Unidad de porción declarada
+             * @description g o ml según contenido neto sólido/líquido
+             *
+             *     * `g` - g
+             *     * `ml` - ml
+             * @enum {string}
+             */
+            declared_portion_unit?: "g" | "ml" | "";
         };
         /** @description Serializer para pasos de recetas. */
         RecipeStep: {
@@ -68282,6 +73026,12 @@ export interface components {
              * Format: double
              */
             cost_modifier?: number;
+        };
+        /** @description Body para reenviar invitación a un usuario pendiente de la sucursal. */
+        ResendBranchInvitationRequest: {
+            user_id?: number;
+            /** Format: email */
+            email?: string;
         };
         ResetPassword: {
             /** Format: email */
@@ -68632,6 +73382,10 @@ export interface components {
              */
             frequency?: "MONTHLY" | "QUARTERLY" | "SEMI_ANNUAL" | "ANNUAL" | "ONE_TIME";
         };
+        RunaPackRequest: {
+            amount_clp: number;
+            branch_id?: number;
+        };
         /**
          * @description Hace que ``branch`` sea un campo opcional y escribible por
          *     PrimaryKeyRelatedField. Esto permite que los payloads puedan incluir
@@ -68950,6 +73704,37 @@ export interface components {
             module: string;
             warnings?: string[];
             error?: string;
+        };
+        /** @description Caja OPEN de un día anterior, para current/. */
+        StaleOpenRegister: {
+            id: number;
+            /** Format: date */
+            date: string;
+            station_name: string | null;
+            /** Format: double */
+            opening_amount: number;
+            /** Format: double */
+            expected_amount: number | null;
+            opened_by: number | null;
+        };
+        /** @description Ítem de mensajería alumno ↔ staff (incluye autoría y permiso de borrado). */
+        StudentMessageItem: {
+            id: number;
+            author_id: number | null;
+            author_role: string;
+            author_role_label: string;
+            author_name: string;
+            recipient_role?: string | null;
+            body: string;
+            created: string | null;
+            read_at?: string | null;
+            broadcast_id?: string | null;
+            can_delete: boolean;
+        };
+        StudentMessageThread: {
+            thread_id: number;
+            client_id: number;
+            items: components["schemas"]["StudentMessageItem"][];
         };
         /** @description Cuota de un pago de suscripción. */
         SubscriptionInstallment: {
@@ -70026,9 +74811,8 @@ export interface components {
              *     * `promotions` - Promociones
              *     * `logistics` - Logística
              *     * `water_management` - Gestión Hídrica
-             * @enum {string}
              */
-            module_name: "finance" | "sales" | "inventory" | "measurements" | "clients" | "suppliers" | "services" | "config" | "dashboard" | "promotions" | "logistics" | "water_management";
+            module_name: string;
             readonly module_display: string;
             /** Habilitado */
             is_enabled?: boolean;
@@ -70070,9 +74854,8 @@ export interface components {
              *     * `promotions` - Promociones
              *     * `logistics` - Logística
              *     * `water_management` - Gestión Hídrica
-             * @enum {string}
              */
-            module_name: "finance" | "sales" | "inventory" | "measurements" | "clients" | "suppliers" | "services" | "config" | "dashboard" | "promotions" | "logistics" | "water_management";
+            module_name: string;
             /** Habilitado */
             is_enabled?: boolean;
             /**
@@ -71849,6 +76632,7 @@ export interface components {
             readonly config: components["schemas"]["DeviceConfig"];
             readonly compliance_config: components["schemas"]["ComplianceConfig"];
             readonly variables: string;
+            readonly latest: unknown[];
             readonly latest_readings: string;
             /**
              * Metadatos
@@ -71910,6 +76694,7 @@ export interface components {
             last_reading_at?: string | null;
             readonly minutes_offline: string;
             readonly variables_count: string;
+            readonly latest: unknown[];
             /**
              * Latitud
              * Format: double
@@ -72012,9 +76797,9 @@ export interface components {
              *     * `API_ERROR` - Error de API externa
              *     * `CONFIG_CHANGE` - Cambio de configuracion
              *     * `FIRMWARE_UPDATE` - Actualizacion de firmware
-             * @enum {string}
+             *     * `ALERT` - Alerta de regla IoT
              */
-            event_type: "COUNTER_RESET" | "DISCONNECTION" | "RECONNECTION" | "MEASUREMENT_ERROR" | "MASSIVE_JUMP_BLOCKED" | "TOKEN_REFRESH" | "API_ERROR" | "CONFIG_CHANGE" | "FIRMWARE_UPDATE";
+            event_type: string;
             readonly event_type_display: string;
             /** Dispositivo */
             device?: number | null;
@@ -72066,9 +76851,9 @@ export interface components {
              *     * `API_ERROR` - Error de API externa
              *     * `CONFIG_CHANGE` - Cambio de configuracion
              *     * `FIRMWARE_UPDATE` - Actualizacion de firmware
-             * @enum {string}
+             *     * `ALERT` - Alerta de regla IoT
              */
-            event_type: "COUNTER_RESET" | "DISCONNECTION" | "RECONNECTION" | "MEASUREMENT_ERROR" | "MASSIVE_JUMP_BLOCKED" | "TOKEN_REFRESH" | "API_ERROR" | "CONFIG_CHANGE" | "FIRMWARE_UPDATE";
+            event_type: string;
             readonly event_type_display: string;
             readonly device_name: string;
             /** Titulo */
@@ -72102,9 +76887,9 @@ export interface components {
              *     * `API_ERROR` - Error de API externa
              *     * `CONFIG_CHANGE` - Cambio de configuracion
              *     * `FIRMWARE_UPDATE` - Actualizacion de firmware
-             * @enum {string}
+             *     * `ALERT` - Alerta de regla IoT
              */
-            event_type: "COUNTER_RESET" | "DISCONNECTION" | "RECONNECTION" | "MEASUREMENT_ERROR" | "MASSIVE_JUMP_BLOCKED" | "TOKEN_REFRESH" | "API_ERROR" | "CONFIG_CHANGE" | "FIRMWARE_UPDATE";
+            event_type: string;
             /** Dispositivo */
             device?: number | null;
             /** Titulo */
@@ -72390,6 +77175,17 @@ export interface components {
             dga_response?: string | null;
             /** Comprobante DGA */
             dga_voucher?: string | null;
+            /** Enviar a SMA */
+            send_sma?: boolean;
+            /**
+             * Fecha envio SMA
+             * Format: date-time
+             */
+            readonly sma_sent_at: string | null;
+            /** Respuesta SMA */
+            readonly sma_response: string | null;
+            /** Comprobante SMA */
+            readonly sma_voucher: string | null;
             /**
              * Created at
              * Format: date-time
@@ -72443,6 +77239,121 @@ export interface components {
             dga_response?: string | null;
             /** Comprobante DGA */
             dga_voucher?: string | null;
+            /** Enviar a SMA */
+            send_sma?: boolean;
+        };
+        /**
+         * @description Hace que ``branch`` sea un campo opcional y escribible por
+         *     PrimaryKeyRelatedField. Esto permite que los payloads puedan incluir
+         *     ``branch`` (UUID de sucursal) mientras que la vista se encarga de
+         *     asignar la sucursal por defecto cuando no se envía.
+         *
+         *     Hereda de ``serializers.Serializer`` para que DRF registre ``branch``
+         *     como campo declarado en las subclases ``ModelSerializer``.
+         *
+         *     Uso:
+         *         class MySerializer(BranchWritableMixin, serializers.ModelSerializer):
+         *             class Meta:
+         *                 model = MyModel
+         *                 fields = [..., "branch"]
+         */
+        TelemetryReport: {
+            readonly id: number;
+            /** @description UUID de la sucursal. Solo editable por super administradores. */
+            branch?: number | null;
+            /** Nombre */
+            name: string;
+            /** Descripción */
+            description?: string | null;
+            /**
+             * Corte
+             * @description * `SERIES` - Serie
+             *     * `LAST` - Última lectura
+             *     * `DAY` - Cierre del día
+             *     * `MONTH` - Cierre del mes
+             * @enum {string}
+             */
+            behavior?: "SERIES" | "LAST" | "DAY" | "MONTH";
+            /**
+             * Visualización
+             * @description * `line` - Línea
+             *     * `bar` - Barras
+             *     * `area` - Área
+             *     * `table` - Tabla
+             * @enum {string}
+             */
+            chart_type?: "line" | "bar" | "area" | "table";
+            /**
+             * Proyecto
+             * @description Si se indica, el informe incluye los equipos activos de ese proyecto.
+             */
+            project?: number | null;
+            devices?: number[];
+            variables?: number[];
+            /** Activo */
+            is_active?: boolean;
+            /**
+             * Created at
+             * Format: date-time
+             * @description Fecha de creacion.
+             */
+            readonly created: string;
+            /**
+             * Modified at
+             * Format: date-time
+             * @description Fecha de modificacion.
+             */
+            readonly modified: string;
+        };
+        /**
+         * @description Hace que ``branch`` sea un campo opcional y escribible por
+         *     PrimaryKeyRelatedField. Esto permite que los payloads puedan incluir
+         *     ``branch`` (UUID de sucursal) mientras que la vista se encarga de
+         *     asignar la sucursal por defecto cuando no se envía.
+         *
+         *     Hereda de ``serializers.Serializer`` para que DRF registre ``branch``
+         *     como campo declarado en las subclases ``ModelSerializer``.
+         *
+         *     Uso:
+         *         class MySerializer(BranchWritableMixin, serializers.ModelSerializer):
+         *             class Meta:
+         *                 model = MyModel
+         *                 fields = [..., "branch"]
+         */
+        TelemetryReportRequest: {
+            /** @description UUID de la sucursal. Solo editable por super administradores. */
+            branch?: number | null;
+            /** Nombre */
+            name: string;
+            /** Descripción */
+            description?: string | null;
+            /**
+             * Corte
+             * @description * `SERIES` - Serie
+             *     * `LAST` - Última lectura
+             *     * `DAY` - Cierre del día
+             *     * `MONTH` - Cierre del mes
+             * @enum {string}
+             */
+            behavior?: "SERIES" | "LAST" | "DAY" | "MONTH";
+            /**
+             * Visualización
+             * @description * `line` - Línea
+             *     * `bar` - Barras
+             *     * `area` - Área
+             *     * `table` - Tabla
+             * @enum {string}
+             */
+            chart_type?: "line" | "bar" | "area" | "table";
+            /**
+             * Proyecto
+             * @description Si se indica, el informe incluye los equipos activos de ese proyecto.
+             */
+            project?: number | null;
+            devices?: number[];
+            variables?: number[];
+            /** Activo */
+            is_active?: boolean;
         };
         /** @description Serializer para TelemetryVariable. */
         TelemetryVariable: {
@@ -72696,6 +77607,12 @@ export interface components {
             branch?: number | null;
             /** Nombre */
             name: string;
+            /**
+             * Código
+             * @description Código estable para clientes (ej. feedback, incidencia).
+             * @default
+             */
+            code: string;
             /** Descripción */
             description?: string;
             /**
@@ -72743,6 +77660,12 @@ export interface components {
             branch?: number | null;
             /** Nombre */
             name: string;
+            /**
+             * Código
+             * @description Código estable para clientes (ej. feedback, incidencia).
+             * @default
+             */
+            code: string;
             /** Descripción */
             description?: string;
             /**
@@ -72892,6 +77815,8 @@ export interface components {
             assigned_to?: string | null;
             /** Cliente */
             client?: number | null;
+            /** Solicitante */
+            readonly requester: number | null;
             /**
              * Email del Solicitante
              * Format: email
@@ -72903,9 +77828,11 @@ export interface components {
              * Origen
              * @description * `INTERNAL` - Interno
              *     * `WEB_FORM` - Formulario Web
+             *     * `PORTAL` - Portal del cliente
+             *     * `CHAT` - Chat
              * @enum {string}
              */
-            source?: "INTERNAL" | "WEB_FORM";
+            source?: "INTERNAL" | "WEB_FORM" | "PORTAL" | "CHAT";
             /** Tipo de Entidad */
             content_type?: number | null;
             /** ID de Entidad */
@@ -72972,6 +77899,8 @@ export interface components {
              * Format: uuid
              */
             category: string;
+            /** @description Código de categoría Frig (duda, incidencia, reclamo, feedback, manual). */
+            category_code?: string;
             /**
              * Prioridad
              * @description * `LOW` - Baja
@@ -73029,9 +77958,11 @@ export interface components {
              * Origen
              * @description * `INTERNAL` - Interno
              *     * `WEB_FORM` - Formulario Web
+             *     * `PORTAL` - Portal del cliente
+             *     * `CHAT` - Chat
              * @enum {string}
              */
-            source?: "INTERNAL" | "WEB_FORM";
+            source?: "INTERNAL" | "WEB_FORM" | "PORTAL" | "CHAT";
             /** Tipo de Entidad */
             content_type?: number | null;
             /** ID de Entidad */
@@ -73048,6 +77979,11 @@ export interface components {
             satisfaction_score?: number | null;
             /** Comentario de Satisfacción */
             satisfaction_comment?: string;
+            /**
+             * Format: date-time
+             * @description Si el tipo requiere visita, abre la orden de trabajo en esta fecha.
+             */
+            scheduled_date?: string | null;
             /**
              * Activo
              * @description Indica si el registro está activo. Use esto en lugar de eliminar.
@@ -73075,6 +78011,8 @@ export interface components {
              */
             category: string;
             readonly category_name: string;
+            /** @default  */
+            readonly category_code: string;
             readonly category_parent_name: string;
             /** @default #1890ff */
             readonly category_color: string;
@@ -73141,6 +78079,8 @@ export interface components {
             /** Cliente */
             client?: number | null;
             readonly client_name: string;
+            /** Solicitante */
+            readonly requester: number | null;
             /**
              * Email del Solicitante
              * Format: email
@@ -73152,9 +78092,11 @@ export interface components {
              * Origen
              * @description * `INTERNAL` - Interno
              *     * `WEB_FORM` - Formulario Web
+             *     * `PORTAL` - Portal del cliente
+             *     * `CHAT` - Chat
              * @enum {string}
              */
-            source?: "INTERNAL" | "WEB_FORM";
+            source?: "INTERNAL" | "WEB_FORM" | "PORTAL" | "CHAT";
             /** Tipo de Entidad */
             content_type?: number | null;
             /** ID de Entidad */
@@ -73279,6 +78221,8 @@ export interface components {
              */
             category: string;
             readonly category_name: string;
+            /** @default  */
+            readonly category_code: string;
             readonly category_parent_name: string;
             /** @default #1890ff */
             readonly category_color: string;
@@ -73345,6 +78289,8 @@ export interface components {
             /** Cliente */
             client?: number | null;
             readonly client_name: string;
+            /** Solicitante */
+            readonly requester: number | null;
             /**
              * Email del Solicitante
              * Format: email
@@ -73356,9 +78302,11 @@ export interface components {
              * Origen
              * @description * `INTERNAL` - Interno
              *     * `WEB_FORM` - Formulario Web
+             *     * `PORTAL` - Portal del cliente
+             *     * `CHAT` - Chat
              * @enum {string}
              */
-            source?: "INTERNAL" | "WEB_FORM";
+            source?: "INTERNAL" | "WEB_FORM" | "PORTAL" | "CHAT";
             /**
              * Primera Respuesta
              * Format: date-time
@@ -73481,9 +78429,11 @@ export interface components {
              * Origen
              * @description * `INTERNAL` - Interno
              *     * `WEB_FORM` - Formulario Web
+             *     * `PORTAL` - Portal del cliente
+             *     * `CHAT` - Chat
              * @enum {string}
              */
-            source?: "INTERNAL" | "WEB_FORM";
+            source?: "INTERNAL" | "WEB_FORM" | "PORTAL" | "CHAT";
             /**
              * Primera Respuesta
              * Format: date-time
@@ -73509,6 +78459,33 @@ export interface components {
              * @description Indica si el registro está activo. Use esto en lugar de eliminar.
              */
             is_active?: boolean;
+        };
+        TicketSubmitError: {
+            error: string;
+        };
+        /**
+         * @description Contrato self-service (Frig / usuarios sin escritura en ``config``).
+         *
+         *     Solo subject, description, category/category_code y priority permitidas.
+         *     Campos de gestión (assigned_to, status, sla_policy, …) no forman parte
+         *     de este contrato.
+         */
+        TicketSubmitRequest: {
+            subject: string;
+            description: string;
+            /** @description duda | incidencia | reclamo | feedback | manual */
+            category_code?: string;
+            /** Format: uuid */
+            category?: string | null;
+            /**
+             * @description * `LOW` - LOW
+             *     * `MEDIUM` - MEDIUM
+             *     * `HIGH` - HIGH
+             *     * `CRITICAL` - CRITICAL
+             * @default MEDIUM
+             * @enum {string}
+             */
+            priority: "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
         };
         TicketTimer: {
             /** Format: uuid */
@@ -73597,7 +78574,7 @@ export interface components {
             description?: string;
             /**
              * Requiere visita técnica
-             * @description Si es True, los tickets de este tipo generan una orden de trabajo
+             * @description Si es True y el alta del ticket trae scheduled_date, se abre la orden de trabajo en esa fecha
              */
             requires_visit?: boolean;
             /**
@@ -73656,7 +78633,7 @@ export interface components {
             description?: string;
             /**
              * Requiere visita técnica
-             * @description Si es True, los tickets de este tipo generan una orden de trabajo
+             * @description Si es True y el alta del ticket trae scheduled_date, se abre la orden de trabajo en esa fecha
              */
             requires_visit?: boolean;
             /**
@@ -73818,9 +78795,8 @@ export interface components {
              *     * `backup` - Backups
              *     * `security` - Seguridad
              *     * `api` - Integraciones API
-             * @enum {string}
              */
-            module_name: "global" | "sales" | "inventory" | "finance" | "customers" | "suppliers" | "measurements" | "water_management" | "nutrition" | "pos" | "employees" | "equipment" | "promotions" | "logistics" | "scheduling" | "tables" | "services" | "analytics" | "notifications" | "backup" | "security" | "api";
+            module_name: string;
             /**
              * Nombre del Esquema
              * @description Identificador único del esquema
@@ -73898,9 +78874,8 @@ export interface components {
              *     * `backup` - Backups
              *     * `security` - Seguridad
              *     * `api` - Integraciones API
-             * @enum {string}
              */
-            module_name: "global" | "sales" | "inventory" | "finance" | "customers" | "suppliers" | "measurements" | "water_management" | "nutrition" | "pos" | "employees" | "equipment" | "promotions" | "logistics" | "scheduling" | "tables" | "services" | "analytics" | "notifications" | "backup" | "security" | "api";
+            module_name: string;
             /**
              * Nombre del Esquema
              * @description Identificador único del esquema
@@ -74052,9 +79027,8 @@ export interface components {
              *     * `backup` - Backups
              *     * `security` - Seguridad
              *     * `api` - Integraciones API
-             * @enum {string}
              */
-            module_name: "global" | "sales" | "inventory" | "finance" | "customers" | "suppliers" | "measurements" | "water_management" | "nutrition" | "pos" | "employees" | "equipment" | "promotions" | "logistics" | "scheduling" | "tables" | "services" | "analytics" | "notifications" | "backup" | "security" | "api";
+            module_name: string;
             /**
              * Clave de Configuración
              * @description Identificador único para esta configuración
@@ -74162,9 +79136,8 @@ export interface components {
              *     * `backup` - Backups
              *     * `security` - Seguridad
              *     * `api` - Integraciones API
-             * @enum {string}
              */
-            module_name: "global" | "sales" | "inventory" | "finance" | "customers" | "suppliers" | "measurements" | "water_management" | "nutrition" | "pos" | "employees" | "equipment" | "promotions" | "logistics" | "scheduling" | "tables" | "services" | "analytics" | "notifications" | "backup" | "security" | "api";
+            module_name: string;
             /**
              * Clave de Configuración
              * @description Identificador único para esta configuración
@@ -74244,10 +79217,12 @@ export interface components {
              *     * `WASTE_MANAGER` - Gestor de Residuos
              *     * `APR` - APR - Gestión Hídrica
              *     * `PAYROLL_ADMIN` - Administrativo de Nómina
+             *     * `COACH` - Coach
+             *     * `FORJA_ADMIN` - Admin Forja
+             *     * `FORJA_ALUMNO` - Alumno Forja
              * @default EMPLOYEE
-             * @enum {string}
              */
-            role: "SUPERUSER" | "ADM" | "CL" | "OWNER" | "ADMIN_LOCAL" | "MANAGER" | "EMPLOYEE" | "CAJERO" | "METER" | "RECEIVER" | "DRIVER" | "WAITER" | "OPERATOR" | "VIEWER" | "NUTRITION_LABELER" | "WASTE_MANAGER" | "APR" | "PAYROLL_ADMIN";
+            role: string;
             /** @default true */
             is_active: boolean;
         };
@@ -74274,10 +79249,12 @@ export interface components {
              *     * `WASTE_MANAGER` - Gestor de Residuos
              *     * `APR` - APR - Gestión Hídrica
              *     * `PAYROLL_ADMIN` - Administrativo de Nómina
+             *     * `COACH` - Coach
+             *     * `FORJA_ADMIN` - Admin Forja
+             *     * `FORJA_ALUMNO` - Alumno Forja
              * @default EMPLOYEE
-             * @enum {string}
              */
-            role: "SUPERUSER" | "ADM" | "CL" | "OWNER" | "ADMIN_LOCAL" | "MANAGER" | "EMPLOYEE" | "CAJERO" | "METER" | "RECEIVER" | "DRIVER" | "WAITER" | "OPERATOR" | "VIEWER" | "NUTRITION_LABELER" | "WASTE_MANAGER" | "APR" | "PAYROLL_ADMIN";
+            role: string;
             /** @default true */
             is_active: boolean;
         };
@@ -74531,7 +79508,7 @@ export interface components {
              * Activo
              * @description Indica si el usuario debe ser tratado como activo. Desmarque esta opción en lugar de borrar la cuenta.
              */
-            readonly is_active: boolean;
+            is_active: boolean;
             /**
              * Es staff
              * @description Indica si el usuario puede entrar en este sitio de administración.
@@ -74552,10 +79529,6 @@ export interface components {
              * Format: date-time
              */
             readonly last_login: string | null;
-            /**
-             * RUT
-             * @description Formato: 12.345.678-9
-             */
             dni: string;
             /**
              * Tipo de Usuario
@@ -74611,9 +79584,10 @@ export interface components {
             email: string;
             password?: string;
             /**
-             * RUT
-             * @description Formato: 12.345.678-9
+             * Activo
+             * @description Indica si el usuario debe ser tratado como activo. Desmarque esta opción en lugar de borrar la cuenta.
              */
+            is_active?: boolean;
             dni: string;
             /**
              * Producto Asignado
@@ -74642,10 +79616,6 @@ export interface components {
              * @description Requerido. 150 carácteres como máximo. Únicamente letras, dígitos y @/./+/-/_
              */
             username?: string;
-            /**
-             * RUT
-             * @description Formato: 12.345.678-9
-             */
             dni?: string;
         };
         UserResponse: {
@@ -74698,6 +79668,7 @@ export interface components {
              * @description Indica si el usuario puede acceder y cambiar entre múltiples sucursales desde el frontend.
              */
             is_multi_branch?: boolean;
+            readonly has_usable_password: boolean;
             /**
              * Último inicio de sesión
              * Format: date-time
@@ -74757,10 +79728,12 @@ export interface components {
              *     * `WASTE_MANAGER` - Gestor de Residuos
              *     * `APR` - APR - Gestión Hídrica
              *     * `PAYROLL_ADMIN` - Administrativo de Nómina
+             *     * `COACH` - Coach
+             *     * `FORJA_ADMIN` - Admin Forja
+             *     * `FORJA_ALUMNO` - Alumno Forja
              * @default VIEWER
-             * @enum {string}
              */
-            role: "SUPERUSER" | "ADM" | "CL" | "OWNER" | "ADMIN_LOCAL" | "MANAGER" | "EMPLOYEE" | "CAJERO" | "METER" | "RECEIVER" | "DRIVER" | "WAITER" | "OPERATOR" | "VIEWER" | "NUTRITION_LABELER" | "WASTE_MANAGER" | "APR" | "PAYROLL_ADMIN";
+            role: string;
             /** @default true */
             is_active: boolean;
         };
@@ -74796,10 +79769,12 @@ export interface components {
              *     * `WASTE_MANAGER` - Gestor de Residuos
              *     * `APR` - APR - Gestión Hídrica
              *     * `PAYROLL_ADMIN` - Administrativo de Nómina
+             *     * `COACH` - Coach
+             *     * `FORJA_ADMIN` - Admin Forja
+             *     * `FORJA_ALUMNO` - Alumno Forja
              * @default VIEWER
-             * @enum {string}
              */
-            role: "SUPERUSER" | "ADM" | "CL" | "OWNER" | "ADMIN_LOCAL" | "MANAGER" | "EMPLOYEE" | "CAJERO" | "METER" | "RECEIVER" | "DRIVER" | "WAITER" | "OPERATOR" | "VIEWER" | "NUTRITION_LABELER" | "WASTE_MANAGER" | "APR" | "PAYROLL_ADMIN";
+            role: string;
             /** @default true */
             is_active: boolean;
             profile_data?: {
@@ -74878,10 +79853,24 @@ export interface components {
              */
             readonly modified: string;
         };
+        /** @description Serializer para métricas de bodegas. */
+        WarehouseMetrics: {
+            warehouse: components["schemas"]["Warehouse"];
+            total_products: number;
+            total_quantity: number;
+            /** Format: double */
+            total_value: number;
+            /** Format: double */
+            total_sale_value: number;
+            low_stock_products: number;
+            out_of_stock_products: number;
+            /** Format: double */
+            utilization_percentage: number;
+        };
         /** @description Warehouse Product serializer. */
         WarehouseProduct: {
             readonly id: number;
-            readonly warehouse: components["schemas"]["Warehouse"];
+            readonly warehouse: string;
             /** Producto */
             product?: number;
             readonly product_name: string;
@@ -74890,6 +79879,11 @@ export interface components {
             readonly product_measurement_unit: string;
             /** Format: double */
             readonly product_cost: number;
+            /** Format: double */
+            readonly product_sale_price: number;
+            readonly total_sale_value: string;
+            readonly product_type: string;
+            readonly tracks_inventory: boolean;
             /**
              * Cantidad Actual
              * Format: double
@@ -75032,6 +80026,29 @@ export interface components {
              */
             is_default?: boolean;
             branch_id: number;
+        };
+        /** @description Serializer para transferencias entre bodegas. */
+        WarehouseTransferRequest: {
+            source_warehouse_id: number;
+            target_warehouse_id: number;
+            /** @description Lista de productos con product_id y quantity */
+            products: {
+                [key: string]: unknown;
+            }[];
+        };
+        /** @description Respuesta real de la transferencia, no el body de entrada. */
+        WarehouseTransferResponse: {
+            message: string;
+            transferred_products: {
+                [key: string]: unknown;
+            }[];
+        };
+        /** @description Ajuste de stock. quantity ausente es 400, no un vaciado a 0. */
+        WarehouseUpdateQuantityRequest: {
+            /** Format: double */
+            quantity: number;
+            /** @default  */
+            notes: string;
         };
         WebhookEndpoint: {
             /** Format: uuid */
@@ -75363,6 +80380,22 @@ export interface components {
              * @enum {string}
              */
             status?: "SCHEDULED" | "IN_ROUTE" | "ON_SITE" | "COMPLETED" | "CANCELLED";
+            /**
+             * Visita confirmada el
+             * Format: date-time
+             */
+            confirmed_at?: string | null;
+            /** Visita confirmada por */
+            confirmed_by?: number | null;
+            /**
+             * Visita cancelada el
+             * Format: date-time
+             */
+            cancelled_at?: string | null;
+            /** Visita cancelada por */
+            cancelled_by?: number | null;
+            /** Motivo de cancelación */
+            cancel_reason?: string;
             /** Dirección */
             location_address?: string;
             /**
@@ -75510,6 +80543,22 @@ export interface components {
              * @enum {string}
              */
             status?: "SCHEDULED" | "IN_ROUTE" | "ON_SITE" | "COMPLETED" | "CANCELLED";
+            /**
+             * Visita confirmada el
+             * Format: date-time
+             */
+            confirmed_at?: string | null;
+            /** Visita confirmada por */
+            confirmed_by?: number | null;
+            /**
+             * Visita cancelada el
+             * Format: date-time
+             */
+            cancelled_at?: string | null;
+            /** Visita cancelada por */
+            cancelled_by?: number | null;
+            /** Motivo de cancelación */
+            cancel_reason?: string;
             /** Dirección */
             location_address?: string;
             /** Duración Estimada (min) */
@@ -75562,6 +80611,22 @@ export interface components {
              * @enum {string}
              */
             status?: "SCHEDULED" | "IN_ROUTE" | "ON_SITE" | "COMPLETED" | "CANCELLED";
+            /**
+             * Visita confirmada el
+             * Format: date-time
+             */
+            confirmed_at?: string | null;
+            /** Visita confirmada por */
+            confirmed_by?: number | null;
+            /**
+             * Visita cancelada el
+             * Format: date-time
+             */
+            cancelled_at?: string | null;
+            /** Visita cancelada por */
+            cancelled_by?: number | null;
+            /** Motivo de cancelación */
+            cancel_reason?: string;
             /** Dirección */
             location_address?: string;
             /** Duración Estimada (min) */
@@ -76117,8 +81182,7 @@ export interface components {
         };
         /** @description Serializer interno para anular un movimiento de caja. */
         _CancelMovementRequest: {
-            /** Format: uuid */
-            movement_id: string;
+            movement_id: number;
             reason?: string;
         };
         /** @description Serializer interno para ingresos/retiros de caja. */
@@ -76139,6 +81203,26 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    accounts_csrf_retrieve: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     accounts_user_extra_field_values_list: {
         parameters: {
             query?: {
@@ -77950,6 +83034,37 @@ export interface operations {
             };
         };
     };
+    ai_agents_agents_app_access_create: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                /** @description Un valor de entero único que identifique este Configuracion de Agente. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AgentConfigRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["AgentConfigRequest"];
+                "multipart/form-data": components["schemas"]["AgentConfigRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AgentConfig"];
+                    "*/*": components["schemas"]["AgentConfig"];
+                };
+            };
+        };
+    };
     ai_agents_agents_skill_config_retrieve: {
         parameters: {
             query?: {
@@ -78174,6 +83289,34 @@ export interface operations {
             cookie?: never;
         };
         requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AgentConfig"];
+                    "*/*": components["schemas"]["AgentConfig"];
+                };
+            };
+        };
+    };
+    ai_agents_agents_ensure_operator_create: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AgentConfigRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["AgentConfigRequest"];
+                "multipart/form-data": components["schemas"]["AgentConfigRequest"];
+            };
+        };
         responses: {
             200: {
                 headers: {
@@ -78434,6 +83577,74 @@ export interface operations {
                     "application/json": components["schemas"]["ApplicationUserConnection"];
                     "*/*": components["schemas"]["ApplicationUserConnection"];
                 };
+            };
+        };
+    };
+    ai_agents_billing_agents_subscribe_create: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                agent_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ai_agents_billing_balance_retrieve: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ai_agents_billing_runas_checkout_create: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RunaPackRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["RunaPackRequest"];
+                "multipart/form-data": components["schemas"]["RunaPackRequest"];
+            };
+        };
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
@@ -84601,6 +89812,37 @@ export interface operations {
             };
         };
     };
+    branches_resend_invitation_create: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                /** @description Un valor de entero único que identifique este Tienda. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "multipart/form-data": components["schemas"]["ResendBranchInvitationRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ResendBranchInvitationRequest"];
+                "application/json": components["schemas"]["ResendBranchInvitationRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BranchInvitationQueuedResponse"];
+                    "*/*": components["schemas"]["BranchInvitationQueuedResponse"];
+                };
+            };
+        };
+    };
     branches_role_modules_retrieve: {
         parameters: {
             query?: {
@@ -85023,6 +90265,170 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["Branch"];
                     "*/*": components["schemas"]["Branch"];
+                };
+            };
+        };
+    };
+    branches_delivery_zones_list: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+                /** @description Un número de página dentro del conjunto de resultados paginado. */
+                page?: number;
+                /** @description Número de resultados a devolver por página. */
+                page_size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedBranchDeliveryZoneList"];
+                    "*/*": components["schemas"]["PaginatedBranchDeliveryZoneList"];
+                };
+            };
+        };
+    };
+    branches_delivery_zones_create: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BranchDeliveryZoneRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["BranchDeliveryZoneRequest"];
+                "multipart/form-data": components["schemas"]["BranchDeliveryZoneRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BranchDeliveryZone"];
+                    "*/*": components["schemas"]["BranchDeliveryZone"];
+                };
+            };
+        };
+    };
+    branches_delivery_zones_retrieve: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                /** @description Un valor de entero único que identifique este Zona de despacho. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BranchDeliveryZone"];
+                    "*/*": components["schemas"]["BranchDeliveryZone"];
+                };
+            };
+        };
+    };
+    branches_delivery_zones_update: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                /** @description Un valor de entero único que identifique este Zona de despacho. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BranchDeliveryZoneRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["BranchDeliveryZoneRequest"];
+                "multipart/form-data": components["schemas"]["BranchDeliveryZoneRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BranchDeliveryZone"];
+                    "*/*": components["schemas"]["BranchDeliveryZone"];
+                };
+            };
+        };
+    };
+    branches_delivery_zones_destroy: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                /** @description Un valor de entero único que identifique este Zona de despacho. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    branches_delivery_zones_partial_update: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                /** @description Un valor de entero único que identifique este Zona de despacho. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedBranchDeliveryZoneRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedBranchDeliveryZoneRequest"];
+                "multipart/form-data": components["schemas"]["PatchedBranchDeliveryZoneRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BranchDeliveryZone"];
+                    "*/*": components["schemas"]["BranchDeliveryZone"];
                 };
             };
         };
@@ -86582,7 +91988,7 @@ export interface operations {
             path?: never;
             cookie?: never;
         };
-        requestBody: {
+        requestBody?: {
             content: {
                 "application/json": components["schemas"]["BranchPOSConfigRequest"];
                 "application/x-www-form-urlencoded": components["schemas"]["BranchPOSConfigRequest"];
@@ -86638,7 +92044,7 @@ export interface operations {
             };
             cookie?: never;
         };
-        requestBody: {
+        requestBody?: {
             content: {
                 "application/json": components["schemas"]["BranchPOSConfigRequest"];
                 "application/x-www-form-urlencoded": components["schemas"]["BranchPOSConfigRequest"];
@@ -88443,14 +93849,19 @@ export interface operations {
         parameters: {
             query?: {
                 assigned_to?: number;
+                comuna?: string;
                 format?: "binary" | "json";
                 is_active?: boolean;
+                n_arranques_max?: number;
+                n_arranques_min?: number;
                 /** @description Qué campo usar para ordenar los resultados. */
                 ordering?: string;
                 /** @description Un número de página dentro del conjunto de resultados paginado. */
                 page?: number;
                 /** @description Número de resultados a devolver por página. */
                 page_size?: number;
+                region?: string;
+                rut?: string;
                 /** @description Un término de búsqueda. */
                 search?: string;
                 source?: string;
@@ -98735,6 +104146,8 @@ export interface operations {
         parameters: {
             query?: {
                 format?: "binary" | "json";
+                /** @description Estación de caja. Si se omite, se usa la asignada al usuario (si existe). */
+                station_id?: number;
             };
             header?: never;
             path?: never;
@@ -98747,8 +104160,8 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CashRegister"];
-                    "*/*": components["schemas"]["CashRegister"];
+                    "application/json": components["schemas"]["CashRegisterCurrent"];
+                    "*/*": components["schemas"]["CashRegisterCurrent"];
                 };
             };
         };
@@ -98756,6 +104169,8 @@ export interface operations {
     finance_cash_registers_daily_summary_retrieve: {
         parameters: {
             query?: {
+                /** @description Resumen de una caja específica (usa su fecha y solo sus pagos). */
+                cash_register_id?: number;
                 format?: "binary" | "json";
             };
             header?: never;
@@ -103014,6 +108429,2409 @@ export interface operations {
             };
         };
     };
+    forja_adherence_rules_list: {
+        parameters: {
+            query?: {
+                enabled?: boolean;
+                format?: "binary" | "json";
+                /**
+                 * @description * `training` - Entrenamiento
+                 *     * `water` - Agua
+                 *     * `macros` - Macros
+                 *     * `check_in` - Check-in
+                 */
+                metric?: "check_in" | "macros" | "training" | "water";
+                /** @description Qué campo usar para ordenar los resultados. */
+                ordering?: string;
+                /** @description Un número de página dentro del conjunto de resultados paginado. */
+                page?: number;
+                /** @description Número de resultados a devolver por página. */
+                page_size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedForjaAdherenceRuleList"];
+                    "*/*": components["schemas"]["PaginatedForjaAdherenceRuleList"];
+                };
+            };
+        };
+    };
+    forja_adherence_rules_create: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ForjaAdherenceRuleRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ForjaAdherenceRuleRequest"];
+                "multipart/form-data": components["schemas"]["ForjaAdherenceRuleRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ForjaAdherenceRule"];
+                    "*/*": components["schemas"]["ForjaAdherenceRule"];
+                };
+            };
+        };
+    };
+    forja_adherence_rules_retrieve: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                /** @description Un valor de entero único que identifique este regla de adherencia Forja. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ForjaAdherenceRule"];
+                    "*/*": components["schemas"]["ForjaAdherenceRule"];
+                };
+            };
+        };
+    };
+    forja_adherence_rules_update: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                /** @description Un valor de entero único que identifique este regla de adherencia Forja. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ForjaAdherenceRuleRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ForjaAdherenceRuleRequest"];
+                "multipart/form-data": components["schemas"]["ForjaAdherenceRuleRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ForjaAdherenceRule"];
+                    "*/*": components["schemas"]["ForjaAdherenceRule"];
+                };
+            };
+        };
+    };
+    forja_adherence_rules_destroy: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                /** @description Un valor de entero único que identifique este regla de adherencia Forja. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    forja_adherence_rules_partial_update: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                /** @description Un valor de entero único que identifique este regla de adherencia Forja. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedForjaAdherenceRuleRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedForjaAdherenceRuleRequest"];
+                "multipart/form-data": components["schemas"]["PatchedForjaAdherenceRuleRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ForjaAdherenceRule"];
+                    "*/*": components["schemas"]["ForjaAdherenceRule"];
+                };
+            };
+        };
+    };
+    forja_adherence_rules_toggle_create: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                /** @description Un valor de entero único que identifique este regla de adherencia Forja. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ForjaAdherenceRuleRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ForjaAdherenceRuleRequest"];
+                "multipart/form-data": components["schemas"]["ForjaAdherenceRuleRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ForjaAdherenceRule"];
+                    "*/*": components["schemas"]["ForjaAdherenceRule"];
+                };
+            };
+        };
+    };
+    forja_adherence_weekly_retrieve: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    forja_check_ins_list: {
+        parameters: {
+            query?: {
+                checked_on?: string;
+                format?: "binary" | "json";
+                /** @description Qué campo usar para ordenar los resultados. */
+                ordering?: string;
+                /** @description Un número de página dentro del conjunto de resultados paginado. */
+                page?: number;
+                /** @description Número de resultados a devolver por página. */
+                page_size?: number;
+                student?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedForjaCheckInList"];
+                    "*/*": components["schemas"]["PaginatedForjaCheckInList"];
+                };
+            };
+        };
+    };
+    forja_check_ins_create: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ForjaCheckInRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ForjaCheckInRequest"];
+                "multipart/form-data": components["schemas"]["ForjaCheckInRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ForjaCheckIn"];
+                    "*/*": components["schemas"]["ForjaCheckIn"];
+                };
+            };
+        };
+    };
+    forja_check_ins_retrieve: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                /** @description Un valor de entero único que identifique este check-in Forja. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ForjaCheckIn"];
+                    "*/*": components["schemas"]["ForjaCheckIn"];
+                };
+            };
+        };
+    };
+    forja_check_ins_update: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                /** @description Un valor de entero único que identifique este check-in Forja. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ForjaCheckInRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ForjaCheckInRequest"];
+                "multipart/form-data": components["schemas"]["ForjaCheckInRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ForjaCheckIn"];
+                    "*/*": components["schemas"]["ForjaCheckIn"];
+                };
+            };
+        };
+    };
+    forja_check_ins_destroy: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                /** @description Un valor de entero único que identifique este check-in Forja. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    forja_check_ins_partial_update: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                /** @description Un valor de entero único que identifique este check-in Forja. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedForjaCheckInRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedForjaCheckInRequest"];
+                "multipart/form-data": components["schemas"]["PatchedForjaCheckInRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ForjaCheckIn"];
+                    "*/*": components["schemas"]["ForjaCheckIn"];
+                };
+            };
+        };
+    };
+    forja_meals_list: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+                logged_on?: string;
+                /**
+                 * @description * `breakfast` - Desayuno
+                 *     * `lunch` - Almuerzo
+                 *     * `dinner` - Cena
+                 *     * `snack` - Snack
+                 *     * `other` - Otro
+                 */
+                meal_type?: "breakfast" | "dinner" | "lunch" | "other" | "snack";
+                /** @description Qué campo usar para ordenar los resultados. */
+                ordering?: string;
+                /** @description Un número de página dentro del conjunto de resultados paginado. */
+                page?: number;
+                /** @description Número de resultados a devolver por página. */
+                page_size?: number;
+                student?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedForjaMealLogList"];
+                    "*/*": components["schemas"]["PaginatedForjaMealLogList"];
+                };
+            };
+        };
+    };
+    forja_meals_create: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ForjaMealLogRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ForjaMealLogRequest"];
+                "multipart/form-data": components["schemas"]["ForjaMealLogRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ForjaMealLog"];
+                    "*/*": components["schemas"]["ForjaMealLog"];
+                };
+            };
+        };
+    };
+    forja_meals_retrieve: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                /** @description Un valor de entero único que identifique este comida Forja. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ForjaMealLog"];
+                    "*/*": components["schemas"]["ForjaMealLog"];
+                };
+            };
+        };
+    };
+    forja_meals_update: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                /** @description Un valor de entero único que identifique este comida Forja. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ForjaMealLogRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ForjaMealLogRequest"];
+                "multipart/form-data": components["schemas"]["ForjaMealLogRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ForjaMealLog"];
+                    "*/*": components["schemas"]["ForjaMealLog"];
+                };
+            };
+        };
+    };
+    forja_meals_destroy: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                /** @description Un valor de entero único que identifique este comida Forja. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    forja_meals_partial_update: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                /** @description Un valor de entero único que identifique este comida Forja. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedForjaMealLogRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedForjaMealLogRequest"];
+                "multipart/form-data": components["schemas"]["PatchedForjaMealLogRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ForjaMealLog"];
+                    "*/*": components["schemas"]["ForjaMealLog"];
+                };
+            };
+        };
+    };
+    forja_services_list: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+                /** @description Qué campo usar para ordenar los resultados. */
+                ordering?: string;
+                /** @description Un número de página dentro del conjunto de resultados paginado. */
+                page?: number;
+                /** @description Número de resultados a devolver por página. */
+                page_size?: number;
+                /** @description Un término de búsqueda. */
+                search?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedForjaServiceList"];
+                    "*/*": components["schemas"]["PaginatedForjaServiceList"];
+                };
+            };
+        };
+    };
+    forja_services_create: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ForjaServiceRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ForjaServiceRequest"];
+                "multipart/form-data": components["schemas"]["ForjaServiceRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ForjaService"];
+                    "*/*": components["schemas"]["ForjaService"];
+                };
+            };
+        };
+    };
+    forja_services_retrieve: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                /** @description Un valor de entero único que identifique este servicio Forja. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ForjaService"];
+                    "*/*": components["schemas"]["ForjaService"];
+                };
+            };
+        };
+    };
+    forja_services_update: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                /** @description Un valor de entero único que identifique este servicio Forja. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ForjaServiceRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ForjaServiceRequest"];
+                "multipart/form-data": components["schemas"]["ForjaServiceRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ForjaService"];
+                    "*/*": components["schemas"]["ForjaService"];
+                };
+            };
+        };
+    };
+    forja_services_destroy: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                /** @description Un valor de entero único que identifique este servicio Forja. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    forja_services_partial_update: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                /** @description Un valor de entero único que identifique este servicio Forja. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedForjaServiceRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedForjaServiceRequest"];
+                "multipart/form-data": components["schemas"]["PatchedForjaServiceRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ForjaService"];
+                    "*/*": components["schemas"]["ForjaService"];
+                };
+            };
+        };
+    };
+    forja_students_list: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+                /** @description Qué campo usar para ordenar los resultados. */
+                ordering?: string;
+                /** @description Un número de página dentro del conjunto de resultados paginado. */
+                page?: number;
+                /** @description Número de resultados a devolver por página. */
+                page_size?: number;
+                /** @description Un término de búsqueda. */
+                search?: string;
+                service?: number;
+                /**
+                 * @description * `invited` - Invitado
+                 *     * `active` - Activo
+                 *     * `paused` - Pausado
+                 *     * `finished` - Finalizado
+                 *     * `cancelled` - Cancelado
+                 */
+                status?: "active" | "cancelled" | "finished" | "invited" | "paused";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedForjaStudentList"];
+                    "*/*": components["schemas"]["PaginatedForjaStudentList"];
+                };
+            };
+        };
+    };
+    forja_students_create: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ForjaStudentRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ForjaStudentRequest"];
+                "multipart/form-data": components["schemas"]["ForjaStudentRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ForjaStudent"];
+                    "*/*": components["schemas"]["ForjaStudent"];
+                };
+            };
+        };
+    };
+    forja_students_retrieve: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                /** @description Un valor de entero único que identifique este alumno Forja. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ForjaStudent"];
+                    "*/*": components["schemas"]["ForjaStudent"];
+                };
+            };
+        };
+    };
+    forja_students_update: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                /** @description Un valor de entero único que identifique este alumno Forja. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ForjaStudentRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ForjaStudentRequest"];
+                "multipart/form-data": components["schemas"]["ForjaStudentRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ForjaStudent"];
+                    "*/*": components["schemas"]["ForjaStudent"];
+                };
+            };
+        };
+    };
+    forja_students_destroy: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                /** @description Un valor de entero único que identifique este alumno Forja. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    forja_students_partial_update: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                /** @description Un valor de entero único que identifique este alumno Forja. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedForjaStudentRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedForjaStudentRequest"];
+                "multipart/form-data": components["schemas"]["PatchedForjaStudentRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ForjaStudent"];
+                    "*/*": components["schemas"]["ForjaStudent"];
+                };
+            };
+        };
+    };
+    forja_students_adherence_weekly_retrieve: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                /** @description Un valor de entero único que identifique este alumno Forja. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ForjaStudent"];
+                    "*/*": components["schemas"]["ForjaStudent"];
+                };
+            };
+        };
+    };
+    forja_students_macros_partial_update: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                /** @description Un valor de entero único que identifique este alumno Forja. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedForjaStudentRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedForjaStudentRequest"];
+                "multipart/form-data": components["schemas"]["PatchedForjaStudentRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ForjaStudent"];
+                    "*/*": components["schemas"]["ForjaStudent"];
+                };
+            };
+        };
+    };
+    forja_students_status_partial_update: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                /** @description Un valor de entero único que identifique este alumno Forja. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedForjaStudentRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedForjaStudentRequest"];
+                "multipart/form-data": components["schemas"]["PatchedForjaStudentRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ForjaStudent"];
+                    "*/*": components["schemas"]["ForjaStudent"];
+                };
+            };
+        };
+    };
+    forja_subscriptions_list: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+                /** @description Qué campo usar para ordenar los resultados. */
+                ordering?: string;
+                /** @description Un número de página dentro del conjunto de resultados paginado. */
+                page?: number;
+                /** @description Número de resultados a devolver por página. */
+                page_size?: number;
+                service?: number;
+                /**
+                 * @description * `active` - Activa
+                 *     * `past_due` - Vencida
+                 *     * `cancelled` - Cancelada
+                 *     * `trial` - Prueba
+                 */
+                status?: "active" | "cancelled" | "past_due" | "trial";
+                student?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedForjaSubscriptionList"];
+                    "*/*": components["schemas"]["PaginatedForjaSubscriptionList"];
+                };
+            };
+        };
+    };
+    forja_subscriptions_create: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ForjaSubscriptionRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ForjaSubscriptionRequest"];
+                "multipart/form-data": components["schemas"]["ForjaSubscriptionRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ForjaSubscription"];
+                    "*/*": components["schemas"]["ForjaSubscription"];
+                };
+            };
+        };
+    };
+    forja_subscriptions_retrieve: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                /** @description Un valor de entero único que identifique este suscripción Forja. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ForjaSubscription"];
+                    "*/*": components["schemas"]["ForjaSubscription"];
+                };
+            };
+        };
+    };
+    forja_subscriptions_update: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                /** @description Un valor de entero único que identifique este suscripción Forja. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ForjaSubscriptionRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ForjaSubscriptionRequest"];
+                "multipart/form-data": components["schemas"]["ForjaSubscriptionRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ForjaSubscription"];
+                    "*/*": components["schemas"]["ForjaSubscription"];
+                };
+            };
+        };
+    };
+    forja_subscriptions_destroy: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                /** @description Un valor de entero único que identifique este suscripción Forja. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    forja_subscriptions_partial_update: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                /** @description Un valor de entero único que identifique este suscripción Forja. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedForjaSubscriptionRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedForjaSubscriptionRequest"];
+                "multipart/form-data": components["schemas"]["PatchedForjaSubscriptionRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ForjaSubscription"];
+                    "*/*": components["schemas"]["ForjaSubscription"];
+                };
+            };
+        };
+    };
+    forja_threads_list: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+                /** @description Qué campo usar para ordenar los resultados. */
+                ordering?: string;
+                /** @description Un número de página dentro del conjunto de resultados paginado. */
+                page?: number;
+                /** @description Número de resultados a devolver por página. */
+                page_size?: number;
+                student?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedForjaThreadList"];
+                    "*/*": components["schemas"]["PaginatedForjaThreadList"];
+                };
+            };
+        };
+    };
+    forja_threads_create: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ForjaThreadRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ForjaThreadRequest"];
+                "multipart/form-data": components["schemas"]["ForjaThreadRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ForjaThread"];
+                    "*/*": components["schemas"]["ForjaThread"];
+                };
+            };
+        };
+    };
+    forja_threads_retrieve: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                /** @description Un valor de entero único que identifique este hilo Forja. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ForjaThread"];
+                    "*/*": components["schemas"]["ForjaThread"];
+                };
+            };
+        };
+    };
+    forja_threads_update: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                /** @description Un valor de entero único que identifique este hilo Forja. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ForjaThreadRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ForjaThreadRequest"];
+                "multipart/form-data": components["schemas"]["ForjaThreadRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ForjaThread"];
+                    "*/*": components["schemas"]["ForjaThread"];
+                };
+            };
+        };
+    };
+    forja_threads_destroy: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                /** @description Un valor de entero único que identifique este hilo Forja. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    forja_threads_partial_update: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                /** @description Un valor de entero único que identifique este hilo Forja. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedForjaThreadRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedForjaThreadRequest"];
+                "multipart/form-data": components["schemas"]["PatchedForjaThreadRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ForjaThread"];
+                    "*/*": components["schemas"]["ForjaThread"];
+                };
+            };
+        };
+    };
+    forja_threads_events_retrieve: {
+        parameters: {
+            query?: {
+                after_id?: number;
+                format?: "binary" | "json";
+                stream_token?: string;
+            };
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    forja_threads_messages_retrieve: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                /** @description Un valor de entero único que identifique este hilo Forja. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ForjaThread"];
+                    "*/*": components["schemas"]["ForjaThread"];
+                };
+            };
+        };
+    };
+    forja_threads_messages_create: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                /** @description Un valor de entero único que identifique este hilo Forja. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ForjaThreadRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ForjaThreadRequest"];
+                "multipart/form-data": components["schemas"]["ForjaThreadRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ForjaThread"];
+                    "*/*": components["schemas"]["ForjaThread"];
+                };
+            };
+        };
+    };
+    forja_threads_stream_token_create: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                /** @description Un valor de entero único que identifique este hilo Forja. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ForjaThreadRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ForjaThreadRequest"];
+                "multipart/form-data": components["schemas"]["ForjaThreadRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ForjaThread"];
+                    "*/*": components["schemas"]["ForjaThread"];
+                };
+            };
+        };
+    };
+    forja_training_plan_list: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+                is_current?: boolean;
+                /** @description Qué campo usar para ordenar los resultados. */
+                ordering?: string;
+                /** @description Un número de página dentro del conjunto de resultados paginado. */
+                page?: number;
+                /** @description Número de resultados a devolver por página. */
+                page_size?: number;
+                student?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedForjaTrainingPlanList"];
+                    "*/*": components["schemas"]["PaginatedForjaTrainingPlanList"];
+                };
+            };
+        };
+    };
+    forja_training_plan_create: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ForjaTrainingPlanRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ForjaTrainingPlanRequest"];
+                "multipart/form-data": components["schemas"]["ForjaTrainingPlanRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ForjaTrainingPlan"];
+                    "*/*": components["schemas"]["ForjaTrainingPlan"];
+                };
+            };
+        };
+    };
+    forja_training_plan_retrieve: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                /** @description Un valor de entero único que identifique este plan de entrenamiento Forja. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ForjaTrainingPlan"];
+                    "*/*": components["schemas"]["ForjaTrainingPlan"];
+                };
+            };
+        };
+    };
+    forja_training_plan_update: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                /** @description Un valor de entero único que identifique este plan de entrenamiento Forja. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ForjaTrainingPlanRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ForjaTrainingPlanRequest"];
+                "multipart/form-data": components["schemas"]["ForjaTrainingPlanRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ForjaTrainingPlan"];
+                    "*/*": components["schemas"]["ForjaTrainingPlan"];
+                };
+            };
+        };
+    };
+    forja_training_plan_destroy: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                /** @description Un valor de entero único que identifique este plan de entrenamiento Forja. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    forja_training_plan_partial_update: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                /** @description Un valor de entero único que identifique este plan de entrenamiento Forja. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedForjaTrainingPlanRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedForjaTrainingPlanRequest"];
+                "multipart/form-data": components["schemas"]["PatchedForjaTrainingPlanRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ForjaTrainingPlan"];
+                    "*/*": components["schemas"]["ForjaTrainingPlan"];
+                };
+            };
+        };
+    };
+    forja_water_list: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+                logged_on?: string;
+                /** @description Qué campo usar para ordenar los resultados. */
+                ordering?: string;
+                /** @description Un número de página dentro del conjunto de resultados paginado. */
+                page?: number;
+                /** @description Número de resultados a devolver por página. */
+                page_size?: number;
+                student?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedForjaWaterLogList"];
+                    "*/*": components["schemas"]["PaginatedForjaWaterLogList"];
+                };
+            };
+        };
+    };
+    forja_water_create: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ForjaWaterLogRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ForjaWaterLogRequest"];
+                "multipart/form-data": components["schemas"]["ForjaWaterLogRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ForjaWaterLog"];
+                    "*/*": components["schemas"]["ForjaWaterLog"];
+                };
+            };
+        };
+    };
+    forja_water_retrieve: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                /** @description Un valor de entero único que identifique este agua Forja. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ForjaWaterLog"];
+                    "*/*": components["schemas"]["ForjaWaterLog"];
+                };
+            };
+        };
+    };
+    forja_water_update: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                /** @description Un valor de entero único que identifique este agua Forja. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ForjaWaterLogRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ForjaWaterLogRequest"];
+                "multipart/form-data": components["schemas"]["ForjaWaterLogRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ForjaWaterLog"];
+                    "*/*": components["schemas"]["ForjaWaterLog"];
+                };
+            };
+        };
+    };
+    forja_water_destroy: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                /** @description Un valor de entero único que identifique este agua Forja. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    forja_water_partial_update: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                /** @description Un valor de entero único que identifique este agua Forja. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedForjaWaterLogRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedForjaWaterLogRequest"];
+                "multipart/form-data": components["schemas"]["PatchedForjaWaterLogRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ForjaWaterLog"];
+                    "*/*": components["schemas"]["ForjaWaterLog"];
+                };
+            };
+        };
+    };
+    forja_workout_logs_list: {
+        parameters: {
+            query?: {
+                completed?: boolean;
+                format?: "binary" | "json";
+                /** @description Qué campo usar para ordenar los resultados. */
+                ordering?: string;
+                /** @description Un número de página dentro del conjunto de resultados paginado. */
+                page?: number;
+                /** @description Número de resultados a devolver por página. */
+                page_size?: number;
+                performed_on?: string;
+                student?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedForjaWorkoutLogList"];
+                    "*/*": components["schemas"]["PaginatedForjaWorkoutLogList"];
+                };
+            };
+        };
+    };
+    forja_workout_logs_create: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ForjaWorkoutLogRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ForjaWorkoutLogRequest"];
+                "multipart/form-data": components["schemas"]["ForjaWorkoutLogRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ForjaWorkoutLog"];
+                    "*/*": components["schemas"]["ForjaWorkoutLog"];
+                };
+            };
+        };
+    };
+    forja_workout_logs_retrieve: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                /** @description Un valor de entero único que identifique este log de entrenamiento Forja. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ForjaWorkoutLog"];
+                    "*/*": components["schemas"]["ForjaWorkoutLog"];
+                };
+            };
+        };
+    };
+    forja_workout_logs_update: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                /** @description Un valor de entero único que identifique este log de entrenamiento Forja. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ForjaWorkoutLogRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ForjaWorkoutLogRequest"];
+                "multipart/form-data": components["schemas"]["ForjaWorkoutLogRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ForjaWorkoutLog"];
+                    "*/*": components["schemas"]["ForjaWorkoutLog"];
+                };
+            };
+        };
+    };
+    forja_workout_logs_destroy: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                /** @description Un valor de entero único que identifique este log de entrenamiento Forja. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    forja_workout_logs_partial_update: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                /** @description Un valor de entero único que identifique este log de entrenamiento Forja. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedForjaWorkoutLogRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedForjaWorkoutLogRequest"];
+                "multipart/form-data": components["schemas"]["PatchedForjaWorkoutLogRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ForjaWorkoutLog"];
+                    "*/*": components["schemas"]["ForjaWorkoutLog"];
+                };
+            };
+        };
+    };
+    ik_batch_stats_create: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ik_batch_telemetry_create: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ik_compliance_retrieve: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ik_compliance_flow_history_retrieve: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                point_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ik_compliance_near_limit_retrieve: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                point_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ik_control_center_system_events_retrieve: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ik_control_center_system_events_retrieve_2: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                point_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ik_dashboard_stats_retrieve: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ik_login_create: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ik_my_points_retrieve: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ik_point_calendar_retrieve: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                point_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ik_point_config_retrieve: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                point_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ik_point_config_partial_update: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                point_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ik_point_gaps_retrieve: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                point_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ik_point_records_retrieve: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                point_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ik_point_summary_retrieve: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                point_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ik_point_variables_retrieve: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                point_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ik_points_config_retrieve: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                point_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ik_points_config_partial_update: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                point_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ik_points_summary_retrieve: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ik_system_events_summary_retrieve: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     inventory_beneficiary_discounts_list: {
         parameters: {
             query?: {
@@ -107203,6 +115021,32 @@ export interface operations {
             };
         };
     };
+    inventory_products_download_nutrition_label_pdf_retrieve: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+                page_size?: string;
+            };
+            header?: never;
+            path: {
+                /** @description Un valor de entero único que identifique este Producto. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Product"];
+                    "*/*": components["schemas"]["Product"];
+                };
+            };
+        };
+    };
     inventory_products_equipment_assignments_retrieve: {
         parameters: {
             query?: {
@@ -108117,6 +115961,7 @@ export interface operations {
                 page?: number;
                 /** @description Número de resultados a devolver por página. */
                 page_size?: number;
+                product?: number;
                 /** @description Un término de búsqueda. */
                 search?: string;
                 warehouse?: number;
@@ -108300,9 +116145,40 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["WarehouseProductRequest"];
-                "application/x-www-form-urlencoded": components["schemas"]["WarehouseProductRequest"];
-                "multipart/form-data": components["schemas"]["WarehouseProductRequest"];
+                "application/json": components["schemas"]["WarehouseUpdateQuantityRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["WarehouseUpdateQuantityRequest"];
+                "multipart/form-data": components["schemas"]["WarehouseUpdateQuantityRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WarehouseProduct"];
+                    "*/*": components["schemas"]["WarehouseProduct"];
+                };
+            };
+        };
+    };
+    inventory_warehouse_products_update_quantity_partial_update: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                /** @description Un valor de entero único que identifique este Producto en Bodega. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedWarehouseUpdateQuantityRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedWarehouseUpdateQuantityRequest"];
+                "multipart/form-data": components["schemas"]["PatchedWarehouseUpdateQuantityRequest"];
             };
         };
         responses: {
@@ -108516,16 +116392,40 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["Warehouse"];
-                    "*/*": components["schemas"]["Warehouse"];
+                    "application/json": components["schemas"]["WarehouseMetrics"];
+                    "*/*": components["schemas"]["WarehouseMetrics"];
                 };
             };
         };
     };
-    inventory_warehouses_products_retrieve: {
+    inventory_warehouses_products_list: {
         parameters: {
             query?: {
+                branch?: number;
+                expand?: string;
                 format?: "binary" | "json";
+                is_default?: boolean;
+                location?: string;
+                needs_reorder?: boolean;
+                ordering?: string;
+                /** @description Un número de página dentro del conjunto de resultados paginado. */
+                page?: number;
+                /** @description Número de resultados a devolver por página. */
+                page_size?: number;
+                /** @description sale filtra is_for_sale; otro valor filtra el enum. */
+                product_type?: string;
+                /** @description Un término de búsqueda. */
+                search?: string;
+                /**
+                 * @description Tipo de bodega según el tipo de productos que almacena
+                 *
+                 *     * `GENERAL` - Bodega General
+                 *     * `TOOLS` - Bodega de Herramientas
+                 *     * `RAW_MATERIAL` - Materias Primas
+                 *     * `WASTE` - Gestión de Residuos
+                 *     * `CUSTOM` - Personalizada
+                 */
+                warehouse_type?: "CUSTOM" | "GENERAL" | "RAW_MATERIAL" | "TOOLS" | "WASTE";
             };
             header?: never;
             path: {
@@ -108541,8 +116441,8 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["Warehouse"];
-                    "*/*": components["schemas"]["Warehouse"];
+                    "application/json": components["schemas"]["PaginatedWarehouseProductList"];
+                    "*/*": components["schemas"]["PaginatedWarehouseProductList"];
                 };
             };
         };
@@ -108563,8 +116463,8 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["Warehouse"];
-                    "*/*": components["schemas"]["Warehouse"];
+                    "application/json": components["schemas"]["BranchWarehouseSummary"];
+                    "*/*": components["schemas"]["BranchWarehouseSummary"];
                 };
             };
         };
@@ -108624,9 +116524,9 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["WarehouseRequest"];
-                "application/x-www-form-urlencoded": components["schemas"]["WarehouseRequest"];
-                "multipart/form-data": components["schemas"]["WarehouseRequest"];
+                "application/json": components["schemas"]["WarehouseTransferRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["WarehouseTransferRequest"];
+                "multipart/form-data": components["schemas"]["WarehouseTransferRequest"];
             };
         };
         responses: {
@@ -108635,16 +116535,36 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["Warehouse"];
-                    "*/*": components["schemas"]["Warehouse"];
+                    "application/json": components["schemas"]["WarehouseTransferResponse"];
+                    "*/*": components["schemas"]["WarehouseTransferResponse"];
                 };
             };
         };
     };
-    inventory_warehouses_types_retrieve: {
+    inventory_warehouses_types_list: {
         parameters: {
             query?: {
+                branch?: number;
                 format?: "binary" | "json";
+                is_default?: boolean;
+                /** @description Qué campo usar para ordenar los resultados. */
+                ordering?: string;
+                /** @description Un número de página dentro del conjunto de resultados paginado. */
+                page?: number;
+                /** @description Número de resultados a devolver por página. */
+                page_size?: number;
+                /** @description Un término de búsqueda. */
+                search?: string;
+                /**
+                 * @description Tipo de bodega según el tipo de productos que almacena
+                 *
+                 *     * `GENERAL` - Bodega General
+                 *     * `TOOLS` - Bodega de Herramientas
+                 *     * `RAW_MATERIAL` - Materias Primas
+                 *     * `WASTE` - Gestión de Residuos
+                 *     * `CUSTOM` - Personalizada
+                 */
+                warehouse_type?: "CUSTOM" | "GENERAL" | "RAW_MATERIAL" | "TOOLS" | "WASTE";
             };
             header?: never;
             path?: never;
@@ -108657,8 +116577,8 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["Warehouse"];
-                    "*/*": components["schemas"]["Warehouse"];
+                    "application/json": components["schemas"]["PaginatedLabelValueList"];
+                    "*/*": components["schemas"]["PaginatedLabelValueList"];
                 };
             };
         };
@@ -109271,6 +117191,32 @@ export interface operations {
             };
         };
     };
+    iot_telemetry_alert_triggers_summary_retrieve: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                    "*/*": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+        };
+    };
     iot_telemetry_compliance_configs_list: {
         parameters: {
             query?: {
@@ -109434,6 +117380,35 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["ComplianceConfig"];
                     "*/*": components["schemas"]["ComplianceConfig"];
+                };
+            };
+        };
+    };
+    iot_telemetry_compliance_configs_status_retrieve: {
+        parameters: {
+            query?: {
+                /** @description Si true (default), solo configs con send_dga activo */
+                active_only?: boolean;
+                format?: "binary" | "json";
+                project_id?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                    "*/*": {
+                        [key: string]: unknown;
+                    };
                 };
             };
         };
@@ -109785,6 +117760,206 @@ export interface operations {
             };
         };
     };
+    iot_telemetry_devices_calendar_retrieve: {
+        parameters: {
+            query?: {
+                /** @description Ventana en días (1-31, default 7) */
+                days?: number;
+                /** @description Fecha fin YYYY-MM-DD (default hoy) */
+                end_date?: string;
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                /** @description Un valor de entero único que identifique este Dispositivo IoT. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                    "*/*": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+        };
+    };
+    iot_telemetry_devices_documents_retrieve: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                /** @description Un valor de entero único que identifique este Dispositivo IoT. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TelemetryDevice"];
+                    "*/*": components["schemas"]["TelemetryDevice"];
+                };
+            };
+        };
+    };
+    iot_telemetry_devices_documents_create: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                /** @description Un valor de entero único que identifique este Dispositivo IoT. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TelemetryDeviceRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["TelemetryDeviceRequest"];
+                "multipart/form-data": components["schemas"]["TelemetryDeviceRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TelemetryDevice"];
+                    "*/*": components["schemas"]["TelemetryDevice"];
+                };
+            };
+        };
+    };
+    iot_telemetry_devices_documents_destroy: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                document_id: string;
+                /** @description Un valor de entero único que identifique este Dispositivo IoT. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    iot_telemetry_devices_logger_sheet_create: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                /** @description Un valor de entero único que identifique este Dispositivo IoT. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TelemetryDeviceRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["TelemetryDeviceRequest"];
+                "multipart/form-data": components["schemas"]["TelemetryDeviceRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TelemetryDevice"];
+                    "*/*": components["schemas"]["TelemetryDevice"];
+                };
+            };
+        };
+    };
+    iot_telemetry_devices_operation_sheet_create: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                /** @description Un valor de entero único que identifique este Dispositivo IoT. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TelemetryDeviceRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["TelemetryDeviceRequest"];
+                "multipart/form-data": components["schemas"]["TelemetryDeviceRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TelemetryDevice"];
+                    "*/*": components["schemas"]["TelemetryDevice"];
+                };
+            };
+        };
+    };
+    iot_telemetry_devices_operations_retrieve: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                /** @description Un valor de entero único que identifique este Dispositivo IoT. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TelemetryDevice"];
+                    "*/*": components["schemas"]["TelemetryDevice"];
+                };
+            };
+        };
+    };
     iot_telemetry_devices_status_retrieve: {
         parameters: {
             query?: {
@@ -109863,6 +118038,34 @@ export interface operations {
             };
         };
     };
+    iot_telemetry_devices_overview_retrieve: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+                /** @description Filtrar por proyecto */
+                project_id?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                    "*/*": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+        };
+    };
     iot_telemetry_events_list: {
         parameters: {
             query?: {
@@ -109879,8 +118082,9 @@ export interface operations {
                  *     * `API_ERROR` - Error de API externa
                  *     * `CONFIG_CHANGE` - Cambio de configuracion
                  *     * `FIRMWARE_UPDATE` - Actualizacion de firmware
+                 *     * `ALERT` - Alerta de regla IoT
                  */
-                event_type?: "API_ERROR" | "CONFIG_CHANGE" | "COUNTER_RESET" | "DISCONNECTION" | "FIRMWARE_UPDATE" | "MASSIVE_JUMP_BLOCKED" | "MEASUREMENT_ERROR" | "RECONNECTION" | "TOKEN_REFRESH";
+                event_type?: "ALERT" | "API_ERROR" | "CONFIG_CHANGE" | "COUNTER_RESET" | "DISCONNECTION" | "FIRMWARE_UPDATE" | "MASSIVE_JUMP_BLOCKED" | "MEASUREMENT_ERROR" | "RECONNECTION" | "TOKEN_REFRESH";
                 /** @description Múltiples valores separados por comas. */
                 event_type__in?: string[];
                 format?: "binary" | "json";
@@ -110052,6 +118256,205 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["TelemetryEvent"];
                     "*/*": components["schemas"]["TelemetryEvent"];
+                };
+            };
+        };
+    };
+    iot_telemetry_events_summary_retrieve: {
+        parameters: {
+            query?: {
+                /** @description Ventana en días (1-90, default 7) */
+                days?: number;
+                device?: string;
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                    "*/*": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+        };
+    };
+    iot_telemetry_mqtt_brokers_list: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+                host?: string;
+                is_active?: boolean;
+                /** @description Qué campo usar para ordenar los resultados. */
+                ordering?: string;
+                /** @description Un número de página dentro del conjunto de resultados paginado. */
+                page?: number;
+                /** @description Número de resultados a devolver por página. */
+                page_size?: number;
+                /** @description Un término de búsqueda. */
+                search?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedMqttBrokerConfigList"];
+                    "*/*": components["schemas"]["PaginatedMqttBrokerConfigList"];
+                };
+            };
+        };
+    };
+    iot_telemetry_mqtt_brokers_create: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MqttBrokerConfigRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["MqttBrokerConfigRequest"];
+                "multipart/form-data": components["schemas"]["MqttBrokerConfigRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MqttBrokerConfig"];
+                    "*/*": components["schemas"]["MqttBrokerConfig"];
+                };
+            };
+        };
+    };
+    iot_telemetry_mqtt_brokers_retrieve: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                /** @description Un valor de entero único que identifique este Broker MQTT. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MqttBrokerConfig"];
+                    "*/*": components["schemas"]["MqttBrokerConfig"];
+                };
+            };
+        };
+    };
+    iot_telemetry_mqtt_brokers_update: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                /** @description Un valor de entero único que identifique este Broker MQTT. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MqttBrokerConfigRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["MqttBrokerConfigRequest"];
+                "multipart/form-data": components["schemas"]["MqttBrokerConfigRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MqttBrokerConfig"];
+                    "*/*": components["schemas"]["MqttBrokerConfig"];
+                };
+            };
+        };
+    };
+    iot_telemetry_mqtt_brokers_destroy: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                /** @description Un valor de entero único que identifique este Broker MQTT. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    iot_telemetry_mqtt_brokers_partial_update: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                /** @description Un valor de entero único que identifique este Broker MQTT. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedMqttBrokerConfigRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedMqttBrokerConfigRequest"];
+                "multipart/form-data": components["schemas"]["PatchedMqttBrokerConfigRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MqttBrokerConfig"];
+                    "*/*": components["schemas"]["MqttBrokerConfig"];
                 };
             };
         };
@@ -110608,6 +119011,69 @@ export interface operations {
             };
         };
     };
+    iot_telemetry_readings_daily_retrieve: {
+        parameters: {
+            query?: {
+                device?: string;
+                end_date?: string;
+                format?: "binary" | "json";
+                project_id?: string;
+                start_date?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                    "*/*": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+        };
+    };
+    iot_telemetry_readings_latest_batch_create: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": {
+                    device_ids: number[];
+                    hours?: number;
+                };
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                    "*/*": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+        };
+    };
     iot_telemetry_readings_stats_retrieve: {
         parameters: {
             query?: {
@@ -110626,6 +119092,265 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["TelemetryReading"];
                     "*/*": components["schemas"]["TelemetryReading"];
+                };
+            };
+        };
+    };
+    iot_telemetry_reports_list: {
+        parameters: {
+            query?: {
+                /**
+                 * @description * `SERIES` - Serie
+                 *     * `LAST` - Última lectura
+                 *     * `DAY` - Cierre del día
+                 *     * `MONTH` - Cierre del mes
+                 */
+                behavior?: "DAY" | "LAST" | "MONTH" | "SERIES";
+                branch?: number;
+                format?: "binary" | "json";
+                is_active?: boolean;
+                /** @description Qué campo usar para ordenar los resultados. */
+                ordering?: string;
+                /** @description Un número de página dentro del conjunto de resultados paginado. */
+                page?: number;
+                /** @description Número de resultados a devolver por página. */
+                page_size?: number;
+                project?: number;
+                /** @description Un término de búsqueda. */
+                search?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedTelemetryReportList"];
+                    "*/*": components["schemas"]["PaginatedTelemetryReportList"];
+                };
+            };
+        };
+    };
+    iot_telemetry_reports_create: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TelemetryReportRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["TelemetryReportRequest"];
+                "multipart/form-data": components["schemas"]["TelemetryReportRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TelemetryReport"];
+                    "*/*": components["schemas"]["TelemetryReport"];
+                };
+            };
+        };
+    };
+    iot_telemetry_reports_retrieve: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                /** @description Un valor de entero único que identifique este Informe de telemetría. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TelemetryReport"];
+                    "*/*": components["schemas"]["TelemetryReport"];
+                };
+            };
+        };
+    };
+    iot_telemetry_reports_update: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                /** @description Un valor de entero único que identifique este Informe de telemetría. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TelemetryReportRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["TelemetryReportRequest"];
+                "multipart/form-data": components["schemas"]["TelemetryReportRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TelemetryReport"];
+                    "*/*": components["schemas"]["TelemetryReport"];
+                };
+            };
+        };
+    };
+    iot_telemetry_reports_destroy: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                /** @description Un valor de entero único que identifique este Informe de telemetría. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    iot_telemetry_reports_partial_update: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                /** @description Un valor de entero único que identifique este Informe de telemetría. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedTelemetryReportRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedTelemetryReportRequest"];
+                "multipart/form-data": components["schemas"]["PatchedTelemetryReportRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TelemetryReport"];
+                    "*/*": components["schemas"]["TelemetryReport"];
+                };
+            };
+        };
+    };
+    iot_telemetry_reports_data_retrieve: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                /** @description Un valor de entero único que identifique este Informe de telemetría. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TelemetryReport"];
+                    "*/*": components["schemas"]["TelemetryReport"];
+                };
+            };
+        };
+    };
+    iot_telemetry_reports_download_retrieve: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                /** @description Un valor de entero único que identifique este Informe de telemetría. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TelemetryReport"];
+                    "*/*": components["schemas"]["TelemetryReport"];
+                };
+            };
+        };
+    };
+    iot_telemetry_reports_sheet_create: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                /** @description Un valor de entero único que identifique este Informe de telemetría. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TelemetryReportRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["TelemetryReportRequest"];
+                "multipart/form-data": components["schemas"]["TelemetryReportRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TelemetryReport"];
+                    "*/*": components["schemas"]["TelemetryReport"];
                 };
             };
         };
@@ -111990,6 +120715,550 @@ export interface operations {
                     "application/json": components["schemas"]["DriverProfile"];
                     "*/*": components["schemas"]["DriverProfile"];
                 };
+            };
+        };
+    };
+    p90_panel_comments_destroy: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                comment_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    p90_panel_config_retrieve: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PanelConfig"];
+                    "*/*": components["schemas"]["PanelConfig"];
+                };
+            };
+        };
+    };
+    p90_panel_config_partial_update: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedPanelConfigPatchRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedPanelConfigPatchRequest"];
+                "multipart/form-data": components["schemas"]["PatchedPanelConfigPatchRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PanelConfig"];
+                    "*/*": components["schemas"]["PanelConfig"];
+                };
+            };
+        };
+    };
+    p90_panel_messages_broadcast_create: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    p90_panel_messages_broadcast_destroy: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                broadcast_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    p90_panel_messages_inbox_retrieve: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    p90_panel_messages_me_retrieve: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StudentMessageThread"];
+                    "*/*": components["schemas"]["StudentMessageThread"];
+                };
+            };
+        };
+    };
+    p90_panel_messages_me_create: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    p90_panel_messages_stream_retrieve: {
+        parameters: {
+            query?: {
+                after_id?: number;
+                format?: "binary" | "json";
+                stream_token?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    p90_panel_messages_stream_token_create: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    p90_panel_participants_analysis_retrieve: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                client_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    p90_panel_participants_comments_retrieve: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                client_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommentCreate"];
+                    "*/*": components["schemas"]["CommentCreate"];
+                };
+            };
+        };
+    };
+    p90_panel_participants_comments_create: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                client_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CommentCreateRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["CommentCreateRequest"];
+                "multipart/form-data": components["schemas"]["CommentCreateRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommentCreate"];
+                    "*/*": components["schemas"]["CommentCreate"];
+                };
+            };
+        };
+    };
+    p90_panel_participants_habit_plan_retrieve: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                client_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    p90_panel_participants_habit_plan_create: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                client_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    p90_panel_participants_macro_targets_retrieve: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                client_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    p90_panel_participants_macro_targets_create: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                client_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    p90_panel_participants_messages_retrieve: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                client_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StudentMessageThread"];
+                    "*/*": components["schemas"]["StudentMessageThread"];
+                };
+            };
+        };
+    };
+    p90_panel_participants_messages_create: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                client_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    p90_panel_participants_messages_destroy: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                client_id: number;
+                message_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    p90_panel_participants_week_retrieve: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                client_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    p90_panel_week_retrieve: {
+        parameters: {
+            query?: {
+                filter?: string;
+                format?: "binary" | "json";
+                week_start?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    p90_panel_weeks_retrieve: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    plan_checkout_billing_status_retrieve: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BranchSubscription"];
+                    "*/*": components["schemas"]["BranchSubscription"];
+                };
+            };
+            /** @description No response body */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
@@ -115100,6 +124369,13 @@ export interface operations {
                 };
                 content?: never;
             };
+            /** @description No response body */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
         };
     };
     public__checkout_retrieve: {
@@ -115187,6 +124463,241 @@ export interface operations {
             };
             /** @description No response body */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    public_agent_catalog_list: {
+        parameters: {
+            query?: {
+                /** @description trabajo | vida */
+                ambito?: string;
+                /** @description Filtro por categoría */
+                category?: string;
+                format?: "binary" | "json";
+                /** @description Búsqueda en nombre/tagline/desc */
+                q?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    public_agent_catalog_retrieve: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    public_agent_catalog_approve: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    public_agent_catalog_clone: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    public_agent_catalog_reject: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    public_agent_catalog_categories: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    public_agent_catalog_publish: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    public_cauce_demo_kpis_retrieve: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description No response body */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description No response body */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    public_cauce_demo_login_create: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["CauceDemoLoginRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["CauceDemoLoginRequest"];
+                "multipart/form-data": components["schemas"]["CauceDemoLoginRequest"];
+            };
+        };
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description No response body */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description No response body */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description No response body */
+            503: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -115292,6 +124803,58 @@ export interface operations {
             };
             /** @description No response body */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    public_muninn_signup_create: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MuninnSignupRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["MuninnSignupRequest"];
+                "multipart/form-data": components["schemas"]["MuninnSignupRequest"];
+            };
+        };
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    public_muninn_verify_create: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MuninnVerifyRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["MuninnVerifyRequest"];
+                "multipart/form-data": components["schemas"]["MuninnVerifyRequest"];
+            };
+        };
+        responses: {
+            /** @description No response body */
+            200: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -116215,6 +125778,8 @@ export interface operations {
         parameters: {
             query?: {
                 format?: "binary" | "json";
+                /** @description Tamaño de página PDF. Default: label (62×100 mm). */
+                page_size?: "a4" | "label" | "letter";
             };
             header?: never;
             path: {
@@ -116233,6 +125798,13 @@ export interface operations {
                     "application/json": components["schemas"]["Recipe"];
                     "*/*": components["schemas"]["Recipe"];
                 };
+            };
+            /** @description Cálculo nutricional incompleto (nutrition_incomplete) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
@@ -116283,6 +125855,40 @@ export interface operations {
                     "application/json": components["schemas"]["Recipe"];
                     "*/*": components["schemas"]["Recipe"];
                 };
+            };
+        };
+    };
+    recipes_recipes_preview_nutrition_label_retrieve: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+                /** @description Formato de preview. Default: png. */
+                media?: "png" | "svg";
+            };
+            header?: never;
+            path: {
+                /** @description Un Cadena UUID que identifique este Receta. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Recipe"];
+                    "*/*": components["schemas"]["Recipe"];
+                };
+            };
+            /** @description Cálculo nutricional incompleto (nutrition_incomplete) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
@@ -118121,6 +127727,37 @@ export interface operations {
             };
         };
     };
+    sales_kitchen_tickets_revert_create: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                /** @description Un valor de entero único que identifique este Comanda. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["KitchenTicketRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["KitchenTicketRequest"];
+                "multipart/form-data": components["schemas"]["KitchenTicketRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["KitchenTicket"];
+                    "*/*": components["schemas"]["KitchenTicket"];
+                };
+            };
+        };
+    };
     sales_kitchen_tickets_start_create: {
         parameters: {
             query?: {
@@ -119322,6 +128959,37 @@ export interface operations {
             };
         };
     };
+    sales_orders_assign_driver_create: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                /** @description Un Cadena UUID que identifique este Order. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AssignDriverRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["AssignDriverRequest"];
+                "multipart/form-data": components["schemas"]["AssignDriverRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Order"];
+                    "*/*": components["schemas"]["Order"];
+                };
+            };
+        };
+    };
     sales_orders_cancel_create: {
         parameters: {
             query?: {
@@ -119808,9 +129476,9 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["OrderRequest"];
-                "application/x-www-form-urlencoded": components["schemas"]["OrderRequest"];
-                "multipart/form-data": components["schemas"]["OrderRequest"];
+                "application/json": components["schemas"]["OrderPayRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["OrderPayRequest"];
+                "multipart/form-data": components["schemas"]["OrderPayRequest"];
             };
         };
         responses: {
@@ -125410,6 +135078,200 @@ export interface operations {
             };
         };
     };
+    shared_notice_rules_list: {
+        parameters: {
+            query?: {
+                /**
+                 * @description * `BRANCH` - Sucursal
+                 *     * `CLIENT` - Cliente del elemento
+                 *     * `ROLE` - Rol de la sucursal
+                 */
+                audience?: "BRANCH" | "CLIENT" | "ROLE";
+                event_name?: string;
+                format?: "binary" | "json";
+                is_active?: boolean;
+                /** @description Un número de página dentro del conjunto de resultados paginado. */
+                page?: number;
+                /** @description Número de resultados a devolver por página. */
+                page_size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedNoticeRuleList"];
+                    "*/*": components["schemas"]["PaginatedNoticeRuleList"];
+                };
+            };
+        };
+    };
+    shared_notice_rules_create: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NoticeRuleRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["NoticeRuleRequest"];
+                "multipart/form-data": components["schemas"]["NoticeRuleRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NoticeRule"];
+                    "*/*": components["schemas"]["NoticeRule"];
+                };
+            };
+        };
+    };
+    shared_notice_rules_retrieve: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                /** @description Un valor de entero único que identifique este Aviso por evento. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NoticeRule"];
+                    "*/*": components["schemas"]["NoticeRule"];
+                };
+            };
+        };
+    };
+    shared_notice_rules_update: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                /** @description Un valor de entero único que identifique este Aviso por evento. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NoticeRuleRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["NoticeRuleRequest"];
+                "multipart/form-data": components["schemas"]["NoticeRuleRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NoticeRule"];
+                    "*/*": components["schemas"]["NoticeRule"];
+                };
+            };
+        };
+    };
+    shared_notice_rules_destroy: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                /** @description Un valor de entero único que identifique este Aviso por evento. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    shared_notice_rules_partial_update: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                /** @description Un valor de entero único que identifique este Aviso por evento. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedNoticeRuleRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedNoticeRuleRequest"];
+                "multipart/form-data": components["schemas"]["PatchedNoticeRuleRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NoticeRule"];
+                    "*/*": components["schemas"]["NoticeRule"];
+                };
+            };
+        };
+    };
+    shared_notice_rules_events_retrieve: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NoticeRule"];
+                    "*/*": components["schemas"]["NoticeRule"];
+                };
+            };
+        };
+    };
     shared_notifications_list: {
         parameters: {
             query?: {
@@ -125574,6 +135436,34 @@ export interface operations {
             };
         };
     };
+    shared_notifications_deliver_create: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GlobalNotificationRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["GlobalNotificationRequest"];
+                "multipart/form-data": components["schemas"]["GlobalNotificationRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GlobalNotification"];
+                    "*/*": components["schemas"]["GlobalNotification"];
+                };
+            };
+        };
+    };
     shared_notifications_my_notifications_retrieve: {
         parameters: {
             query?: {
@@ -125593,6 +135483,88 @@ export interface operations {
                     "application/json": components["schemas"]["GlobalNotification"];
                     "*/*": components["schemas"]["GlobalNotification"];
                 };
+            };
+        };
+    };
+    shared_push_public_key_retrieve: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    shared_push_subscriptions_retrieve: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    shared_push_subscriptions_create: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    shared_push_subscriptions_destroy: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
@@ -126934,6 +136906,7 @@ export interface operations {
                 page?: number;
                 /** @description Número de resultados a devolver por página. */
                 page_size?: number;
+                product?: number;
                 product__code?: string;
                 product__code__icontains?: string;
                 product__code__istartswith?: string;
@@ -127521,6 +137494,7 @@ export interface operations {
         parameters: {
             query?: {
                 branch?: number;
+                code?: string;
                 format?: "binary" | "json";
                 is_active?: boolean;
                 /** @description Qué campo usar para ordenar los resultados. */
@@ -128761,14 +138735,17 @@ export interface operations {
                  *     * `CRITICAL` - Crítica
                  */
                 priority?: "CRITICAL" | "HIGH" | "LOW" | "MEDIUM";
+                requester?: number;
                 requester_email?: string;
                 /** @description Un término de búsqueda. */
                 search?: string;
                 /**
                  * @description * `INTERNAL` - Interno
                  *     * `WEB_FORM` - Formulario Web
+                 *     * `PORTAL` - Portal del cliente
+                 *     * `CHAT` - Chat
                  */
-                source?: "INTERNAL" | "WEB_FORM";
+                source?: "CHAT" | "INTERNAL" | "PORTAL" | "WEB_FORM";
                 /**
                  * @description * `OPEN` - Abierto
                  *     * `IN_PROGRESS` - En Progreso
@@ -129030,6 +139007,28 @@ export interface operations {
             };
         };
     };
+    support_tickets_desk_retrieve: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TicketList"];
+                    "*/*": components["schemas"]["TicketList"];
+                };
+            };
+        };
+    };
     support_tickets_my_tickets_retrieve: {
         parameters: {
             query?: {
@@ -129040,6 +139039,34 @@ export interface operations {
             cookie?: never;
         };
         requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TicketList"];
+                    "*/*": components["schemas"]["TicketList"];
+                };
+            };
+        };
+    };
+    support_tickets_portal_request_create: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TicketListRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["TicketListRequest"];
+                "multipart/form-data": components["schemas"]["TicketListRequest"];
+            };
+        };
         responses: {
             200: {
                 headers: {
@@ -129068,6 +139095,28 @@ export interface operations {
                 "multipart/form-data": components["schemas"]["TicketListRequest"];
             };
         };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TicketList"];
+                    "*/*": components["schemas"]["TicketList"];
+                };
+            };
+        };
+    };
+    support_tickets_ranking_retrieve: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
         responses: {
             200: {
                 headers: {
@@ -129120,6 +139169,43 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["TicketList"];
                     "*/*": components["schemas"]["TicketList"];
+                };
+            };
+        };
+    };
+    support_tickets_submit_create: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TicketSubmitRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["TicketSubmitRequest"];
+                "multipart/form-data": components["schemas"]["TicketSubmitRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TicketList"];
+                    "*/*": components["schemas"]["TicketList"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TicketSubmitError"];
+                    "*/*": components["schemas"]["TicketSubmitError"];
                 };
             };
         };
@@ -129891,6 +139977,68 @@ export interface operations {
         };
     };
     support_work_orders_complete_create: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                /** @description Un Cadena UUID que identifique este Orden de Trabajo. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["WorkOrderListRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["WorkOrderListRequest"];
+                "multipart/form-data": components["schemas"]["WorkOrderListRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WorkOrderList"];
+                    "*/*": components["schemas"]["WorkOrderList"];
+                };
+            };
+        };
+    };
+    support_work_orders_confirm_create: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                /** @description Un Cadena UUID que identifique este Orden de Trabajo. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["WorkOrderListRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["WorkOrderListRequest"];
+                "multipart/form-data": components["schemas"]["WorkOrderListRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WorkOrderList"];
+                    "*/*": components["schemas"]["WorkOrderList"];
+                };
+            };
+        };
+    };
+    support_work_orders_sheet_create: {
         parameters: {
             query?: {
                 format?: "binary" | "json";
@@ -131775,6 +141923,28 @@ export interface operations {
             };
         };
     };
+    water_billing_runs_void_create: {
+        parameters: {
+            query?: {
+                format?: "binary" | "json";
+            };
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     water_meters_list: {
         parameters: {
             query?: {
@@ -131784,6 +141954,8 @@ export interface operations {
                 page?: number;
                 /** @description Número de resultados a devolver por página. */
                 page_size?: number;
+                /** @description Un término de búsqueda. */
+                search?: string;
                 sector?: string;
                 /**
                  * @description * `ACTIVE` - Activo
