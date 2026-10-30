@@ -27,7 +27,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       NEXT_TELEMETRY_DISABLED: "1"
-      NEXT_PUBLIC_YGGDRA_API_BASE: "https://api.yggdra.cl/api"
+      NEXT_PUBLIC_YGGDRA_API_BASE: "https://api-staging.yggdra.cl/api"
       NEXT_PUBLIC_BASE_PATH: "/${{ github.event.repository.name }}"
       NEXT_PUBLIC_APP_BUILD: "staging-${{ github.run_number }}"
     steps:
