@@ -1,0 +1,66 @@
+# Staging de nxrd_apr en GitHub Pages.
+#
+# Cada push a `dev` publica el export estático en:
+#   https://<owner>.github.io/<repo>/
+# Producción sigue siendo exclusiva de la rama `production` (deploy.yml → FTP).
+#
+# Primera vez: Settings → Pages → Source = GitHub Actions.
+
+name: Staging (GitHub Pages)
+
+on:
+  push:
+    branches: [dev]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: staging-pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      NEXT_TELEMETRY_DISABLED: "1"
+      NEXT_PUBLIC_YGGDRA_API_BASE: "https://api.yggdra.cl/api"
+      NEXT_PUBLIC_BASE_PATH: "/${{ github.event.repository.name }}"
+      NEXT_PUBLIC_APP_BUILD: "staging-${{ github.run_number }}"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Build estático (staging)
+        run: npm run build
+
+      - name: Preparar artefactos de Pages
+        run: |
+          set -e
+          touch out/.nojekyll
+          echo "Staging publicado desde dev @ ${GITHUB_SHA}" > out/STAGING.txt
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: out
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
