@@ -2,7 +2,7 @@ name: CI nxrd_apr
 
 on:
   push:
-    branches: [dev, production]
+    branches: [dev, main, staging, production]
   pull_request:
   workflow_dispatch:
 
