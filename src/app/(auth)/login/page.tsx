@@ -195,8 +195,15 @@ export default function LoginPage() {
         : await fetchPublicLoginThemeByHost();
       // El branding del PROPIO Frig (frig.yggdra.cl, slug "frig") se trata
       // como identidad Frig: logo de cuadritos + cobre, nunca como tenant.
+      // Lo mismo con la org propia de Cauce/Smart APR (cauce.smartapr.cl):
+      // su tema por host es blanco y sin logo, y tapaba el agua (#14).
+      const ownName = (theme?.app_name ?? "").toLowerCase();
       const isFrigBranding =
-        !!theme && (theme.app_name ?? "").toLowerCase().includes("frig");
+        !!theme &&
+        (ownName.includes("frig") ||
+          ownName.includes("cauce") ||
+          ownName.includes("smartapr") ||
+          ownName.includes("smart apr"));
       if (isFrigBranding) theme = null;
       if (cancelled) return;
       if (theme) {
