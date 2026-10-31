@@ -1,53 +1,57 @@
 import type { Metadata, Viewport } from "next";
 import Script from "next/script";
-import {
-  Bricolage_Grotesque,
-  Geist,
-  Geist_Mono,
-  IBM_Plex_Mono,
-  Pixelify_Sans,
-  Space_Grotesk,
-} from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import { Providers } from "@/components/providers";
 import { ThemeApplier } from "@/components/theme-applier";
 import { ServiceWorkerRegister } from "@/components/service-worker-register";
 
-const geistSans = Geist({
+// Fuentes locales: `next/font/google` en Turbopack falla en CI cuando Google
+// responde URLs sin extensión (`next/font/google queries have exactly one entry`).
+const geistSans = localFont({
+  src: "../fonts/geist-latin-wght.woff2",
   variable: "--font-geist-sans",
-  subsets: ["latin"],
+  weight: "100 900",
 });
 
-const geistMono = Geist_Mono({
+const geistMono = localFont({
+  src: "../fonts/geist-mono-latin-wght.woff2",
   variable: "--font-geist-mono",
-  subsets: ["latin"],
+  weight: "100 900",
 });
 
-const pixelify = Pixelify_Sans({
+const pixelify = localFont({
   variable: "--font-pixelify",
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
+  src: [
+    { path: "../fonts/pixelify-sans-latin-400.woff2", weight: "400" },
+    { path: "../fonts/pixelify-sans-latin-500.woff2", weight: "500" },
+    { path: "../fonts/pixelify-sans-latin-600.woff2", weight: "600" },
+    { path: "../fonts/pixelify-sans-latin-700.woff2", weight: "700" },
+  ],
 });
 
 // Display: titulares de la landing (carácter técnico-digital).
-const spaceGrotesk = Space_Grotesk({
+const spaceGrotesk = localFont({
+  src: "../fonts/space-grotesk-latin-wght.woff2",
   variable: "--font-space",
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
+  weight: "300 700",
 });
 
 /** Headings Smart APR / auth (smartapr.cl). */
-const bricolage = Bricolage_Grotesque({
+const bricolage = localFont({
+  src: "../fonts/bricolage-grotesque-latin-wght.woff2",
   variable: "--font-bricolage",
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800"],
+  weight: "200 800",
 });
 
 /** Acentos mono Smart APR / auth. */
-const ibmPlexMono = IBM_Plex_Mono({
+const ibmPlexMono = localFont({
+  src: [
+    { path: "../fonts/ibm-plex-mono-latin-400.woff2", weight: "400" },
+    { path: "../fonts/ibm-plex-mono-latin-500.woff2", weight: "500" },
+    { path: "../fonts/ibm-plex-mono-latin-600.woff2", weight: "600" },
+  ],
   variable: "--font-ibm-plex-mono",
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
 });
 
 export const metadata: Metadata = {
