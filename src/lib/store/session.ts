@@ -397,13 +397,35 @@ export function useCanViewCashRegisterHistory(): boolean {
   return ["OWNER", "ADMIN_LOCAL", "MANAGER"].includes(currentRole ?? "");
 }
 
-/** True si el usuario puede registrar ingresos/retiros de caja (OWNER o super admin). */
+/**
+ * Quién abre, cierra y mueve la caja.
+ * ADMIN y CASHIER son los códigos equivalentes de la demo y del catálogo en inglés.
+ * METER / MEDIDOR no opera la caja.
+ */
+const CASH_MOVEMENT_ROLES = new Set([
+  "OWNER",
+  "ADMIN_LOCAL",
+  "ADMIN",
+  "CAJERO",
+  "CASHIER",
+]);
+
+export function resolveCanManageCashMovements(input: {
+  user: { is_superuser?: boolean; type_user?: string | null } | null;
+  role?: string | null;
+}): boolean {
+  const { user, role } = input;
+  if (!user) return false;
+  if (user.is_superuser || user.type_user === "ADM") return true;
+  const code = role?.trim().toUpperCase() ?? "";
+  return CASH_MOVEMENT_ROLES.has(code);
+}
+
+/** True si el usuario puede abrir/cerrar caja y registrar ingresos/retiros. */
 export function useCanManageCashMovements(): boolean {
   const user = useSessionStore((s) => s.user);
   const currentRole = useCurrentBranchRole();
-  if (!user) return false;
-  if (isUserAdminOrSuperuser(user)) return true;
-  return currentRole === "OWNER";
+  return resolveCanManageCashMovements({ user, role: currentRole });
 }
 
 /**

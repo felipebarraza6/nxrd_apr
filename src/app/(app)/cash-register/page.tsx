@@ -876,7 +876,7 @@ export default function CashRegisterPage() {
                       </>
                     ) : (
                       <p className="rounded-lg bg-muted px-3 py-2 text-xs text-muted-foreground">
-                        Solo el propietario o administrador pueden abrir/cerrar caja.
+                        Solo el propietario, el administrador o el cajero pueden abrir y cerrar la caja.
                       </p>
                     )}
                   </div>

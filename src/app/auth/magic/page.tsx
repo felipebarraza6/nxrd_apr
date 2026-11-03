@@ -15,10 +15,11 @@ import { setToken } from "@/lib/api/session-storage";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import type { LoginCompleteResponse } from "@/lib/types";
+import { readQueryToken } from "@/lib/auth-links";
 
 function readMagicToken(): string | null {
   if (typeof window === "undefined") return null;
-  return new URLSearchParams(window.location.search).get("token");
+  return readQueryToken(window.location.search, "token");
 }
 
 /**

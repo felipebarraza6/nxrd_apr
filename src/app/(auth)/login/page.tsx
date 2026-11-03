@@ -29,6 +29,7 @@ import {
 } from "@/components/auth/auth-water-shell";
 import type { LoginCompleteResponse } from "@/lib/types";
 import { normalizePathname } from "@/lib/pathname";
+import { readQueryToken } from "@/lib/auth-links";
 
 if (typeof window !== "undefined") {
   migrateFrigStorageKeys();
@@ -136,7 +137,7 @@ export default function LoginPage() {
   const [magicToken] = useState<string | null>(() =>
     typeof window === "undefined"
       ? null
-      : new URLSearchParams(window.location.search).get("token"),
+      : readQueryToken(window.location.search, "token"),
   );
 
   // Sesión ya activa: no mostrar el formulario (salvo flujo magic/set_password).
