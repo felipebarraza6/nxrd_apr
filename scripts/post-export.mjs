@@ -15,9 +15,13 @@ import { dirname, join } from "node:path";
 const outDir = join(dirname(fileURLToPath(import.meta.url)), "..", "out");
 
 const dynamicRewrites = [
+  // Más específicas que ^login/[^/]+, si no el correo de recuperación e invitación cae en 404.
+  ["^login/[^/]+/reset-password/[^/]+/?$", "/login/__/reset-password/__.html"],
+  ["^login/[^/]+/login/?$", "/login/__/login.html"],
   ["^login/[^/]+/?$", "/login/__.html"],
   ["^warehouses/\\d+/?$", "/warehouses/view.html"],
   ["^reset-password/[^/]+/?$", "/reset-password/__.html"],
+  ["^accept-invitation/[^/]+/?$", "/accept-invitation/__.html"],
   // Encuesta pública por slug (excluye /survey/view fijo).
   ["^survey/(?!view(?:/|$))[^/]+/?$", "/survey/__.html"],
 ];
