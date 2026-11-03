@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { readQueryToken } from "@/lib/auth-links";
 
 /**
  * /login/<slug> → /login?branch=<slug> (preservando ?token= del magic-link).
@@ -15,7 +16,7 @@ export function LoginSlugRedirect() {
       window.location.replace("/login");
       return;
     }
-    const token = new URLSearchParams(window.location.search).get("token");
+    const token = readQueryToken(window.location.search, "token");
     const target = `/login?branch=${encodeURIComponent(match[1])}` +
       (token ? `&token=${encodeURIComponent(token)}` : "");
     window.location.replace(target);
