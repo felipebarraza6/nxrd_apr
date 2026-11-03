@@ -12,12 +12,11 @@ import { BrandLogo } from "@/components/brand-logo";
 import { FRIG_IDENTITY_STYLE, setTenantFavicon } from "@/lib/frig-identity";
 import type { BranchThemeConfig } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { readResetOrInvitationToken } from "@/lib/auth-links";
 
 function extractTokenFromPath(): string {
   if (typeof window === "undefined") return "";
-  const segments = window.location.pathname.split("/").filter(Boolean);
-  const last = segments[segments.length - 1] ?? "";
-  return last && last !== "__" ? last : "";
+  return readResetOrInvitationToken(window.location.pathname);
 }
 
 export default function ResetPasswordPage() {

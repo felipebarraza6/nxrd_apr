@@ -10,7 +10,8 @@ import { Select } from "@/components/ui/select";
 import { AnimatedOverlay } from "@/components/ui/animated-overlay";
 import { useSessionStore, useCurrentBranch } from "@/lib/store/session";
 import { branchName } from "@/lib/types";
-import { ROLE_LABELS } from "@/lib/roles";
+import { roleCodeForApi, userFormRoles } from "@/lib/roles";
+import { friendlyUserSaveError } from "@/lib/user-save-error";
 import { createAndAssignUser, updateUser, changeAssignmentRole } from "@/lib/api/users";
 import type { Branch, UserResponse } from "@/lib/types";
 
@@ -19,16 +20,6 @@ interface UserFormProps {
   onClose: () => void;
   onSuccess: () => void;
 }
-
-// Catálogo Cauce APR: roles asignables. OWNER/MANAGER solo para edición
-// de asignaciones existentes o superadmin.
-const ALL_ROLES: { code: string; label: string }[] = [
-  { code: "OWNER", label: ROLE_LABELS.OWNER ?? "Propietario" },
-  { code: "ADMIN_LOCAL", label: ROLE_LABELS.ADMIN_LOCAL },
-  { code: "MANAGER", label: "Gerente" },
-  { code: "EMPLOYEE", label: ROLE_LABELS.EMPLOYEE },
-  { code: "MEDIDOR", label: ROLE_LABELS.MEDIDOR },
-];
 
 export function UserForm({ user, onClose, onSuccess }: UserFormProps) {
   const currentUser = useSessionStore((s) => s.user);
@@ -50,22 +41,14 @@ export function UserForm({ user, onClose, onSuccess }: UserFormProps) {
 
   const currentAssignment = user?.branch_access;
 
-  const availableRoles = useMemo(() => {
-    let roles = [...ALL_ROLES];
-    if (!isSuperAdmin) {
-      roles = roles.filter((r) => r.code !== "OWNER");
-    }
-    // Al editar, el rol actual se mantiene aunque ya no esté en el catálogo.
-    if (
-      isEditing &&
-      currentAssignment?.role_code &&
-      !roles.some((r) => r.code === currentAssignment.role_code)
-    ) {
-      const code = currentAssignment.role_code;
-      roles = [...roles, { code, label: ROLE_LABELS[code] ?? code }];
-    }
-    return roles;
-  }, [isSuperAdmin, isEditing, currentAssignment]);
+  const availableRoles = useMemo(
+    () =>
+      userFormRoles({
+        isSuperAdmin,
+        currentRole: isEditing ? currentAssignment?.role_code : null,
+      }),
+    [isSuperAdmin, isEditing, currentAssignment?.role_code],
+  );
 
   // Solo un owner multi-sucursal (o superadmin) puede crear/editar usuarios
   // multi-sucursal; el check no se muestra a otros roles.
@@ -76,7 +59,9 @@ export function UserForm({ user, onClose, onSuccess }: UserFormProps) {
         currentUser?.branch_assignments?.some((a) => a.role_code === "OWNER"),
       ));
 
-  const initialRole = currentAssignment?.role_code ?? availableRoles[0]?.code ?? "EMPLOYEE";
+  const initialRole = currentAssignment?.role_code
+    ? roleCodeForApi(currentAssignment.role_code)
+    : availableRoles[0]?.code ?? "EMPLOYEE";
 
   const [firstName, setFirstName] = useState(user?.first_name ?? "");
   const [lastName, setLastName] = useState(user?.last_name ?? "");
@@ -98,7 +83,7 @@ export function UserForm({ user, onClose, onSuccess }: UserFormProps) {
   const create = useMutation({
     mutationFn: createAndAssignUser,
     onSuccess: () => onSuccess(),
-    onError: (err: Error) => setError(err.message || "No se pudo crear el usuario."),
+    onError: (err: Error) => setError(friendlyUserSaveError(err, "crear")),
   });
 
   const update = useMutation({
@@ -119,12 +104,13 @@ export function UserForm({ user, onClose, onSuccess }: UserFormProps) {
       if (password) payload.password = password;
       await updateUser(Number(user.id), payload);
 
-      if (currentAssignment?.id && effectiveRole !== currentAssignment.role_code) {
-        await changeAssignmentRole(Number(currentAssignment.id), effectiveRole);
+      const nextRole = roleCodeForApi(effectiveRole);
+      if (currentAssignment?.id && nextRole !== roleCodeForApi(currentAssignment.role_code ?? "")) {
+        await changeAssignmentRole(Number(currentAssignment.id), nextRole);
       }
     },
     onSuccess: () => onSuccess(),
-    onError: (err: Error) => setError(err.message || "No se pudo actualizar el usuario."),
+    onError: (err: Error) => setError(friendlyUserSaveError(err, "actualizar")),
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -156,7 +142,7 @@ export function UserForm({ user, onClose, onSuccess }: UserFormProps) {
       },
       branch_assignment: {
         branch_id: branchId,
-        role: effectiveRole,
+        role: roleCodeForApi(effectiveRole),
         is_active: true,
       },
     });
