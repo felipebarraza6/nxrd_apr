@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,6 +11,7 @@ import { formatCLP } from "@/lib/utils";
 import { useToast } from "@/lib/store/toast";
 import { payOrder } from "@/lib/api/orders";
 import { fetchPaymentMethods } from "@/lib/api/payments";
+import { orderPayGate } from "@/lib/order-pay";
 
 function toNum(value: unknown): number {
   const n = typeof value === "number" ? value : Number.parseFloat(String(value ?? "0"));
@@ -35,7 +37,7 @@ export function OrderPayModal({
   const queryClient = useQueryClient();
   const remaining = Math.max(0, toNum(total) - toNum(paid));
 
-  const { data: methods = [] } = useQuery({
+  const { data: methods = [], isSuccess } = useQuery({
     queryKey: ["payment-methods"],
     queryFn: fetchPaymentMethods,
     staleTime: 60_000,
@@ -43,6 +45,7 @@ export function OrderPayModal({
   });
 
   const activeMethods = useMemo(() => methods.filter((m) => m.is_active !== false), [methods]);
+  const gate = orderPayGate(activeMethods.length, { settled: isSuccess });
 
   const [amount, setAmount] = useState("");
   const [methodId, setMethodId] = useState("");
@@ -168,6 +171,17 @@ export function OrderPayModal({
               ))
             )}
           </Select>
+          {gate.message ? (
+            <p className="text-sm text-muted-foreground">
+              {gate.message}{" "}
+              <Link
+                href={gate.methodsHref}
+                className="font-medium text-primary underline-offset-4 hover:underline"
+              >
+                {gate.methodsLinkLabel}
+              </Link>
+            </p>
+          ) : null}
         </div>
 
         {selected?.requires_reference && (
@@ -204,7 +218,8 @@ export function OrderPayModal({
         <Button
           type="button"
           onClick={() => pay.mutate()}
-          disabled={!canSubmit}
+          disabled={gate.confirmDisabled || !canSubmit}
+          title={gate.message ?? undefined}
           isLoading={pay.isPending}
         >
           Confirmar pago
